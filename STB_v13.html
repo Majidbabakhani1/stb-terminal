@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v13.0 · داده واقعی Twelve Data</title>
+<title>STB v10.0 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -337,7 +337,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v10.0</div><div class="brand-s">Twelve Data · Live</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v13.0</div><div class="brand-s">Twelve Data · Live</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -2745,16 +2745,31 @@ function checkAutoTrade(sym, sigResult, price) {
 
   // Run AI analysis if enabled
   if(AI_CONFIG.provider !== 'internal'){
-    // AI تحلیل می‌کنه
-    runAIAnalysis(sym, sigResult, price).then(aiResult => {
-      const finalSig = mergeAIWithInternal(sym, sigResult, aiResult, price);
-      if(finalSig && finalSig.sig !== 'wait'){
-        openDemoPos(sym, finalSig, price);
+    // فقط وقتی score بالاست AI صدا بزن (صرفه‌جویی در API calls)
+    const score = Math.max(sigResult.buyScore||0, sigResult.sellScore||0);
+    if(score >= 7.0){ // فقط سیگنال‌های خیلی قوی → AI
+      // بررسی cooldown برای AI (هر نماد هر ۲ دقیقه حداکثر یه بار)
+      const aiKey = 'ai_' + sym;
+      const lastAI = AI_CONFIG[aiKey]||0;
+      if(Date.now()-lastAI < 120000){
+        // cooldown فعاله → منطق داخلی
+        openDemoPos(sym, sigResult, price);
+        return;
       }
-    }).catch(()=>{
-      // fallback به منطق داخلی
+      AI_CONFIG[aiKey] = Date.now();
+      demoLog(`🧠 Gemini در حال تحلیل ${DB[sym]?.label||sym}...`);
+      runAIAnalysis(sym, sigResult, price).then(aiResult => {
+        const finalSig = mergeAIWithInternal(sym, sigResult, aiResult, price);
+        if(finalSig && finalSig.sig !== 'wait'){
+          openDemoPos(sym, finalSig, price);
+        }
+      }).catch(()=>{
+        openDemoPos(sym, sigResult, price);
+      });
+    } else {
+      // score متوسط → منطق داخلی (بدون API call)
       openDemoPos(sym, sigResult, price);
-    });
+    }
   } else {
     openDemoPos(sym, sigResult, price);
   }
@@ -3239,6 +3254,19 @@ const AI_CONFIG = {
   lastReset: new Date().toDateString(),
 };
 
+// ── Gemini Request Queue — یکی یکی، فاصله ۶ ثانیه ──
+let _geminiQueueChain = Promise.resolve();
+function _geminiQueue(){
+  const result = _geminiQueueChain.then(()=>
+    new Promise(resolve=>{
+      const wait = Math.max(0, 6000-(Date.now()-(AI_CONFIG._lastCall||0)));
+      setTimeout(resolve, wait);
+    })
+  );
+  _geminiQueueChain = result.catch(()=>{});
+  return result;
+}
+
 // Reset daily counter
 function checkAIReset(){
   const today = new Date().toDateString();
@@ -3332,7 +3360,10 @@ async function callGemini(prompt){
   const key = AI_CONFIG.geminiKey;
   if(!key) throw new Error('Gemini key ندارید — از aistudio.google.com رایگان بگیرید');
 
-  // Gemini 2.0 Flash — رایگان، سریع
+  // Gemini queue — فقط یه درخواست در هر زمان، فاصله ۶ ثانیه
+  await _geminiQueue();
+  AI_CONFIG._lastCall = Date.now();
+
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
   const body = {
     contents:[{role:'user', parts:[{text:prompt}]}],
@@ -3366,7 +3397,13 @@ async function callGemini(prompt){
   if(!r.ok || j.error) {
     const errMsg = j.error?.message || ('HTTP ' + r.status);
     if(r.status === 400) throw new Error('Gemini key نامعتبر است');
-    if(r.status === 429) throw new Error('Gemini rate limit — کمی صبر کنید');
+    if(r.status === 429){
+      // Auto retry after 10 seconds
+      demoLog('⏳ Gemini rate limit — ۱۰ ثانیه صبر...');
+      await new Promise(r => setTimeout(r, 10000));
+      AI_CONFIG._lastCall = Date.now();
+      throw new Error('Gemini rate limit — retry در ۱۰ ثانیه');
+    }
     throw new Error('Gemini: ' + errMsg.slice(0,50));
   }
 
