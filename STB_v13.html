@@ -337,7 +337,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v13.2</div><div class="brand-s">Twelve Data · Live</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v13.3</div><div class="brand-s">Twelve Data · Live</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -445,63 +445,87 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <div class="demo-drawer" id="demoDrawer">
   <div class="demo-drawer-head">
     <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:13px">💰</span>
+      <span style="font-size:14px">💰</span>
       <div>
-        <div style="font-size:11px;font-weight:900;color:#ff6d00;letter-spacing:.5px">پنل معاملاتی دمو</div>
-        <div style="font-size:8.5px;color:var(--t3)" id="demoStatus">آماده برای معاملات</div>
+        <div style="font-size:11px;font-weight:900;color:#ff6d00">پنل دمو · STB v13.3</div>
+        <div style="font-size:8.5px;color:var(--t3)" id="demoStatus">آماده</div>
       </div>
-      <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3);margin-right:4px"></div>
+      <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
     </div>
-    <button onclick="toggleDemoPanel()" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:18px;padding:0;font-family:monospace;line-height:1">×</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="font-size:8px;color:var(--b);font-family:monospace" id="aiStatusLabel">منطق داخلی</span>
+      <div id="aiStatusDot" style="width:7px;height:7px;border-radius:50%;background:var(--t3)"></div>
+      <button onclick="toggleDemoPanel()" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:20px;line-height:1;padding:0 4px">×</button>
+    </div>
   </div>
-  <div class="demo-drawer-body" style="overflow-y:auto;max-height:calc(90vh - 60px)">
-    <!-- Stats row -->
-    <div class="demo-grid" style="margin-bottom:10px">
-      <div class="demo-card"><div class="demo-card-l">موجودی دمو</div><div class="demo-card-v" id="dBalance" style="color:var(--g)">$10,000</div></div>
-      <div class="demo-card"><div class="demo-card-l">P&L خالص</div><div class="demo-card-v" id="dTotalPnl" style="color:var(--g)">$0</div></div>
-      <div class="demo-card"><div class="demo-card-l">معاملات</div><div class="demo-card-v" id="dTrades" style="color:var(--b)">0</div></div>
-      <div class="demo-card"><div class="demo-card-l">Win Rate</div><div class="demo-card-v" id="dWR" style="color:var(--a)">—</div></div>
-      <div class="demo-card"><div class="demo-card-l">Profit Factor</div><div class="demo-card-v" id="dPF" style="color:var(--p)">—</div></div>
-    </div>
-    <!-- Controls -->
-    <!-- Trade amount control -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:var(--bg2);border-radius:6px;border:1px solid var(--brd2)">
-      <span style="font-size:9px;color:var(--t3);font-weight:700;white-space:nowrap">💵 مبلغ هر معامله:</span>
-      <div style="display:flex;align-items:center;gap:4px;flex:1">
-        <span style="color:var(--a);font-family:monospace;font-size:11px">$</span>
-        <input type="number" id="demoTradeAmount" value="100" min="1" step="10"
-          oninput="DEMO.tradeAmount=Math.max(1,parseFloat(this.value)||100);demoLog('💵 مبلغ معامله: $'+DEMO.tradeAmount)"
-          style="background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:13px;font-weight:700;padding:4px 8px;width:90px;outline:none">
-        <span style="font-size:9px;color:var(--t3)">از موجودی <b id="demoTradeAmtPct" style="color:var(--b)">—</b></span>
+
+  <!-- TAB BAR -->
+  <div style="display:flex;border-bottom:1px solid var(--brd2);background:var(--bg2)">
+    <button onclick="switchDemoTab('trade')" id="dTab-trade"
+      style="flex:1;padding:8px 4px;font-size:10px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--b);border-bottom:2px solid var(--b);font-family:var(--f)">
+      💰 معامله
+    </button>
+    <button onclick="switchDemoTab('settings')" id="dTab-settings"
+      style="flex:1;padding:8px 4px;font-size:10px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--t3);border-bottom:2px solid transparent;font-family:var(--f)">
+      ⚙️ تنظیمات
+    </button>
+    <button onclick="switchDemoTab('ai')" id="dTab-ai"
+      style="flex:1;padding:8px 4px;font-size:10px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--t3);border-bottom:2px solid transparent;font-family:var(--f)">
+      🧠 AI
+    </button>
+    <button onclick="switchDemoTab('log')" id="dTab-log"
+      style="flex:1;padding:8px 4px;font-size:10px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--t3);border-bottom:2px solid transparent;font-family:var(--f)">
+      📋 لاگ
+    </button>
+  </div>
+
+  <div style="overflow-y:auto;max-height:calc(85vh - 100px)">
+
+    <!-- ══ TAB: TRADE ══ -->
+    <div id="demoTab-trade" style="padding:12px 14px">
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+        <div class="demo-card"><div class="demo-card-l">موجودی</div><div class="demo-card-v" id="dBalance" style="color:var(--g)">$1,000</div></div>
+        <div class="demo-card"><div class="demo-card-l">P&L خالص</div><div class="demo-card-v" id="dTotalPnl">$0</div></div>
+        <div class="demo-card"><div class="demo-card-l">معاملات</div><div class="demo-card-v" id="dTrades" style="color:var(--b)">0</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px">
+        <div class="demo-card"><div class="demo-card-l">Win Rate</div><div class="demo-card-v" id="dWR" style="color:var(--a)">—</div></div>
+        <div class="demo-card"><div class="demo-card-l">Profit Factor</div><div class="demo-card-v" id="dPF" style="color:var(--p)">—</div></div>
+        <div class="demo-card"><div class="demo-card-l">مبلغ/معامله</div>
+          <div style="display:flex;align-items:center;gap:3px;justify-content:center">
+            <span style="color:var(--a);font-family:monospace;font-size:10px">$</span>
+            <input type="number" id="demoTradeAmount" value="100" min="1" step="10"
+              oninput="DEMO.tradeAmount=Math.max(1,parseFloat(this.value)||100);updateDemoUI()"
+              style="background:transparent;border:none;color:var(--a);font-family:monospace;font-size:12px;font-weight:900;width:55px;outline:none;text-align:center">
+          </div>
+        </div>
+      </div>
+      <!-- Controls -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <button class="demo-btn" id="autoTradeBtn" onclick="toggleAutoTrade()" style="grid-column:1/-1;padding:9px">🤖 Auto Trade: خاموش</button>
+        <button class="demo-btn" onclick="chargeDemo(1000)" style="color:var(--g);border-color:rgba(0,230,118,.35)">+ $1,000</button>
+        <button class="demo-btn" onclick="chargeDemo(5000)" style="color:var(--g);border-color:rgba(0,230,118,.35)">+ $5,000</button>
+        <button class="demo-btn" onclick="openAnalytics()" style="color:var(--p);border-color:rgba(206,147,216,.3)">📊 آنالیتیکس</button>
+        <button class="demo-btn" onclick="resetDemo()" style="color:var(--r);border-color:rgba(255,63,95,.3)">↺ ریست</button>
+      </div>
+      <!-- Open Positions -->
+      <div id="demoOpenPos" style="display:none;margin-bottom:8px">
+        <div style="font-size:8.5px;color:var(--a);font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">📂 پوزیشن‌های باز</div>
+        <div id="demoOpenPosList" style="display:flex;flex-direction:column;gap:4px"></div>
       </div>
     </div>
-    <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap">
-      <button class="demo-btn" id="autoTradeBtn" onclick="toggleAutoTrade()" style="flex:1">🤖 Auto Trade: خاموش</button>
-      <button class="demo-btn" onclick="chargeDemo(1000)" style="color:var(--g);border-color:rgba(0,230,118,.3)">+ $1,000</button>
-      <button class="demo-btn" onclick="chargeDemo(5000)" style="color:var(--g);border-color:rgba(0,230,118,.3)">+ $5,000</button>
-      <button class="demo-btn" onclick="resetDemo()" style="color:var(--r);border-color:rgba(255,63,95,.3)">↺ ریست</button>
-      <button class="demo-btn" onclick="openAnalytics()" style="color:var(--p);border-color:rgba(206,147,216,.3)">📊 آنالیز</button>
-      <button class="demo-btn" id="bridgeBtn" onclick="toggleBridge()" style="color:var(--t3);border-color:var(--brd2)" title="اتصال به MT4/MT5">🔗 Bridge: خاموش</button>
-    </div>
-    <!-- Open positions -->
-    <div id="demoOpenPos" style="margin-bottom:8px;display:none">
-      <div style="font-size:8.5px;color:var(--a);font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">📂 پوزیشن‌های باز</div>
-      <div id="demoOpenPosList" style="display:flex;flex-direction:column;gap:3px"></div>
-    </div>
-    <!-- Live log -->
-    <!-- Strategy & Settings Panel -->
-    <div style="background:var(--bg2);border:1px solid var(--brd2);border-radius:8px;padding:10px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-size:9px;font-weight:700;color:var(--b);text-transform:uppercase;letter-spacing:.5px">⚙️ تنظیمات Auto Trade</div>
-        <button onclick="this.parentElement.nextElementSibling.style.display=this.parentElement.nextElementSibling.style.display==='none'?'block':'none'" style="font-size:8px;padding:1px 7px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">بیشتر ▾</button>
-      </div>
-      <!-- Quick settings always visible -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+
+    <!-- ══ TAB: SETTINGS ══ -->
+    <div id="demoTab-settings" style="padding:12px 14px;display:none">
+      <div style="font-size:9px;font-weight:700;color:var(--b);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">⚙️ تنظیمات Auto Trade</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
         <div>
           <div style="font-size:8px;color:var(--t3);margin-bottom:3px">استراتژی</div>
-          <select id="atStrategy" onchange="AT_SETTINGS.strategy=this.value;demoLog('📋 استراتژی: '+this.options[this.selectedIndex].text)" style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:4px 6px;outline:none">
+          <select id="atStrategy" onchange="AT_SETTINGS.strategy=this.value"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
             <option value="AUTO">🤖 هوشمند AUTO</option>
-            <option value="SMC">🧱 SMC کامل</option>
+            <option value="SMC">🧱 SMC</option>
             <option value="TREND">📈 Trend Following</option>
             <option value="BREAKOUT">⚡ Breakout</option>
             <option value="MEAN_REV">🔄 Mean Reversion</option>
@@ -510,143 +534,104 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
         </div>
         <div>
           <div style="font-size:8px;color:var(--t3);margin-bottom:3px">روش SL</div>
-          <select id="atSLType" onchange="AT_SETTINGS.slType=this.value;demoLog('🛡 SL روش: '+this.options[this.selectedIndex].text)" style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:4px 6px;outline:none">
+          <select id="atSLType" onchange="AT_SETTINGS.slType=this.value"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
             <option value="auto">🤖 خودکار</option>
-            <option value="structural">📊 ساختاری (Low/High)</option>
+            <option value="structural">📊 ساختاری</option>
             <option value="sr">📐 حمایت/مقاومت</option>
             <option value="atr">📏 ATR</option>
             <option value="orderblock">🧱 Order Block</option>
-            <option value="candle">🕯 N کندل اخیر</option>
-            <option value="gann">⚖️ Gann 38.2%</option>
+            <option value="candle">🕯 N کندل</option>
+            <option value="gann">⚖️ Gann</option>
           </select>
         </div>
       </div>
-      <!-- Advanced settings (hidden by default) -->
-      <div style="display:none">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:6px">
-          <div>
-            <div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR × SL</div>
-            <input type="number" id="atATRSL" value="1.5" step="0.1" min="0.5" max="5"
-              oninput="AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:11px;font-weight:700;padding:4px 6px;outline:none">
-          </div>
-          <div>
-            <div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR × TP</div>
-            <input type="number" id="atATRTP" value="3.0" step="0.1" min="1" max="10"
-              oninput="AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--g);font-family:monospace;font-size:11px;font-weight:700;padding:4px 6px;outline:none">
-          </div>
-          <div>
-            <div style="font-size:8px;color:var(--t3);margin-bottom:2px">N کندل SL</div>
-            <input type="number" id="atCandleN" value="3" step="1" min="1" max="10"
-              oninput="AT_SETTINGS.candlesSL=parseInt(this.value)||3"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--b);font-family:monospace;font-size:11px;font-weight:700;padding:4px 6px;outline:none">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
-          <div>
-            <div style="font-size:8px;color:var(--r);margin-bottom:2px">RSI BUY حداکثر</div>
-            <input type="number" id="atRSIBuy" value="65" step="1" min="40" max="80"
-              oninput="AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65"
-              style="width:100%;background:var(--bg3);border:1px solid rgba(255,63,95,.3);border-radius:4px;color:var(--r);font-family:monospace;font-size:11px;font-weight:700;padding:4px 6px;outline:none">
-          </div>
-          <div>
-            <div style="font-size:8px;color:var(--g);margin-bottom:2px">RSI SELL حداقل</div>
-            <input type="number" id="atRSISell" value="35" step="1" min="20" max="60"
-              oninput="AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35"
-              style="width:100%;background:var(--bg3);border:1px solid rgba(0,230,118,.3);border-radius:4px;color:var(--g);font-family:monospace;font-size:11px;font-weight:700;padding:4px 6px;outline:none">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
-          <div>
-            <div style="font-size:8px;color:var(--t3);margin-bottom:2px">حداقل R:R</div>
-            <input type="number" id="atMinRR" value="1.5" step="0.1" min="1" max="5"
-              oninput="AT_SETTINGS.minRR=parseFloat(this.value)||1.5"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:11px;font-weight:700;padding:4px 6px;outline:none">
-          </div>
-          <div style="display:flex;align-items:flex-end;padding-bottom:2px">
-            <label style="display:flex;align-items:center;gap:5px;font-size:9px;color:var(--t2);cursor:pointer">
-              <input type="checkbox" id="atRequireEMA" onchange="AT_SETTINGS.requireAllEMA=this.checked" style="cursor:pointer">
-              همسویی کامل EMA
-            </label>
-          </div>
-        </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR × SL</div>
+          <input type="number" id="atATRSL" value="1.5" step="0.1" min="0.5" max="5"
+            oninput="AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR × TP</div>
+          <input type="number" id="atATRTP" value="3.0" step="0.1" min="1" max="10"
+            oninput="AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">حداقل R:R</div>
+          <input type="number" id="atMinRR" value="1.3" step="0.1" min="1" max="5"
+            oninput="AT_SETTINGS.minRR=parseFloat(this.value)||1.3"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px 7px;outline:none"></div>
       </div>
-      <!-- Strategy description -->
-      <div id="stratDesc" style="font-size:8.5px;color:var(--t3);margin-top:6px;padding-top:5px;border-top:1px solid var(--brd)">🤖 AUTO: بهترین استراتژی بر اساس شرایط بازار انتخاب می‌شود</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <div><div style="font-size:8px;color:var(--r);margin-bottom:2px">RSI BUY حداکثر</div>
+          <input type="number" id="atRSIBuy" value="65" step="1" min="40" max="80"
+            oninput="AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65"
+            style="width:100%;background:var(--bg3);border:1px solid rgba(255,63,95,.3);border-radius:4px;color:var(--r);font-family:monospace;font-size:12px;font-weight:700;padding:5px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--g);margin-bottom:2px">RSI SELL حداقل</div>
+          <input type="number" id="atRSISell" value="35" step="1" min="20" max="60"
+            oninput="AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35"
+            style="width:100%;background:var(--bg3);border:1px solid rgba(0,230,118,.3);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px 7px;outline:none"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:7px;font-size:10px;color:var(--t2);cursor:pointer;padding:6px">
+        <input type="checkbox" id="atRequireEMA" onchange="AT_SETTINGS.requireAllEMA=this.checked">
+        همسویی کامل EMA (H4+M15+M5)
+      </label>
     </div>
 
-    <!-- AI ENGINE SETTINGS -->
-    <div style="background:var(--bg2);border:1px solid rgba(206,147,216,.25);border-radius:8px;padding:10px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div id="aiStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-          <span style="font-size:9px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:.5px">🧠 AI Engine</span>
-          <span id="aiStatusLabel" style="font-size:8.5px;color:var(--t3)">منطق داخلی</span>
-        </div>
+    <!-- ══ TAB: AI ══ -->
+    <div id="demoTab-ai" style="padding:12px 14px;display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:9px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:.5px">🧠 AI Engine</div>
         <span id="aiCallCount" style="font-size:8px;color:var(--t3)">0 امروز</span>
       </div>
-      <!-- Provider selector -->
-      <div style="margin-bottom:7px">
+      <div style="margin-bottom:8px">
         <div style="font-size:8px;color:var(--t3);margin-bottom:3px">منبع تحلیل</div>
         <select id="aiProvider" onchange="updateAIStatusUI()"
-          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 7px;outline:none">
+          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:11px;padding:6px 8px;outline:none">
           <option value="internal">⚙️ منطق داخلی (رایگان — بدون API)</option>
           <option value="gemini">✨ Gemini Flash (رایگان — Google)</option>
           <option value="groq">⚡ Groq Llama 70B (رایگان — سریع)</option>
           <option value="openrouter">🌐 OpenRouter (رایگان — مدل آزاد)</option>
-          <option value="haiku">🤖 Claude Haiku (پولی — دقیق)</option>
-          <option value="sonnet">💎 Claude Sonnet (پولی — قوی‌ترین)</option>
+          <option value="haiku">🤖 Claude Haiku</option>
+          <option value="sonnet">💎 Claude Sonnet</option>
         </select>
       </div>
-      <!-- Gemini Key -->
-      <div style="margin-bottom:5px">
-        <div style="font-size:8px;color:var(--t3);margin-bottom:3px">Google AI API Key (Gemini)</div>
-        <input type="password" id="geminiKey" placeholder="AIza..."
-          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
+          <input type="password" id="geminiKey" placeholder="AIza..."
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Groq Key <span style="color:var(--g)">(console.groq.com)</span></div>
+          <input type="password" id="groqKey" placeholder="gsk_..."
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
+          <input type="password" id="openrouterKey" placeholder="sk-or-..."
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Anthropic Key</div>
+          <input type="password" id="claudeKey" placeholder="sk-ant-..."
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none"></div>
       </div>
-      <!-- Groq Key -->
-      <div style="margin-bottom:5px">
-        <div style="font-size:8px;color:var(--t3);margin-bottom:3px">Groq API Key <span style="color:var(--g)">(رایگان — console.groq.com)</span></div>
-        <input type="password" id="groqKey" placeholder="gsk_..."
-          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
-      </div>
-      <!-- OpenRouter Key -->
-      <div style="margin-bottom:5px">
-        <div style="font-size:8px;color:var(--t3);margin-bottom:3px">OpenRouter API Key <span style="color:var(--g)">(رایگان — openrouter.ai)</span></div>
-        <input type="password" id="openrouterKey" placeholder="sk-or-..."
-          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
-      </div>
-      <!-- Claude Key -->
-      <div style="margin-bottom:7px">
-        <div style="font-size:8px;color:var(--t3);margin-bottom:3px">Anthropic API Key (Claude)</div>
-        <input type="password" id="claudeKey" placeholder="sk-ant-..."
-          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
-      </div>
-      <!-- Save button -->
-      <div style="display:flex;gap:5px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
         <button onclick="saveAIConfig()"
-          style="flex:1;padding:7px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(206,147,216,.4);background:rgba(206,147,216,.1);color:var(--p);font-family:var(--f)">
+          style="padding:8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(206,147,216,.4);background:rgba(206,147,216,.1);color:var(--p);font-family:var(--f)">
           💾 ذخیره
         </button>
         <button onclick="testAIConnection()"
-          style="flex:1;padding:7px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(61,159,255,.4);background:rgba(61,159,255,.1);color:var(--b);font-family:var(--f)">
-          🧪 تست اتصال
+          style="padding:8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(61,159,255,.4);background:rgba(61,159,255,.1);color:var(--b);font-family:var(--f)">
+          🧪 تست
         </button>
       </div>
-      <div style="font-size:7.5px;color:var(--t3);margin-top:5px;text-align:center">
-        API key در مرورگر ذخیره می‌شود · هرگز به سرور ارسال نمی‌شود
+      <div style="font-size:7.5px;color:var(--t3);margin-top:6px;text-align:center">API key فقط در مرورگر ذخیره می‌شود</div>
+    </div>
+
+    <!-- ══ TAB: LOG ══ -->
+    <div id="demoTab-log" style="padding:10px 14px;display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:8.5px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">لاگ زنده</div>
+        <button onclick="copyDemoLog()" style="font-size:8px;padding:2px 9px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">📋 کپی</button>
       </div>
+      <div class="demo-log" id="demoLog" style="max-height:400px">— آماده —</div>
     </div>
-    <!-- OLD strategy info div removed -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div style="font-size:8.5px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">لاگ زنده</div>
-      <button onclick="copyDemoLog()" style="font-size:8px;padding:1px 8px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);transition:all .15s" onmouseover="this.style.color='var(--b)'" onmouseout="this.style.color='var(--t3)'">📋 کپی</button>
-    </div>
-    <div class="demo-log" id="demoLog">— آماده برای معاملات دمو —</div>
+
   </div>
 </div>
-
 <!-- TOAST WRAP -->
 <div class="toast-wrap" id="toastWrap"></div>
 
@@ -3840,6 +3825,22 @@ window.addEventListener('load',async()=>{
 //  Strategies: SMC · Trend Following · Breakout · Mean Reversion · Gann
 //  SL Types: Structural · S/R · ATR · OrderBlock · Candle-Based
 // ═══════════════════════════════════════════════════════════════
+
+// ── AUTO TRADE SETTINGS ──
+const AT_SETTINGS = {
+  strategy:     'AUTO',
+  mode:         'scalp',
+  slType:       'auto',
+  atrMultSL:    1.5,
+  atrMultTP:    3.0,
+  candlesSL:    3,
+  minRR:        1.3,
+  minScore:     5.5,
+  requireAllEMA:false,
+  rsiFilterBuy: 65,
+  rsiFilterSell:35,
+};
+
 
 // ── STRATEGY DEFINITIONS ──
 const STRATEGIES = {
