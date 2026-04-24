@@ -343,30 +343,35 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   max-height:90vh;box-shadow:-4px -4px 30px rgba(0,0,0,.7)}
 .demo-drawer.open{display:flex}
 
-/* Demo Drawer v14.7 — Accordion */
-.demo-drawer{position:fixed;bottom:0;right:0;width:min(520px,98vw);
+
+/* ══ Demo Drawer v14.8 ══ */
+.demo-drawer{position:fixed;bottom:0;right:0;width:min(500px,98vw);
   background:var(--bg1);border-top:2px solid rgba(255,109,0,.7);
   border-left:1px solid var(--brd2);border-radius:10px 0 0 0;
   z-index:500;display:none;flex-direction:column;
-  max-height:92vh;box-shadow:-6px -4px 40px rgba(0,0,0,.85)}
+  max-height:90vh;box-shadow:-6px -4px 40px rgba(0,0,0,.85)}
 .demo-drawer.open{display:flex}
-.dd-hdr{background:var(--bg1);border-bottom:1px solid var(--brd2);
-  padding:10px 14px;display:flex;align-items:center;
-  justify-content:space-between;flex-shrink:0}
-.dd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--brd)}
+.dd-hdr{padding:10px 14px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--brd2)}
+.dd-tab{flex:1;padding:9px 4px;font-size:9.5px;font-weight:700;cursor:pointer;
+  border:none;background:transparent;color:var(--t3);white-space:nowrap;
+  border-bottom:2px solid transparent;font-family:var(--f);transition:all .15s;
+  -webkit-tap-highlight-color:transparent}
+.dd-tab:hover{color:var(--t1);background:rgba(255,255,255,.04)}
+.dd-tab-active{color:var(--b)!important;border-bottom-color:var(--b)!important;
+  background:rgba(61,159,255,.07)!important}
+.dd-panel{padding:12px 14px}
 .dd-stat{background:var(--bg2);padding:7px 6px;text-align:center}
-.dd-stat-l{font-size:7.5px;color:var(--t3);margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.dd-stat-l{font-size:7.5px;color:var(--t3);margin-bottom:2px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.3px}
 .dd-stat-v{font-size:13px;font-weight:900;font-family:monospace}
-/* Accordion */
-.acc-item{border-bottom:1px solid var(--brd2)}
-.acc-head{display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;cursor:pointer;font-size:10px;font-weight:700;
-  color:var(--t2);background:var(--bg2);transition:all .15s;user-select:none}
-.acc-head:hover{background:var(--bg3);color:var(--t1)}
-.acc-arrow{font-size:10px;color:var(--t3);transition:transform .2s;flex-shrink:0}
-.acc-arrow.open{transform:rotate(90deg)}
-.acc-body{display:none;padding:10px 14px;background:var(--bg1);animation:accOpen .15s ease}
-@keyframes accOpen{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.dd-inp-l{font-size:8px;color:var(--t3);margin-bottom:3px}
+.dd-inp{width:100%;background:var(--bg3);border:1px solid var(--brd2);
+  border-radius:4px;color:var(--t1);font-family:monospace;font-size:12px;
+  font-weight:700;padding:5px 7px;outline:none;text-align:center}
+.dd-sel{width:100%;background:var(--bg3);border:1px solid var(--brd2);
+  border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;
+  padding:5px 6px;outline:none}
 
 </style>
 </head>
@@ -376,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v14.7</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v14.8</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -483,219 +488,158 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- DEMO DRAWER -->
 <div class="demo-drawer" id="demoDrawer">
 
-  <!-- ══ HEADER ══ -->
+  <!-- HEADER -->
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
-      <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3);flex-shrink:0;transition:all .3s"></div>
-      <div>
-        <span style="font-size:12px;font-weight:900;color:#ff6d00">پنل دمو · STB v14.7</span>
-        <span id="demoStatus" style="font-size:8px;color:var(--t3);margin-right:6px">آماده</span>
-      </div>
+      <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v14.8</span>
+      <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <div id="aiStatusDot" style="width:6px;height:6px;border-radius:50%;background:var(--t3)"></div>
       <span id="aiStatusLabel" style="font-size:8px;color:var(--t3)">Internal</span>
-      <button onclick="toggleDemoPanel()" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:22px;line-height:1;padding:0 4px">×</button>
+      <button id="ddCloseBtn" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:22px;line-height:1;padding:0 4px">×</button>
     </div>
   </div>
 
-  <!-- ══ ACCORDION TABS ══ -->
+  <!-- HORIZONTAL TABS -->
+  <div style="display:flex;background:var(--bg2);border-bottom:2px solid var(--brd2);overflow-x:auto;flex-shrink:0">
+    <button data-tab="trade"    class="dd-tab dd-tab-active">💰 معامله</button>
+    <button data-tab="strategy" class="dd-tab">📋 استراتژی</button>
+    <button data-tab="ai"       class="dd-tab">🧠 AI</button>
+    <button data-tab="log"      class="dd-tab">📋 لاگ</button>
+    <button data-tab="report"   class="dd-tab">📊 گزارش</button>
+  </div>
+
+  <!-- TAB PANELS -->
   <div style="overflow-y:auto;flex:1">
 
-    <!-- ▸ TAB: تنظیمات -->
-    <div class="acc-item" id="acc-settings">
-      <div class="acc-head" onclick="toggleAcc('settings')">
-        <span>⚙️ تنظیمات</span><span class="acc-arrow">▸</span>
-      </div>
-      <div class="acc-body" id="acc-body-settings">
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
-          <div class="dd-stat"><div class="dd-stat-l">موجودی</div><div class="dd-stat-v" id="dBalance" style="color:var(--g)">$1,000</div></div>
-          <div class="dd-stat"><div class="dd-stat-l">P&L</div><div class="dd-stat-v" id="dTotalPnl">$0</div></div>
-          <div class="dd-stat">
-            <div class="dd-stat-l">مبلغ/معامله</div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:1px">
-              <span style="color:var(--a);font-size:9px">$</span>
-              <input type="number" id="demoTradeAmount" value="100" min="1" step="10"
-                oninput="DEMO.tradeAmount=Math.max(1,parseFloat(this.value)||100);updateDemoUI()"
-                style="background:transparent;border:none;color:var(--a);font-family:monospace;font-size:12px;font-weight:900;width:55px;outline:none;text-align:center">
-            </div>
-          </div>
-          <div class="dd-stat"><div class="dd-stat-l">معاملات</div><div class="dd-stat-v" id="dTrades" style="color:var(--b)">0</div></div>
-          <div class="dd-stat"><div class="dd-stat-l">Win Rate</div><div class="dd-stat-v" id="dWR" style="color:var(--a)">—</div></div>
-          <div class="dd-stat"><div class="dd-stat-l">Profit Factor</div><div class="dd-stat-v" id="dPF" style="color:var(--p)">—</div></div>
-        </div>
-        <button class="demo-btn" id="autoTradeBtn" onclick="toggleAutoTrade()"
-          style="width:100%;padding:9px;font-size:11px;font-weight:900;margin-bottom:6px">
-          🤖 Auto Trade: خاموش
-        </button>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">
-          <button class="demo-btn" onclick="chargeDemo(1000)" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$1k</button>
-          <button class="demo-btn" onclick="chargeDemo(5000)" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$5k</button>
-          <button class="demo-btn" onclick="openAnalytics()" style="font-size:9px;color:var(--p);border-color:rgba(206,147,216,.35)">📊 آنالیز</button>
-          <button class="demo-btn" onclick="resetDemo()" style="font-size:9px;color:var(--r);border-color:rgba(255,63,95,.35)">↺ ریست</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ▸ TAB: استراتژی -->
-    <div class="acc-item" id="acc-strategy">
-      <div class="acc-head" onclick="toggleAcc('strategy')">
-        <span>📋 استراتژی Auto Trade</span><span class="acc-arrow">▸</span>
-      </div>
-      <div class="acc-body" id="acc-body-strategy">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">
-          <div>
-            <div style="font-size:8px;color:var(--t3);margin-bottom:3px">استراتژی</div>
-            <select id="atStrategy" onchange="AT_SETTINGS.strategy=this.value;demoLog('📋 استراتژی: '+this.options[this.selectedIndex].text)"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
-              <option value="AUTO">🤖 هوشمند AUTO</option>
-              <option value="SMC">🧱 SMC کامل</option>
-              <option value="TREND">📈 Trend Following</option>
-              <option value="BREAKOUT">⚡ Breakout</option>
-              <option value="MEAN_REV">🔄 Mean Reversion</option>
-              <option value="GANN">⚖️ Gann + SMC</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:8px;color:var(--t3);margin-bottom:3px">روش SL</div>
-            <select id="atSLType" onchange="AT_SETTINGS.slType=this.value"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
-              <option value="auto">🤖 خودکار</option>
-              <option value="structural">📊 ساختاری</option>
-              <option value="sr">📐 حمایت/مقاومت</option>
-              <option value="atr">📏 ATR</option>
-              <option value="orderblock">🧱 Order Block</option>
-              <option value="candle">🕯 N کندل</option>
-              <option value="gann">⚖️ Gann</option>
-            </select>
+    <!-- TRADE -->
+    <div data-panel="trade" class="dd-panel">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--brd);margin-bottom:10px">
+        <div class="dd-stat"><div class="dd-stat-l">موجودی</div><div class="dd-stat-v" id="dBalance" style="color:var(--g)">$1,000</div></div>
+        <div class="dd-stat"><div class="dd-stat-l">P&L</div><div class="dd-stat-v" id="dTotalPnl">$0</div></div>
+        <div class="dd-stat">
+          <div class="dd-stat-l">مبلغ/معامله</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:1px">
+            <span style="color:var(--a);font-size:9px">$</span>
+            <input type="number" id="demoTradeAmount" value="100" min="1" step="10"
+              style="background:transparent;border:none;color:var(--a);font-family:monospace;font-size:12px;font-weight:900;width:55px;outline:none;text-align:center">
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:7px">
-          <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR×SL</div>
-            <input type="number" id="atATRSL" value="1.5" step="0.1" min="0.5" max="5" oninput="AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
-          <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR×TP</div>
-            <input type="number" id="atATRTP" value="3.0" step="0.1" min="1" max="10" oninput="AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
-          <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Min R:R</div>
-            <input type="number" id="atMinRR" value="1.3" step="0.1" min="1" max="5" oninput="AT_SETTINGS.minRR=parseFloat(this.value)||1.3"
-              style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px">
-          <div><div style="font-size:8px;color:var(--r);margin-bottom:2px">RSI BUY حداکثر</div>
-            <input type="number" id="atRSIBuy" value="65" step="1" min="40" max="80" oninput="AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65"
-              style="width:100%;background:var(--bg3);border:1px solid rgba(255,63,95,.3);border-radius:4px;color:var(--r);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
-          <div><div style="font-size:8px;color:var(--g);margin-bottom:2px">RSI SELL حداقل</div>
-            <input type="number" id="atRSISell" value="35" step="1" min="20" max="60" oninput="AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35"
-              style="width:100%;background:var(--bg3);border:1px solid rgba(0,230,118,.3);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
-        </div>
-        <label style="display:flex;align-items:center;gap:7px;font-size:9px;color:var(--t2);cursor:pointer">
-          <input type="checkbox" id="atRequireEMA" onchange="AT_SETTINGS.requireAllEMA=this.checked"> همسویی کامل EMA الزامی
-        </label>
+        <div class="dd-stat"><div class="dd-stat-l">معاملات</div><div class="dd-stat-v" id="dTrades" style="color:var(--b)">0</div></div>
+        <div class="dd-stat"><div class="dd-stat-l">Win Rate</div><div class="dd-stat-v" id="dWR" style="color:var(--a)">—</div></div>
+        <div class="dd-stat"><div class="dd-stat-l">Profit Factor</div><div class="dd-stat-v" id="dPF" style="color:var(--p)">—</div></div>
+      </div>
+      <button id="autoTradeBtn" class="demo-btn" style="width:100%;padding:10px;font-size:12px;font-weight:900;margin-bottom:8px">🤖 Auto Trade: خاموش</button>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px">
+        <button id="btn-charge1" class="demo-btn" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$1k</button>
+        <button id="btn-charge5" class="demo-btn" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$5k</button>
+        <button id="btn-analytics" class="demo-btn" style="font-size:9px;color:var(--p);border-color:rgba(206,147,216,.35)">📊 آنالیز</button>
+        <button id="btn-reset" class="demo-btn" style="font-size:9px;color:var(--r);border-color:rgba(255,63,95,.35)">↺ ریست</button>
+      </div>
+      <div style="font-size:8.5px;color:var(--a);font-weight:700;margin-bottom:6px">📂 پوزیشن‌های باز <span id="openPosCountBadge" style="color:var(--b)"></span></div>
+      <div id="demoNoPosMsg" style="font-size:9px;color:var(--t4);text-align:center;padding:8px">هیچ پوزیشن بازی ندارید</div>
+      <div id="demoOpenPosList" style="display:flex;flex-direction:column;gap:5px"></div>
+    </div>
+
+    <!-- STRATEGY -->
+    <div data-panel="strategy" class="dd-panel" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">
+        <div><div class="dd-inp-l">استراتژی</div>
+          <select id="atStrategy" class="dd-sel">
+            <option value="AUTO">🤖 هوشمند AUTO</option>
+            <option value="SMC">🧱 SMC کامل</option>
+            <option value="TREND">📈 Trend Following</option>
+            <option value="BREAKOUT">⚡ Breakout</option>
+            <option value="MEAN_REV">🔄 Mean Reversion</option>
+            <option value="GANN">⚖️ Gann + SMC</option>
+          </select></div>
+        <div><div class="dd-inp-l">روش SL</div>
+          <select id="atSLType" class="dd-sel">
+            <option value="auto">🤖 خودکار</option>
+            <option value="structural">📊 ساختاری</option>
+            <option value="sr">📐 حمایت/مقاومت</option>
+            <option value="atr">📏 ATR</option>
+            <option value="orderblock">🧱 Order Block</option>
+            <option value="candle">🕯 N کندل</option>
+            <option value="gann">⚖️ Gann</option>
+          </select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:7px">
+        <div><div class="dd-inp-l">ATR×SL</div><input type="number" id="atATRSL" value="1.5" step="0.1" min="0.5" max="5" class="dd-inp" style="color:var(--a)"></div>
+        <div><div class="dd-inp-l">ATR×TP</div><input type="number" id="atATRTP" value="3.0" step="0.1" min="1" max="10" class="dd-inp" style="color:var(--g)"></div>
+        <div><div class="dd-inp-l">Min R:R</div><input type="number" id="atMinRR" value="1.3" step="0.1" min="1" max="5" class="dd-inp" style="color:var(--a)"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px">
+        <div><div class="dd-inp-l" style="color:var(--r)">RSI BUY حداکثر</div><input type="number" id="atRSIBuy" value="65" step="1" min="40" max="80" class="dd-inp" style="color:var(--r);border-color:rgba(255,63,95,.3)"></div>
+        <div><div class="dd-inp-l" style="color:var(--g)">RSI SELL حداقل</div><input type="number" id="atRSISell" value="35" step="1" min="20" max="60" class="dd-inp" style="color:var(--g);border-color:rgba(0,230,118,.3)"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:7px;font-size:9px;color:var(--t2);cursor:pointer">
+        <input type="checkbox" id="atRequireEMA"> همسویی کامل EMA الزامی
+      </label>
+    </div>
+
+    <!-- AI -->
+    <div data-panel="ai" class="dd-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--p)">🧠 AI Engine</div>
+        <span id="aiCallCount" style="font-size:8px;color:var(--t3)">0 امروز</span>
+      </div>
+      <div style="margin-bottom:7px"><div class="dd-inp-l">منبع تحلیل</div>
+        <select id="aiProvider" class="dd-sel">
+          <option value="internal">⚙️ منطق داخلی (رایگان)</option>
+          <option value="gemini">✨ Gemini Flash (رایگان)</option>
+          <option value="groq">⚡ Groq Llama 70B (رایگان)</option>
+          <option value="openrouter">🌐 OpenRouter (رایگان)</option>
+          <option value="haiku">🤖 Claude Haiku</option>
+          <option value="sonnet">💎 Claude Sonnet</option>
+        </select></div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+        <div><div class="dd-inp-l">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
+          <input type="password" id="geminiKey" placeholder="AIza..." class="dd-inp"></div>
+        <div><div class="dd-inp-l">Groq Key <span style="color:var(--g)">(console.groq.com)</span></div>
+          <input type="password" id="groqKey" placeholder="gsk_..." class="dd-inp"></div>
+        <div><div class="dd-inp-l">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
+          <input type="password" id="openrouterKey" placeholder="sk-or-..." class="dd-inp"></div>
+        <div><div class="dd-inp-l">Anthropic Key</div>
+          <input type="password" id="claudeKey" placeholder="sk-ant-..." class="dd-inp"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+        <button id="btn-ai-save" class="demo-btn" style="color:var(--p);border-color:rgba(206,147,216,.4)">💾 ذخیره</button>
+        <button id="btn-ai-test" class="demo-btn" style="color:var(--b);border-color:rgba(61,159,255,.4)">🧪 تست اتصال</button>
+      </div>
+      <div style="font-size:7.5px;color:var(--t3);text-align:center">🔒 فقط در مرورگر ذخیره می‌شود</div>
+      <hr style="border:none;border-top:1px solid var(--brd2);margin:10px 0">
+      <div style="font-size:9px;font-weight:700;color:var(--t3);margin-bottom:6px">🔗 MT4/MT5 Bridge</div>
+      <button id="bridgeBtn" class="demo-btn" style="width:100%;margin-bottom:6px;color:var(--t3)">🔗 Bridge: خاموش</button>
+      <div style="font-size:8.5px;color:var(--t2);line-height:2">
+        <div>۱. <b>python STB_Bridge.py</b> اجرا کن</div>
+        <div>۲. <b>EA_STBReceiver.mq4</b> در MT4 نصب کن</div>
+        <div>۳. دکمه Bridge → سبز = متصل</div>
       </div>
     </div>
 
-    <!-- ▸ TAB: AI Setting -->
-    <div class="acc-item" id="acc-ai">
-      <div class="acc-head" onclick="toggleAcc('ai')">
-        <span>🧠 AI Setting</span>
-        <div style="display:flex;align-items:center;gap:5px">
-          <div id="aiStatusDot2" style="width:6px;height:6px;border-radius:50%;background:var(--t3)"></div>
-          <span id="aiStatusLabel2" style="font-size:8px;color:var(--t3)">Internal</span>
-          <span id="aiCallCount" style="font-size:7.5px;color:var(--t4)">0 call</span>
-          <span class="acc-arrow">▸</span>
-        </div>
+    <!-- LOG -->
+    <div data-panel="log" class="dd-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:8.5px;color:var(--t3);font-weight:700">📋 لاگ زنده</div>
+        <button id="btn-copy-log" class="demo-btn" style="padding:2px 10px;font-size:8px">📋 کپی</button>
       </div>
-      <div class="acc-body" id="acc-body-ai">
-        <div style="margin-bottom:7px">
-          <div style="font-size:8px;color:var(--t3);margin-bottom:3px">منبع تحلیل AI</div>
-          <select id="aiProvider" onchange="updateAIStatusUI()"
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
-            <option value="internal">⚙️ منطق داخلی (رایگان)</option>
-            <option value="gemini">✨ Gemini Flash (رایگان)</option>
-            <option value="groq">⚡ Groq Llama 70B (رایگان)</option>
-            <option value="openrouter">🌐 OpenRouter (رایگان)</option>
-            <option value="haiku">🤖 Claude Haiku</option>
-            <option value="sonnet">💎 Claude Sonnet</option>
-          </select>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
-          <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
-            <input type="password" id="geminiKey" placeholder="AIza..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
-          <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Groq Key <span style="color:var(--g)">(console.groq.com)</span></div>
-            <input type="password" id="groqKey" placeholder="gsk_..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
-          <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
-            <input type="password" id="openrouterKey" placeholder="sk-or-..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
-          <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Anthropic Key</div>
-            <input type="password" id="claudeKey" placeholder="sk-ant-..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          <button onclick="saveAIConfig()" style="padding:8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(206,147,216,.4);background:rgba(206,147,216,.1);color:var(--p);font-family:var(--f)">💾 ذخیره</button>
-          <button onclick="testAIConnection()" style="padding:8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(61,159,255,.4);background:rgba(61,159,255,.1);color:var(--b);font-family:var(--f)">🧪 تست اتصال</button>
-        </div>
-      </div>
+      <div class="demo-log" id="demoLog" style="max-height:420px">— آماده —</div>
     </div>
 
-    <!-- ▸ TAB: Bridge -->
-    <div class="acc-item" id="acc-bridge">
-      <div class="acc-head" onclick="toggleAcc('bridge')">
-        <span>🔗 MT4/MT5 Bridge</span><span class="acc-arrow">▸</span>
+    <!-- REPORT -->
+    <div data-panel="report" class="dd-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--t3)">📊 گزارش مالی</div>
+        <button id="btn-export-report" class="demo-btn" style="padding:3px 10px;font-size:9px;color:var(--b);border-color:rgba(61,159,255,.4)">⬇ خروجی JSON</button>
       </div>
-      <div class="acc-body" id="acc-body-bridge">
-        <button class="demo-btn" id="bridgeBtn" onclick="toggleBridge()" style="width:100%;margin-bottom:8px;color:var(--t3)">🔗 Bridge: خاموش</button>
-        <div style="font-size:8.5px;color:var(--t2);line-height:2">
-          <div>۱. فایل <b>STB_Bridge.py</b> رو روی کامپیوتر اجرا کن</div>
-          <div>۲. <b>EA_STBReceiver.mq4</b> رو در MT4 نصب کن</div>
-          <div>۳. دکمه Bridge رو بزن — سبز شد = متصله</div>
-        </div>
-      </div>
+      <div id="reportContent"><div style="color:var(--t3);font-size:10px;text-align:center;padding:16px">هنوز معامله‌ای ثبت نشده</div></div>
     </div>
 
-    <!-- ▸ TAB: پوزیشن‌های باز (همیشه باز) -->
-    <div class="acc-item" id="acc-positions">
-      <div class="acc-head acc-head-open" onclick="toggleAcc('positions')" style="background:rgba(255,179,0,.06);border-right:3px solid var(--a)">
-        <span>📂 پوزیشن‌های باز <span id="openPosCountBadge" style="color:var(--b);margin-right:4px"></span></span>
-        <span class="acc-arrow" id="acc-arrow-positions">▾</span>
-      </div>
-      <div class="acc-body" id="acc-body-positions" style="display:block">
-        <div id="demoNoPosMsg" style="font-size:9px;color:var(--t4);text-align:center;padding:8px">هیچ پوزیشن بازی ندارید</div>
-        <div id="demoOpenPosList" style="display:flex;flex-direction:column;gap:5px"></div>
-      </div>
-    </div>
-
-    <!-- ▸ TAB: لاگ -->
-    <div class="acc-item" id="acc-log">
-      <div class="acc-head" onclick="toggleAcc('log')">
-        <span>📋 لاگ زنده</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button onclick="event.stopPropagation();copyDemoLog()" style="font-size:8px;padding:1px 8px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">کپی</button>
-          <span class="acc-arrow">▸</span>
-        </div>
-      </div>
-      <div class="acc-body" id="acc-body-log">
-        <div class="demo-log" id="demoLog" style="max-height:300px">— آماده —</div>
-      </div>
-    </div>
-
-    <!-- ▸ TAB: گزارش مالی -->
-    <div class="acc-item" id="acc-report">
-      <div class="acc-head" onclick="toggleAcc('report')">
-        <span>📊 گزارش مالی</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button onclick="event.stopPropagation();exportReport()" style="font-size:8px;padding:1px 8px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">⬇ خروجی</button>
-          <span class="acc-arrow">▸</span>
-        </div>
-      </div>
-      <div class="acc-body" id="acc-body-report">
-        <div id="reportContent">
-          <div style="color:var(--t3);font-size:10px;text-align:center;padding:12px">هنوز معامله‌ای ثبت نشده</div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- end scroll -->
+  </div>
 </div>
-
 
 <!-- TOAST WRAP -->
 <div class="toast-wrap" id="toastWrap"></div>
@@ -2724,7 +2668,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v14.7';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v14.8';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -3022,7 +2966,6 @@ function updateDemoUI() {
 }
 
 function renderDemoOpenPos() {
-  const section = null; // positions always shown in accordion
   const listEl = document.getElementById('demoOpenPosList');
   const noMsg = document.getElementById('demoNoPosMsg');
   const badge = document.getElementById('openPosCountBadge');
@@ -3030,9 +2973,7 @@ function renderDemoOpenPos() {
   const cnt = DEMO.openPositions.length;
   if(badge) badge.textContent = cnt > 0 ? '('+cnt+')' : '';
   if(noMsg) noMsg.style.display = cnt ? 'none' : 'block';
-  if(!section) return;
-  if(!cnt){ section.style.display='none'; return; }
-  section.style.display = 'block';
+  if(!cnt && !listEl) return;
   listEl.innerHTML = DEMO.openPositions.map(pos => {
     const pd = S.prices[pos.sym];
     const price = pd?.price || pos.entry;
@@ -3907,6 +3848,108 @@ function updateAIStatusUI(){
   if(lbl2) lbl2.textContent = names[AI_CONFIG.provider]||AI_CONFIG.provider;
   if(cnt) cnt.textContent = AI_CONFIG.callsToday + ' امروز';
 }
+
+// ══════════════════════════════════════════════
+// DEMO DRAWER — All Event Listeners
+// ══════════════════════════════════════════════
+(function initDemoDrawer(){
+  // Wait for DOM
+  function setup(){
+    // Tab switching
+    document.querySelectorAll('.dd-tab').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var tab = btn.getAttribute('data-tab');
+        // Update tabs
+        document.querySelectorAll('.dd-tab').forEach(function(b){
+          b.classList.toggle('dd-tab-active', b.getAttribute('data-tab')===tab);
+        });
+        // Update panels
+        document.querySelectorAll('.dd-panel').forEach(function(p){
+          p.style.display = p.getAttribute('data-panel')===tab ? 'block' : 'none';
+        });
+        // Render report on open
+        if(tab==='report' && typeof renderReport==='function') renderReport();
+      });
+    });
+
+    // Close button
+    var closeBtn = document.getElementById('ddCloseBtn');
+    if(closeBtn) closeBtn.addEventListener('click', function(){ toggleDemoPanel(); });
+
+    // Auto trade toggle
+    var atBtn = document.getElementById('autoTradeBtn');
+    if(atBtn) atBtn.addEventListener('click', function(){ toggleAutoTrade(); });
+
+    // Charge buttons
+    var c1 = document.getElementById('btn-charge1');
+    var c5 = document.getElementById('btn-charge5');
+    if(c1) c1.addEventListener('click', function(){ chargeDemo(1000); });
+    if(c5) c5.addEventListener('click', function(){ chargeDemo(5000); });
+
+    // Analytics
+    var anlBtn = document.getElementById('btn-analytics');
+    if(anlBtn) anlBtn.addEventListener('click', function(){ openAnalytics(); });
+
+    // Reset
+    var rstBtn = document.getElementById('btn-reset');
+    if(rstBtn) rstBtn.addEventListener('click', function(){ resetDemo(); });
+
+    // Trade amount
+    var taInp = document.getElementById('demoTradeAmount');
+    if(taInp) taInp.addEventListener('input', function(){
+      DEMO.tradeAmount = Math.max(1, parseFloat(this.value)||100);
+      updateDemoUI();
+    });
+
+    // Strategy settings
+    var stEl = document.getElementById('atStrategy');
+    if(stEl) stEl.addEventListener('change', function(){ AT_SETTINGS.strategy=this.value; demoLog('📋 استراتژی: '+this.options[this.selectedIndex].text); });
+    var slEl = document.getElementById('atSLType');
+    if(slEl) slEl.addEventListener('change', function(){ AT_SETTINGS.slType=this.value; });
+    var asl = document.getElementById('atATRSL');
+    if(asl) asl.addEventListener('input', function(){ AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5; });
+    var atp = document.getElementById('atATRTP');
+    if(atp) atp.addEventListener('input', function(){ AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0; });
+    var mrr = document.getElementById('atMinRR');
+    if(mrr) mrr.addEventListener('input', function(){ AT_SETTINGS.minRR=parseFloat(this.value)||1.3; });
+    var rb = document.getElementById('atRSIBuy');
+    if(rb) rb.addEventListener('input', function(){ AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65; });
+    var rs = document.getElementById('atRSISell');
+    if(rs) rs.addEventListener('input', function(){ AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35; });
+    var re = document.getElementById('atRequireEMA');
+    if(re) re.addEventListener('change', function(){ AT_SETTINGS.requireAllEMA=this.checked; });
+
+    // AI
+    var aiProv = document.getElementById('aiProvider');
+    if(aiProv) aiProv.addEventListener('change', function(){ updateAIStatusUI(); });
+    var savBtn = document.getElementById('btn-ai-save');
+    if(savBtn) savBtn.addEventListener('click', function(){ saveAIConfig(); });
+    var tstBtn = document.getElementById('btn-ai-test');
+    if(tstBtn) tstBtn.addEventListener('click', function(){ testAIConnection(); });
+
+    // Bridge
+    var brBtn = document.getElementById('bridgeBtn');
+    if(brBtn) brBtn.addEventListener('click', function(){ toggleBridge(); });
+
+    // Log copy
+    var cpBtn = document.getElementById('btn-copy-log');
+    if(cpBtn) cpBtn.addEventListener('click', function(){ copyDemoLog(); });
+
+    // Report export
+    var expBtn = document.getElementById('btn-export-report');
+    if(expBtn) expBtn.addEventListener('click', function(){ exportReport(); });
+  }
+
+  // Run after DOM ready
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+  // Also run after load (for safety)
+  window.addEventListener('load', function(){ setTimeout(setup, 100); });
+})();
 
 window.addEventListener('load',async()=>{
   S.symbols=loadSyms();
