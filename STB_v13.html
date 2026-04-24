@@ -336,7 +336,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 .dtab:hover{color:var(--t1);background:rgba(61,159,255,.05)}
 .dtab-active{color:var(--b)!important;border-bottom-color:var(--b)!important;background:rgba(61,159,255,.07)!important}
 .dtab-panel{padding:12px 14px}
-.demo-drawer{position:fixed;bottom:0;right:0;width:min(420px,100vw);
+.demo-drawer{position:fixed;bottom:0;right:0;width:min(520px,98vw);
   background:var(--bg1);border-top:2px solid rgba(255,109,0,.5);
   border-left:1px solid var(--brd2);border-radius:10px 0 0 0;
   z-index:500;display:none;flex-direction:column;
@@ -350,7 +350,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v14.4</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v14.5</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -462,7 +462,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3);transition:all .3s"></div>
       <div>
-        <div style="font-size:11px;font-weight:900;color:#ff6d00" id="demoPanelTitle">پنل دمو · STB v14.4</div>
+        <div style="font-size:11px;font-weight:900;color:#ff6d00" id="demoPanelTitle">پنل دمو · STB v14.5</div>
         <div style="font-size:8px;color:var(--t3)" id="demoStatus">آماده</div>
       </div>
     </div>
@@ -477,10 +477,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 
   <!-- TAB BUTTONS -->
   <div style="display:flex;background:var(--bg2);border-bottom:2px solid var(--brd2);flex-shrink:0" id="demoTabBar">
-    <button id="dTab-trade"    onclick="switchDemoTab('trade')"    class="dtab dtab-active">💰 معامله</button>
-    <button id="dTab-settings" onclick="switchDemoTab('settings')" class="dtab">⚙️ تنظیمات</button>
-    <button id="dTab-ai"       onclick="switchDemoTab('ai')"       class="dtab">🧠 AI</button>
-    <button id="dTab-log"      onclick="switchDemoTab('log')"      class="dtab">📋 لاگ</button>
+    <button id="dTab-trade"    onclick="event.stopPropagation();switchDemoTab('trade')"    class="dtab dtab-active">💰 معامله</button>
+    <button id="dTab-settings" onclick="event.stopPropagation();switchDemoTab('settings')" class="dtab">⚙️ تنظیمات</button>
+    <button id="dTab-ai"       onclick="event.stopPropagation();switchDemoTab('ai')"       class="dtab">🧠 AI</button>
+    <button id="dTab-log"      onclick="event.stopPropagation();switchDemoTab('log')"      class="dtab">📋 لاگ</button>
+  </div>
+
+  <!-- Collapse toggle -->
+  <div id="demoCollapseBar" onclick="toggleDemoCollapse()"
+    style="background:var(--bg2);border-bottom:1px solid var(--brd);text-align:center;padding:3px;cursor:pointer;font-size:10px;color:var(--t3);user-select:none;flex-shrink:0">
+    <span id="demoCollapseIcon">▲ بستن تنظیمات</span>
   </div>
 
   <!-- SCROLLABLE CONTENT -->
@@ -1798,7 +1804,8 @@ function renderSB(sym){
     return`<tr class="${near?'hi':''}"><td style="${!near?'color:var(--t3)':''}">${l.type}</td><td class="num" style="${!near?'opacity:.5':''}">${fmt(l.price,sym)}</td><td><span class="tg ${cls}">${l.tf}</span></td></tr>`;
   }).join('')||'<tr><td colspan="3" style="color:var(--t3);text-align:center;padding:6px;font-size:10px">—</td></tr>';
   document.getElementById('structBody').innerHTML=d.struct.map(s=>`<div class="sr"><span class="sr-l">${s.type}</span><div class="sr-r"><span class="sr-p">${fmt(s.price,sym)}</span><span class="tg ${s.cls}">${s.tf}</span></div></div>`).join('')||'<div style="color:var(--t3);font-size:10px;text-align:center;padding:4px">—</div>';
-  const{trend,sig,entry,sl,tp,rr,rsi,atr,vwap,levels}=d;
+  const{trend,sig,entry,sl,tp,rr,rsi:_rsiRaw,atr,vwap,levels}=d;
+  const rsi = +(typeof _rsiRaw==='object' ? _rsiRaw?.m5||50 : _rsiRaw)||50;
   const trendLabel=tr=>`<span class="hl-${tr==='bull'?'g':tr==='bear'?'r':'a'}">${TM[tr]}</span>`;
   let h='';
   // 1. Multi-TF trend summary
