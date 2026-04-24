@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v15.9.3.2 · داده واقعی Twelve Data</title>
+<title>STB v16.0.3.2 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v15.9.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v16.0.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.9.3.2</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.0.3.2</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2558,9 +2558,19 @@ function computeSignalV2(sym, c4h, c15m, c5m, price) {
     ?STRATEGIES[activeStrat]:{name:'SMC',slType:'auto',minScore:6.5,rrMin:1.5};
   const minScore=strat.minScore;
 
+  // Momentum filter — ۳ کندل آخر
+  const last3 = c5m.slice(-3);
+  const last3BullCount = last3.filter(c=>c.c>=c.o).length;
+  const momentumBull = last3BullCount >= 2;   // حداقل ۲ کندل صعودی
+  const momentumBear = last3BullCount <= 1;   // حداقل ۲ کندل نزولی
+
   // RSI filter — جلوگیری از ورود در اشباع
   const rsiBuyOK  = rsi5 < (AT_SETTINGS?.rsiFilterBuy  || 65);
   const rsiSellOK = rsi5 > (AT_SETTINGS?.rsiFilterSell || 35);
+  
+  // Momentum filter bonus
+  if(momentumBull) buyScore  += 0.5;
+  if(momentumBear) sellScore += 0.5;
 
   let sig='wait', strength='normal', sl=0, tp=0;
 
@@ -2620,6 +2630,7 @@ function computeSignalV2(sym, c4h, c15m, c5m, price) {
     buyScore:Math.round(buyScore*10)/10,
     sellScore:Math.round(sellScore*10)/10,
     nearOB:!!(nearD||nearS),nearS,nearD,
+    rangePct:+rangePct.toFixed(2),nearRangeTop,nearRangeBottom,
     nearOBobj:{ob_d:nearD,ob_s:nearS},
     volSurge,
     ema:{bull5m:bull5,bull15m:bull15,bull4h,crossBull,crossBear,above200},
@@ -2789,7 +2800,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.9.3.2';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.0.3.2';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -2798,6 +2809,9 @@ function openDemoPos(sym, sigResult, price) {
   const _rsi = +(sigResult.rsi?.m5||sigResult.rsi||50);
   // Analysis reason
   const _reasons = [];
+  // Range position
+  if(sigResult.nearRangeTop && sigResult.sig==='sell') _reasons.push(`قله range (${Math.round((sigResult.rangePct||0)*100)}%)`);
+  if(sigResult.nearRangeBottom && sigResult.sig==='buy') _reasons.push(`کف range (${Math.round((sigResult.rangePct||0)*100)}%)`);
   if(sigResult.ema?.bull4h && sigResult.sig==='buy') _reasons.push('EMA H4 صعودی');
   else if(!sigResult.ema?.bull4h && sigResult.sig==='sell') _reasons.push('EMA H4 نزولی');
   if(sigResult.ema?.crossBull) _reasons.push('Golden Cross');
@@ -4451,7 +4465,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v15.9.3.2',
+    version:'STB v16.0.3.2',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
