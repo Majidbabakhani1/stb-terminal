@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v15.8.3.2 · داده واقعی Twelve Data</title>
+<title>STB v15.9.3.2 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v15.8.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v15.9.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.8.3.2</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.9.3.2</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2724,16 +2724,16 @@ function openDemoPos(sym, sigResult, price) {
   const entry = sigResult.sig === 'buy' ? price * (1 + slip) : price * (1 - slip);
   const commission = DEMO.tradeAmount * DEMO_CONFIG.commission;
 
+  const dir = sigResult.sig; // 'buy' or 'sell'
   // Size with leverage
   const leverage = DEMO_CONFIG.leverage || 1;
   const positionValue = DEMO.tradeAmount * leverage;
   const size = positionValue / entry;
-  const margin = DEMO.tradeAmount; // مارجین = همان مبلغ اصلی
-  
-  // Liquidation price (اگه ضرر = مارجین)
+  const margin = DEMO.tradeAmount;
+  // Liquidation price
   const liqPrice = leverage > 1
-    ? (dir === 'buy'
-        ? entry * (1 - 1/leverage * 0.9)   // 90% مارجین
+    ? (dir==='buy'
+        ? entry * (1 - 1/leverage * 0.9)
         : entry * (1 + 1/leverage * 0.9))
     : 0;
 
@@ -2789,7 +2789,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.8.3.2';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.9.3.2';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -4451,7 +4451,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v15.8.3.2',
+    version:'STB v15.9.3.2',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
