@@ -337,7 +337,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v13.0</div><div class="brand-s">Twelve Data · Live</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v13.1</div><div class="brand-s">Twelve Data · Live</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -3254,18 +3254,23 @@ const AI_CONFIG = {
   lastReset: new Date().toDateString(),
 };
 
-// ── Gemini Request Queue — یکی یکی، فاصله ۶ ثانیه ──
-let _geminiQueueChain = Promise.resolve();
-function _geminiQueue(){
-  const result = _geminiQueueChain.then(()=>
-    new Promise(resolve=>{
-      const wait = Math.max(0, 6000-(Date.now()-(AI_CONFIG._lastCall||0)));
-      setTimeout(resolve, wait);
-    })
-  );
-  _geminiQueueChain = result.catch(()=>{});
-  return result;
+// ── Gemini Mutex — فقط یه درخواست در هر زمان ──
+let _geminiLocked = false;
+let _geminiLastCall = 0;
+async function _geminiQueue(){
+  // صبر کن تا lock آزاد بشه
+  let waited = 0;
+  while(_geminiLocked && waited < 30000){
+    await new Promise(r=>setTimeout(r,200));
+    waited+=200;
+  }
+  _geminiLocked = true;
+  // فاصله حداقل ۸ ثانیه بین callها
+  const since = Date.now() - _geminiLastCall;
+  if(since < 8000) await new Promise(r=>setTimeout(r, 8000-since));
+  _geminiLastCall = Date.now();
 }
+function _geminiRelease(){ _geminiLocked = false; }
 
 // Reset daily counter
 function checkAIReset(){
@@ -3390,19 +3395,22 @@ async function callGemini(prompt){
     });
     j = await r.json();
   } catch(e) {
+    _geminiRelease();
     throw new Error('Gemini network error: ' + e.message);
   }
+
+  // Release lock regardless of result
+  _geminiRelease();
 
   // Check for API errors
   if(!r.ok || j.error) {
     const errMsg = j.error?.message || ('HTTP ' + r.status);
     if(r.status === 400) throw new Error('Gemini key نامعتبر است');
     if(r.status === 429){
-      // Auto retry after 10 seconds
-      demoLog('⏳ Gemini rate limit — ۱۰ ثانیه صبر...');
-      await new Promise(r => setTimeout(r, 10000));
-      AI_CONFIG._lastCall = Date.now();
-      throw new Error('Gemini rate limit — retry در ۱۰ ثانیه');
+      _geminiRelease();
+      demoLog('⏳ Gemini rate limit — ۱۵ ثانیه صبر...');
+      await new Promise(r => setTimeout(r, 15000));
+      throw new Error('Gemini rate limit');
     }
     throw new Error('Gemini: ' + errMsg.slice(0,50));
   }
