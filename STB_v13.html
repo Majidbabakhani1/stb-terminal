@@ -342,6 +342,34 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   z-index:500;display:none;flex-direction:column;
   max-height:90vh;box-shadow:-4px -4px 30px rgba(0,0,0,.7)}
 .demo-drawer.open{display:flex}
+
+/* Demo Drawer v14.6 */
+.demo-drawer{position:fixed;bottom:0;right:0;width:min(520px,98vw);
+  background:var(--bg1);border-top:2px solid rgba(255,109,0,.6);
+  border-left:1px solid var(--brd2);border-radius:10px 0 0 0;
+  z-index:500;display:none;flex-direction:column;
+  max-height:92vh;box-shadow:-6px -4px 40px rgba(0,0,0,.8)}
+.demo-drawer.open{display:flex}
+.dd-head{background:var(--bg1);border-bottom:1px solid var(--brd2);
+  padding:10px 14px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0}
+.dd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--brd);border-bottom:1px solid var(--brd2);flex-shrink:0}
+.dd-stat{background:var(--bg2);padding:7px 6px;text-align:center}
+.dd-stat-l{font-size:7.5px;color:var(--t3);margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.dd-stat-v{font-size:13px;font-weight:900;font-family:monospace}
+.dd-collapse-bar{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 14px;background:var(--bg2);cursor:pointer;
+  border-bottom:1px solid var(--brd2);flex-shrink:0;
+  font-size:9px;font-weight:700;color:var(--t3);
+  transition:background .15s;user-select:none}
+.dd-collapse-bar:hover{background:var(--bg3);color:var(--t1)}
+.dtab{flex:1;padding:8px 4px;font-size:9.5px;font-weight:700;cursor:pointer;
+  border:none;background:transparent;color:var(--t3);
+  border-bottom:2px solid transparent;font-family:var(--f);transition:all .15s}
+.dtab:hover{color:var(--t1);background:rgba(255,255,255,.03)}
+.dtab-active{color:var(--b)!important;border-bottom-color:var(--b)!important;background:rgba(61,159,255,.06)!important}
+
 </style>
 </head>
 <body>
@@ -350,7 +378,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v14.5</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v14.6</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -457,12 +485,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- DEMO DRAWER -->
 <div class="demo-drawer" id="demoDrawer">
 
-  <!-- HEADER -->
-  <div style="background:var(--bg1);border-bottom:1px solid var(--brd2);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+  <!-- ══ FIXED HEADER ══ -->
+  <div class="dd-head">
     <div style="display:flex;align-items:center;gap:8px">
-      <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3);transition:all .3s"></div>
+      <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3);flex-shrink:0"></div>
       <div>
-        <div style="font-size:11px;font-weight:900;color:#ff6d00" id="demoPanelTitle">پنل دمو · STB v14.5</div>
+        <div style="font-size:11px;font-weight:900;color:#ff6d00">پنل دمو · <span id="demoPanelTitle">STB v14.6</span></div>
         <div style="font-size:8px;color:var(--t3)" id="demoStatus">آماده</div>
       </div>
     </div>
@@ -471,88 +499,69 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
         <div id="aiStatusDot" style="width:6px;height:6px;border-radius:50%;background:var(--t3)"></div>
         <span id="aiStatusLabel" style="font-size:8px;color:var(--t3)">Internal</span>
       </div>
-      <button onclick="toggleDemoPanel()" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:22px;line-height:1;padding:0">×</button>
+      <button onclick="toggleDemoPanel()" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:22px;line-height:1;padding:0 2px">×</button>
     </div>
   </div>
 
-  <!-- TAB BUTTONS -->
-  <div style="display:flex;background:var(--bg2);border-bottom:2px solid var(--brd2);flex-shrink:0" id="demoTabBar">
-    <button id="dTab-trade"    onclick="event.stopPropagation();switchDemoTab('trade')"    class="dtab dtab-active">💰 معامله</button>
-    <button id="dTab-settings" onclick="event.stopPropagation();switchDemoTab('settings')" class="dtab">⚙️ تنظیمات</button>
-    <button id="dTab-ai"       onclick="event.stopPropagation();switchDemoTab('ai')"       class="dtab">🧠 AI</button>
-    <button id="dTab-log"      onclick="event.stopPropagation();switchDemoTab('log')"      class="dtab">📋 لاگ</button>
-  </div>
-
-  <!-- Collapse toggle -->
-  <div id="demoCollapseBar" onclick="toggleDemoCollapse()"
-    style="background:var(--bg2);border-bottom:1px solid var(--brd);text-align:center;padding:3px;cursor:pointer;font-size:10px;color:var(--t3);user-select:none;flex-shrink:0">
-    <span id="demoCollapseIcon">▲ بستن تنظیمات</span>
-  </div>
-
-  <!-- SCROLLABLE CONTENT -->
-  <div style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch">
-
-    <!-- ══ TAB: TRADE ══ -->
-    <div id="demoTab-trade" class="dtab-panel">
-      <!-- Stats Row 1 -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
-        <div class="demo-card"><div class="demo-card-l">موجودی</div><div class="demo-card-v" id="dBalance" style="color:var(--g)">$1,000</div></div>
-        <div class="demo-card"><div class="demo-card-l">P&L خالص</div><div class="demo-card-v" id="dTotalPnl">$0</div></div>
-        <div class="demo-card"><div class="demo-card-l">معاملات</div><div class="demo-card-v" id="dTrades" style="color:var(--b)">0</div></div>
-      </div>
-      <!-- Stats Row 2 -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
-        <div class="demo-card"><div class="demo-card-l">Win Rate</div><div class="demo-card-v" id="dWR" style="color:var(--a)">—</div></div>
-        <div class="demo-card"><div class="demo-card-l">Profit Factor</div><div class="demo-card-v" id="dPF" style="color:var(--p)">—</div></div>
-        <div class="demo-card">
-          <div class="demo-card-l">مبلغ/معامله</div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:2px">
-            <span style="color:var(--a);font-size:10px">$</span>
-            <input type="number" id="demoTradeAmount" value="100" min="1" step="10"
-              oninput="DEMO.tradeAmount=Math.max(1,parseFloat(this.value)||100);updateDemoUI()"
-              style="background:transparent;border:none;color:var(--a);font-family:monospace;font-size:13px;font-weight:900;width:60px;outline:none;text-align:center">
-          </div>
-        </div>
-      </div>
-      <!-- Auto Trade Button -->
-      <button class="demo-btn" id="autoTradeBtn" onclick="toggleAutoTrade()"
-        style="width:100%;padding:10px;margin-bottom:6px;font-size:12px;font-weight:900">
-        🤖 Auto Trade: خاموش
-      </button>
-      <!-- Action buttons -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-        <button class="demo-btn" onclick="chargeDemo(1000)" style="color:var(--g);border-color:rgba(0,230,118,.4)">+ $1,000</button>
-        <button class="demo-btn" onclick="chargeDemo(5000)" style="color:var(--g);border-color:rgba(0,230,118,.4)">+ $5,000</button>
-        <button class="demo-btn" onclick="openAnalytics()" style="color:var(--p);border-color:rgba(206,147,216,.35)">📊 آنالیتیکس</button>
-        <button class="demo-btn" onclick="resetDemo()" style="color:var(--r);border-color:rgba(255,63,95,.35)">↺ ریست</button>
-      </div>
-      <!-- Bridge button -->
-      <button class="demo-btn" id="bridgeBtn" onclick="toggleBridge()"
-        style="width:100%;margin-bottom:10px;color:var(--t3)">
-        🔗 MT4 Bridge: خاموش
-      </button>
-      <!-- Open positions -->
-      <div id="demoOpenPos" style="display:none">
-        <div style="font-size:8.5px;color:var(--a);font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">📂 پوزیشن‌های باز</div>
-        <div id="demoOpenPosList" style="display:flex;flex-direction:column;gap:4px"></div>
+  <!-- ══ FIXED STATS (همیشه نشون داده می‌شه) ══ -->
+  <div class="dd-stats">
+    <div class="dd-stat"><div class="dd-stat-l">موجودی</div><div class="dd-stat-v" id="dBalance" style="color:var(--g)">$1,000</div></div>
+    <div class="dd-stat"><div class="dd-stat-l">P&L</div><div class="dd-stat-v" id="dTotalPnl">$0</div></div>
+    <div class="dd-stat">
+      <div class="dd-stat-l">مبلغ/معامله</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:2px">
+        <span style="color:var(--a);font-size:9px">$</span>
+        <input type="number" id="demoTradeAmount" value="100" min="1" step="10"
+          oninput="DEMO.tradeAmount=Math.max(1,parseFloat(this.value)||100);updateDemoUI()"
+          style="background:transparent;border:none;color:var(--a);font-family:monospace;font-size:12px;font-weight:900;width:55px;outline:none;text-align:center">
       </div>
     </div>
+    <div class="dd-stat"><div class="dd-stat-l">معاملات</div><div class="dd-stat-v" id="dTrades" style="color:var(--b)">0</div></div>
+    <div class="dd-stat"><div class="dd-stat-l">Win Rate</div><div class="dd-stat-v" id="dWR" style="color:var(--a)">—</div></div>
+    <div class="dd-stat"><div class="dd-stat-l">Profit Factor</div><div class="dd-stat-v" id="dPF" style="color:var(--p)">—</div></div>
+  </div>
 
-    <!-- ══ TAB: SETTINGS ══ -->
-    <div id="demoTab-settings" class="dtab-panel" style="display:none">
-      <div style="font-size:9px;font-weight:700;color:var(--b);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">⚙️ تنظیمات Auto Trade</div>
+  <!-- ══ FIXED AUTO TRADE BUTTON ══ -->
+  <div style="padding:8px 12px;border-bottom:1px solid var(--brd2)">
+    <button class="demo-btn" id="autoTradeBtn" onclick="toggleAutoTrade()"
+      style="width:100%;padding:9px;font-size:12px;font-weight:900;margin-bottom:6px">
+      🤖 Auto Trade: خاموش
+    </button>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">
+      <button class="demo-btn" onclick="chargeDemo(1000)" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$1k</button>
+      <button class="demo-btn" onclick="chargeDemo(5000)" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$5k</button>
+      <button class="demo-btn" onclick="openAnalytics()" style="font-size:9px;color:var(--p);border-color:rgba(206,147,216,.35)">📊</button>
+      <button class="demo-btn" onclick="resetDemo()" style="font-size:9px;color:var(--r);border-color:rgba(255,63,95,.35)">↺</button>
+    </div>
+  </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+  <!-- ══ COLLAPSIBLE TOP SECTION (تنظیمات) ══ -->
+  <div class="dd-collapse-bar" id="ddCollapseBar" onclick="toggleDDCollapse()">
+    <span id="ddCollapseIcon">⚙️ تنظیمات و AI</span>
+    <span id="ddCollapseArrow" style="font-size:10px">▲</span>
+  </div>
+
+  <div id="ddCollapseBody" style="border-bottom:2px solid var(--brd2)">
+    <!-- Tab buttons -->
+    <div style="display:flex;background:var(--bg2);border-bottom:1px solid var(--brd2)">
+      <button id="dTab-settings" onclick="switchDemoTab('settings')" class="dtab dtab-active">⚙️ استراتژی</button>
+      <button id="dTab-ai"       onclick="switchDemoTab('ai')"       class="dtab">🧠 AI</button>
+      <button id="dTab-bridge"   onclick="switchDemoTab('bridge')"   class="dtab">🔗 Bridge</button>
+    </div>
+
+    <!-- TAB: تنظیمات -->
+    <div id="demoTab-settings" style="padding:10px 12px;max-height:280px;overflow-y:auto">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">
         <div>
           <div style="font-size:8px;color:var(--t3);margin-bottom:3px">استراتژی</div>
           <select id="atStrategy" onchange="AT_SETTINGS.strategy=this.value;demoLog('📋 استراتژی: '+this.options[this.selectedIndex].text)"
             style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
             <option value="AUTO">🤖 هوشمند AUTO</option>
-            <option value="SMC">🧱 SMC</option>
+            <option value="SMC">🧱 SMC کامل</option>
             <option value="TREND">📈 Trend Following</option>
             <option value="BREAKOUT">⚡ Breakout</option>
             <option value="MEAN_REV">🔄 Mean Reversion</option>
-            <option value="GANN">⚖️ Gann</option>
+            <option value="GANN">⚖️ Gann + SMC</option>
           </select>
         </div>
         <div>
@@ -560,80 +569,49 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
           <select id="atSLType" onchange="AT_SETTINGS.slType=this.value"
             style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
             <option value="auto">🤖 خودکار</option>
-            <option value="structural">📊 ساختاری</option>
+            <option value="structural">📊 ساختاری (Low/High)</option>
             <option value="sr">📐 حمایت/مقاومت</option>
-            <option value="atr">📏 ATR</option>
+            <option value="atr">📏 ATR ×</option>
             <option value="orderblock">🧱 Order Block</option>
-            <option value="candle">🕯 N کندل</option>
-            <option value="gann">⚖️ Gann</option>
+            <option value="candle">🕯 N کندل اخیر</option>
+            <option value="gann">⚖️ Gann 38.2%</option>
           </select>
         </div>
       </div>
-
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
-        <div>
-          <div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR × SL</div>
-          <input type="number" id="atATRSL" value="1.5" step="0.1" min="0.5" max="5"
-            oninput="AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5"
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px 6px;outline:none;text-align:center">
-        </div>
-        <div>
-          <div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR × TP</div>
-          <input type="number" id="atATRTP" value="3.0" step="0.1" min="1" max="10"
-            oninput="AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0"
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px 6px;outline:none;text-align:center">
-        </div>
-        <div>
-          <div style="font-size:8px;color:var(--t3);margin-bottom:2px">Min R:R</div>
-          <input type="number" id="atMinRR" value="1.3" step="0.1" min="1" max="5"
-            oninput="AT_SETTINGS.minRR=parseFloat(this.value)||1.3"
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px 6px;outline:none;text-align:center">
-        </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:7px">
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR×SL</div>
+          <input type="number" id="atATRSL" value="1.5" step="0.1" min="0.5" max="5" oninput="AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">ATR×TP</div>
+          <input type="number" id="atATRTP" value="3.0" step="0.1" min="1" max="10" oninput="AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Min R:R</div>
+          <input type="number" id="atMinRR" value="1.3" step="0.1" min="1" max="5" oninput="AT_SETTINGS.minRR=parseFloat(this.value)||1.3;document.getElementById('infoMinRR').textContent=this.value"
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--a);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-        <div>
-          <div style="font-size:8px;color:var(--r);margin-bottom:2px">RSI BUY حداکثر</div>
-          <input type="number" id="atRSIBuy" value="65" step="1" min="40" max="80"
-            oninput="AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65"
-            style="width:100%;background:var(--bg3);border:1px solid rgba(255,63,95,.3);border-radius:4px;color:var(--r);font-family:monospace;font-size:12px;font-weight:700;padding:5px 6px;outline:none;text-align:center">
-        </div>
-        <div>
-          <div style="font-size:8px;color:var(--g);margin-bottom:2px">RSI SELL حداقل</div>
-          <input type="number" id="atRSISell" value="35" step="1" min="20" max="60"
-            oninput="AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35"
-            style="width:100%;background:var(--bg3);border:1px solid rgba(0,230,118,.3);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px 6px;outline:none;text-align:center">
-        </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px">
+        <div><div style="font-size:8px;color:var(--r);margin-bottom:2px">RSI BUY حداکثر</div>
+          <input type="number" id="atRSIBuy" value="65" step="1" min="40" max="80" oninput="AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65"
+            style="width:100%;background:var(--bg3);border:1px solid rgba(255,63,95,.3);border-radius:4px;color:var(--r);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
+        <div><div style="font-size:8px;color:var(--g);margin-bottom:2px">RSI SELL حداقل</div>
+          <input type="number" id="atRSISell" value="35" step="1" min="20" max="60" oninput="AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35"
+            style="width:100%;background:var(--bg3);border:1px solid rgba(0,230,118,.3);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:5px;outline:none;text-align:center"></div>
       </div>
-
-      <label style="display:flex;align-items:center;gap:7px;font-size:9px;color:var(--t2);cursor:pointer;padding:5px 0;margin-bottom:8px">
-        <input type="checkbox" id="atRequireEMA" onchange="AT_SETTINGS.requireAllEMA=this.checked">
-        همسویی کامل EMA الزامی باشد
+      <label style="display:flex;align-items:center;gap:7px;font-size:9px;color:var(--t2);cursor:pointer;padding:4px 0">
+        <input type="checkbox" id="atRequireEMA" onchange="AT_SETTINGS.requireAllEMA=this.checked"> همسویی کامل EMA الزامی
       </label>
-
-      <!-- Info box -->
-      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:9px;font-size:8.5px;color:var(--t2);line-height:1.8">
-        <div style="color:var(--b);font-weight:700;margin-bottom:4px">📌 شرایط ورود Auto Trade:</div>
-        <div>• نماد: فقط کریپتو Binance</div>
-        <div>• سیگنال: EMA + RSI + SMC + حجم</div>
-        <div>• strength: باید <b style="color:var(--a)">strong</b> باشه</div>
-        <div>• R:R: حداقل <span id="infoMinRR" style="color:var(--a)">1.3</span></div>
-        <div>• Cooldown: 60 ثانیه بین معاملات</div>
-        <div>• AI: اگه فعال بود تأیید می‌کنه</div>
-      </div>
     </div>
 
-    <!-- ══ TAB: AI ══ -->
-    <div id="demoTab-ai" class="dtab-panel" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:9px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:.5px">🧠 AI Engine</div>
+    <!-- TAB: AI -->
+    <div id="demoTab-ai" style="padding:10px 12px;display:none;max-height:280px;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--p)">🧠 AI Engine</div>
         <span id="aiCallCount" style="font-size:8px;color:var(--t3)">0 امروز</span>
       </div>
-
-      <div style="margin-bottom:8px">
+      <div style="margin-bottom:7px">
         <div style="font-size:8px;color:var(--t3);margin-bottom:3px">منبع تحلیل</div>
         <select id="aiProvider" onchange="updateAIStatusUI()"
-          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:11px;padding:6px 8px;outline:none">
+          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 6px;outline:none">
           <option value="internal">⚙️ منطق داخلی (رایگان)</option>
           <option value="gemini">✨ Gemini Flash (رایگان)</option>
           <option value="groq">⚡ Groq Llama 70B (رایگان)</option>
@@ -642,60 +620,50 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
           <option value="sonnet">💎 Claude Sonnet</option>
         </select>
       </div>
-
-      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
-        <div>
-          <div style="font-size:8px;color:var(--t3);margin-bottom:2px">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
-          <input type="password" id="geminiKey" placeholder="AIza..."
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
-        </div>
-        <div>
-          <div style="font-size:8px;color:var(--t3);margin-bottom:2px">Groq Key <span style="color:var(--g)">(console.groq.com)</span></div>
-          <input type="password" id="groqKey" placeholder="gsk_..."
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
-        </div>
-        <div>
-          <div style="font-size:8px;color:var(--t3);margin-bottom:2px">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
-          <input type="password" id="openrouterKey" placeholder="sk-or-..."
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
-        </div>
-        <div>
-          <div style="font-size:8px;color:var(--t3);margin-bottom:2px">Anthropic Key</div>
-          <input type="password" id="claudeKey" placeholder="sk-ant-..."
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
-        </div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
+          <input type="password" id="geminiKey" placeholder="AIza..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Groq Key <span style="color:var(--g)">(console.groq.com)</span></div>
+          <input type="password" id="groqKey" placeholder="gsk_..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
+          <input type="password" id="openrouterKey" placeholder="sk-or-..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
+        <div><div style="font-size:8px;color:var(--t3);margin-bottom:2px">Anthropic Key</div>
+          <input type="password" id="claudeKey" placeholder="sk-ant-..." style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:4px 7px;outline:none"></div>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-        <button onclick="saveAIConfig()"
-          style="padding:9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(206,147,216,.4);background:rgba(206,147,216,.1);color:var(--p);font-family:var(--f)">
-          💾 ذخیره
-        </button>
-        <button onclick="testAIConnection()"
-          style="padding:9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(61,159,255,.4);background:rgba(61,159,255,.1);color:var(--b);font-family:var(--f)">
-          🧪 تست
-        </button>
-      </div>
-      <div style="font-size:7.5px;color:var(--t3);text-align:center;padding:4px">
-        🔒 API key فقط در مرورگر شما ذخیره می‌شود
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <button onclick="saveAIConfig()" style="padding:8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(206,147,216,.4);background:rgba(206,147,216,.1);color:var(--p);font-family:var(--f)">💾 ذخیره</button>
+        <button onclick="testAIConnection()" style="padding:8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(61,159,255,.4);background:rgba(61,159,255,.1);color:var(--b);font-family:var(--f)">🧪 تست</button>
       </div>
     </div>
 
-    <!-- ══ TAB: LOG ══ -->
-    <div id="demoTab-log" class="dtab-panel" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div style="font-size:8.5px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">لاگ زنده</div>
-        <button onclick="copyDemoLog()"
-          style="font-size:8px;padding:2px 10px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">
-          📋 کپی
-        </button>
+    <!-- TAB: Bridge -->
+    <div id="demoTab-bridge" style="padding:10px 12px;display:none">
+      <button class="demo-btn" id="bridgeBtn" onclick="toggleBridge()" style="width:100%;margin-bottom:8px;color:var(--t3)">🔗 MT4 Bridge: خاموش</button>
+      <div style="font-size:8.5px;color:var(--t3);line-height:1.9">
+        <div>۱. <b style="color:var(--t2)">python STB_Bridge.py</b> رو اجرا کن</div>
+        <div>۲. دکمه Bridge رو بزن</div>
+        <div>۳. EA رو روی MT4 نصب کن</div>
       </div>
-      <div class="demo-log" id="demoLog" style="max-height:500px">— آماده —</div>
     </div>
+  </div><!-- end collapse body -->
 
-  </div><!-- end scrollable -->
+  <!-- ══ FIXED POSITIONS (همیشه نشون داده می‌شه) ══ -->
+  <div style="padding:8px 12px;border-bottom:1px solid var(--brd2);flex-shrink:0">
+    <div style="font-size:8.5px;color:var(--a);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">📂 پوزیشن‌های باز <span id="openPosCountBadge" style="color:var(--b)"></span></div>
+    <div id="demoOpenPos" style="display:none">
+      <div id="demoOpenPosList" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto"></div>
+    </div>
+    <div id="demoNoPosMsg" style="font-size:9px;color:var(--t4);text-align:center;padding:6px">هیچ پوزیشن بازی ندارید</div>
+  </div>
+
+  <!-- ══ LOG (scrollable, always visible) ══ -->
+  <div style="padding:8px 12px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="font-size:8.5px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">📋 لاگ زنده</div>
+    <button onclick="copyDemoLog()" style="font-size:8px;padding:2px 9px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">کپی</button>
+  </div>
+  <div class="demo-log" id="demoLog" style="margin:6px 12px 10px;max-height:180px;flex-shrink:0">— آماده —</div>
+
 </div>
-
 <!-- TOAST WRAP -->
 <div class="toast-wrap" id="toastWrap"></div>
 
@@ -2722,6 +2690,8 @@ function openDemoPos(sym, sigResult, price) {
   ].filter(Boolean).join(' | ');
 
   // Strategy name
+  // Update version in panel
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v14.6';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -3021,8 +2991,14 @@ function updateDemoUI() {
 function renderDemoOpenPos() {
   const section = document.getElementById('demoOpenPos');
   const listEl = document.getElementById('demoOpenPosList');
-  if (!section || !listEl) return;
-  if (!DEMO.openPositions.length) { section.style.display = 'none'; return; }
+  const noMsg = document.getElementById('demoNoPosMsg');
+  const badge = document.getElementById('openPosCountBadge');
+  if(!listEl) return;
+  const cnt = DEMO.openPositions.length;
+  if(badge) badge.textContent = cnt > 0 ? '('+cnt+')' : '';
+  if(noMsg) noMsg.style.display = cnt ? 'none' : 'block';
+  if(!section) return;
+  if(!cnt){ section.style.display='none'; return; }
   section.style.display = 'block';
   listEl.innerHTML = DEMO.openPositions.map(pos => {
     const pd = S.prices[pos.sym];
