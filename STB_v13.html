@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v10.0 · داده واقعی Twelve Data</title>
+<title>STB v15 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -2662,7 +2662,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v14.9';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -3944,6 +3944,97 @@ function initDemoDrawer(){
   // Report export
   var expBtn = document.getElementById('btn-export-report');
   if(expBtn) expBtn.addEventListener('click', exportReport);
+}
+
+function copyDemoLog(){
+  const el=document.getElementById('demoLog');
+  if(!el)return;
+  const text=el.innerText||el.textContent||'';
+  navigator.clipboard.writeText(text).then(()=>{
+    showToast('کپی شد','لاگ در کلیپ‌بورد','info');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    showToast('کپی شد','لاگ کپی شد','info');
+  });
+}
+
+function renderReport(){
+  const el=document.getElementById('reportContent');
+  if(!el)return;
+  const trades=DEMO.trades||[];
+  if(!trades.length){
+    el.innerHTML='<div style="color:var(--t3);font-size:10px;text-align:center;padding:16px">هنوز معامله‌ای ثبت نشده</div>';
+    return;
+  }
+  const wins=trades.filter(t=>t.win);
+  const totalPnl=trades.reduce((a,t)=>a+(t.netPnl||0),0);
+  const grossP=wins.reduce((a,t)=>a+(t.netPnl||0),0);
+  const grossL=Math.abs(trades.filter(t=>!t.win).reduce((a,t)=>a+(t.netPnl||0),0));
+  const pf=grossL>0?(grossP/grossL).toFixed(2):grossP>0?'∞':'—';
+  const wr=trades.length>0?Math.round(wins.length/trades.length*100):0;
+  const totalComm=trades.reduce((a,t)=>a+(t.commission||0),0);
+  const stratStats=DEMO.strategyStats||{};
+  const stratRows=Object.entries(stratStats).filter(([k,v])=>v.trades>0)
+    .sort((a,b)=>b[1].pnl-a[1].pnl)
+    .map(([k,v])=>{
+      const sWR=v.trades>0?Math.round(v.wins/v.trades*100):0;
+      const sC=sWR>=60?'var(--g)':sWR>=45?'var(--a)':'var(--r)';
+      return`<tr><td style="color:var(--t1)">${k}</td><td style="color:var(--b);text-align:center">${v.trades}</td><td style="color:${sC};text-align:center;font-weight:700">${sWR}%</td><td style="color:${v.pnl>=0?'var(--g)':'var(--r)'};text-align:center">${v.pnl>=0?'+':''}$${v.pnl.toFixed(1)}</td><td style="color:var(--t3);text-align:center">${v.trades>0?(v.totalR/v.trades).toFixed(1):'—'}</td></tr>`;
+    }).join('');
+  const tradeRows=[...trades].reverse().slice(0,30).map(t=>{
+    const pipVal=t.sym?.endsWith('USDT')?1:0.0001;
+    const slPips=Math.abs(t.entry-(t.sl||t.entry))/pipVal;
+    const tpPips=Math.abs(t.entry-(t.tp||t.entry))/pipVal;
+    const actPips=Math.abs(t.entry-(t.exit||t.entry))/pipVal*(t.win?1:-1);
+    const maxPips=(t.maxAdv||0)/pipVal;
+    return`<tr><td style="color:${t.win?'var(--g)':'var(--r)'}">${t.win?'✅':'❌'}</td><td>${DB[t.sym]?.label||t.sym}</td><td style="color:${t.dir==='buy'?'var(--g)':'var(--r)'}">${t.dir==='buy'?'B':'S'}</td><td style="font-size:8px;color:var(--a)">${t.strategy||'AUTO'}</td><td style="color:${t.netPnl>=0?'var(--g)':'var(--r)'}">${t.netPnl>=0?'+':''}$${(t.netPnl||0).toFixed(2)}</td><td style="color:var(--t3)">${slPips.toFixed(1)}</td><td style="color:var(--t3)">${tpPips.toFixed(1)}</td><td style="color:${actPips>=0?'var(--g)':'var(--r)'}">${actPips>=0?'+':''}${actPips.toFixed(1)}</td><td style="color:var(--c);font-weight:700">${maxPips.toFixed(1)}</td><td style="color:var(--a)">1:${(t.rr||0).toFixed(1)}</td><td style="color:var(--t3)">${(t.duration||0)}m</td></tr>`;
+  }).join('');
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px">
+      <div class="dd-stat"><div class="dd-stat-l">P&L کل</div><div class="dd-stat-v" style="color:${totalPnl>=0?'var(--g)':'var(--r)'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(0)}</div></div>
+      <div class="dd-stat"><div class="dd-stat-l">Win Rate</div><div class="dd-stat-v" style="color:${wr>=60?'var(--g)':wr>=45?'var(--a)':'var(--r)'}">${wr}%</div></div>
+      <div class="dd-stat"><div class="dd-stat-l">Profit Factor</div><div class="dd-stat-v" style="color:var(--p)">${pf}</div></div>
+      <div class="dd-stat"><div class="dd-stat-l">موجودی</div><div class="dd-stat-v" style="color:var(--g)">$${DEMO.balance.toFixed(0)}</div></div>
+      <div class="dd-stat"><div class="dd-stat-l">کارمزد</div><div class="dd-stat-v" style="color:var(--a)">$${totalComm.toFixed(2)}</div></div>
+      <div class="dd-stat"><div class="dd-stat-l">معاملات</div><div class="dd-stat-v" style="color:var(--b)">${trades.length}</div></div>
+    </div>
+    ${stratRows?`<div style="font-size:9px;font-weight:700;color:var(--t3);margin-bottom:5px">عملکرد استراتژی‌ها</div>
+    <div style="overflow-x:auto;margin-bottom:10px"><table style="width:100%;border-collapse:collapse;font-size:9px;font-family:monospace">
+      <thead><tr style="border-bottom:1px solid var(--brd)"><th style="padding:3px;color:var(--t3);text-align:right">استراتژی</th><th style="padding:3px;color:var(--t3);text-align:center">#</th><th style="padding:3px;color:var(--t3);text-align:center">WR</th><th style="padding:3px;color:var(--t3);text-align:center">P&L</th><th style="padding:3px;color:var(--t3);text-align:center">Avg R</th></tr></thead>
+      <tbody>${stratRows}</tbody></table></div>`:''}
+    <div style="font-size:9px;font-weight:700;color:var(--t3);margin-bottom:5px">جزئیات (پیپ)</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:8px;font-family:monospace;min-width:500px">
+      <thead><tr style="border-bottom:1px solid var(--brd)"><th style="padding:2px;color:var(--t3)">نتیجه</th><th style="padding:2px;color:var(--t3)">نماد</th><th style="padding:2px;color:var(--t3)">جهت</th><th style="padding:2px;color:var(--t3)">استراتژی</th><th style="padding:2px;color:var(--t3)">P&L$</th><th style="padding:2px;color:var(--t3)">SL پیپ</th><th style="padding:2px;color:var(--t3)">TP پیپ</th><th style="padding:2px;color:var(--t3)">واقعی</th><th style="padding:2px;color:var(--c)">Max→</th><th style="padding:2px;color:var(--t3)">R:R</th><th style="padding:2px;color:var(--t3)">مدت</th></tr></thead>
+      <tbody>${tradeRows}</tbody></table></div>`;
+}
+
+function exportReport(){
+  renderReport();
+  const trades=DEMO.trades||[];
+  const report={
+    generated:new Date().toISOString(),
+    version:'STB v15',
+    summary:{
+      initialBalance:DEMO.initialBalance,
+      finalBalance:DEMO.balance,
+      totalPnl:(DEMO.balance-DEMO.initialBalance).toFixed(2),
+      trades:trades.length,
+      wins:trades.filter(t=>t.win).length,
+      winRate:trades.length>0?(trades.filter(t=>t.win).length/trades.length*100).toFixed(1)+'%':'0%',
+    },
+    strategyPerformance:DEMO.strategyStats||{},
+    trades:trades.map(t=>{
+      const pv=t.sym?.endsWith('USDT')?1:0.0001;
+      return{...t,slPips:Math.abs(t.entry-(t.sl||t.entry))/pv,tpPips:Math.abs(t.entry-(t.tp||t.entry))/pv,maxAdvancePips:(t.maxAdv||0)/pv};
+    }),
+  };
+  const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='STB_Report_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  demoLog('📤 گزارش export شد');
 }
 
 window.addEventListener('load',async()=>{
