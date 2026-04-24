@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v14.8</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v14.9</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -428,8 +428,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
         <div class="pos-list" id="posList"><div style="color:var(--t3);font-size:10px;text-align:center;padding:8px">هنوز پوزیشنی ثبت نشده — از دکمه «ورود به پوزیشن» استفاده کنید</div></div>
       </div>
       <div class="bp">
-        <div class="bp-title"><div class="bp-dot" style="background:var(--a)"></div>اخبار و تقویم <span id="newsSpn" style="display:none"><div class="spin"></div></span></div>
-        <div class="news-list" id="newsList"><div style="color:var(--t3);font-size:10px;text-align:center;padding:6px">در حال دریافت...</div></div>
+        <div class="bp-title" style="display:flex;align-items:center;gap:6px">
+          <div class="bp-dot" style="background:var(--a)"></div>
+          <button onclick="showBpTab('news',this)" id="bpTabNews" style="font-size:8.5px;padding:1px 7px;border-radius:3px;border:1px solid var(--b);background:var(--bdim);color:var(--b);cursor:pointer;font-family:var(--f);font-weight:700">📰 اخبار</button>
+          <button onclick="showBpTab('cal',this)" id="bpTabCal" style="font-size:8.5px;padding:1px 7px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);font-weight:700">📅 تقویم</button>
+          <span id="newsSpn" style="display:none"><div class="spin" style="width:10px;height:10px;border-width:1.5px"></div></span>
+        </div>
+        <div id="newsList" style="display:block"><div style="color:var(--t3);font-size:10px;text-align:center;padding:6px">در حال دریافت...</div></div>
+        <div id="econListBottom" style="display:none"><div style="text-align:center;padding:5px"><div class="spin"></div></div></div>
       </div>
     </div>
   </div>
@@ -492,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v14.8</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v14.9</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2668,7 +2674,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v14.8';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v14.9';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -3850,106 +3856,107 @@ function updateAIStatusUI(){
 }
 
 // ══════════════════════════════════════════════
-// DEMO DRAWER — All Event Listeners
+// DEMO DRAWER — Event Listeners (run once)
 // ══════════════════════════════════════════════
-(function initDemoDrawer(){
-  // Wait for DOM
-  function setup(){
-    // Tab switching
-    document.querySelectorAll('.dd-tab').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        var tab = btn.getAttribute('data-tab');
-        // Update tabs
-        document.querySelectorAll('.dd-tab').forEach(function(b){
-          b.classList.toggle('dd-tab-active', b.getAttribute('data-tab')===tab);
-        });
-        // Update panels
-        document.querySelectorAll('.dd-panel').forEach(function(p){
-          p.style.display = p.getAttribute('data-panel')===tab ? 'block' : 'none';
-        });
-        // Render report on open
-        if(tab==='report' && typeof renderReport==='function') renderReport();
-      });
-    });
-
-    // Close button
-    var closeBtn = document.getElementById('ddCloseBtn');
-    if(closeBtn) closeBtn.addEventListener('click', function(){ toggleDemoPanel(); });
-
-    // Auto trade toggle
-    var atBtn = document.getElementById('autoTradeBtn');
-    if(atBtn) atBtn.addEventListener('click', function(){ toggleAutoTrade(); });
-
-    // Charge buttons
-    var c1 = document.getElementById('btn-charge1');
-    var c5 = document.getElementById('btn-charge5');
-    if(c1) c1.addEventListener('click', function(){ chargeDemo(1000); });
-    if(c5) c5.addEventListener('click', function(){ chargeDemo(5000); });
-
-    // Analytics
-    var anlBtn = document.getElementById('btn-analytics');
-    if(anlBtn) anlBtn.addEventListener('click', function(){ openAnalytics(); });
-
-    // Reset
-    var rstBtn = document.getElementById('btn-reset');
-    if(rstBtn) rstBtn.addEventListener('click', function(){ resetDemo(); });
-
-    // Trade amount
-    var taInp = document.getElementById('demoTradeAmount');
-    if(taInp) taInp.addEventListener('input', function(){
-      DEMO.tradeAmount = Math.max(1, parseFloat(this.value)||100);
-      updateDemoUI();
-    });
-
-    // Strategy settings
-    var stEl = document.getElementById('atStrategy');
-    if(stEl) stEl.addEventListener('change', function(){ AT_SETTINGS.strategy=this.value; demoLog('📋 استراتژی: '+this.options[this.selectedIndex].text); });
-    var slEl = document.getElementById('atSLType');
-    if(slEl) slEl.addEventListener('change', function(){ AT_SETTINGS.slType=this.value; });
-    var asl = document.getElementById('atATRSL');
-    if(asl) asl.addEventListener('input', function(){ AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5; });
-    var atp = document.getElementById('atATRTP');
-    if(atp) atp.addEventListener('input', function(){ AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0; });
-    var mrr = document.getElementById('atMinRR');
-    if(mrr) mrr.addEventListener('input', function(){ AT_SETTINGS.minRR=parseFloat(this.value)||1.3; });
-    var rb = document.getElementById('atRSIBuy');
-    if(rb) rb.addEventListener('input', function(){ AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65; });
-    var rs = document.getElementById('atRSISell');
-    if(rs) rs.addEventListener('input', function(){ AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35; });
-    var re = document.getElementById('atRequireEMA');
-    if(re) re.addEventListener('change', function(){ AT_SETTINGS.requireAllEMA=this.checked; });
-
-    // AI
-    var aiProv = document.getElementById('aiProvider');
-    if(aiProv) aiProv.addEventListener('change', function(){ updateAIStatusUI(); });
-    var savBtn = document.getElementById('btn-ai-save');
-    if(savBtn) savBtn.addEventListener('click', function(){ saveAIConfig(); });
-    var tstBtn = document.getElementById('btn-ai-test');
-    if(tstBtn) tstBtn.addEventListener('click', function(){ testAIConnection(); });
-
-    // Bridge
-    var brBtn = document.getElementById('bridgeBtn');
-    if(brBtn) brBtn.addEventListener('click', function(){ toggleBridge(); });
-
-    // Log copy
-    var cpBtn = document.getElementById('btn-copy-log');
-    if(cpBtn) cpBtn.addEventListener('click', function(){ copyDemoLog(); });
-
-    // Report export
-    var expBtn = document.getElementById('btn-export-report');
-    if(expBtn) expBtn.addEventListener('click', function(){ exportReport(); });
-  }
-
-  // Run after DOM ready
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', setup);
+function showBpTab(tab, btn){
+  const newEl = document.getElementById('newsList');
+  const calEl = document.getElementById('econListBottom');
+  const btnN = document.getElementById('bpTabNews');
+  const btnC = document.getElementById('bpTabCal');
+  if(tab==='news'){
+    if(newEl) newEl.style.display='block';
+    if(calEl) calEl.style.display='none';
+    if(btnN){btnN.style.background='var(--bdim)';btnN.style.color='var(--b)';btnN.style.borderColor='var(--b)';}
+    if(btnC){btnC.style.background='transparent';btnC.style.color='var(--t3)';btnC.style.borderColor='var(--brd2)';}
   } else {
-    setup();
+    if(newEl) newEl.style.display='none';
+    if(calEl){ calEl.style.display='block'; calEl.innerHTML = document.getElementById('econList')?.innerHTML||''; }
+    if(btnC){btnC.style.background='var(--bdim)';btnC.style.color='var(--b)';btnC.style.borderColor='var(--b)';}
+    if(btnN){btnN.style.background='transparent';btnN.style.color='var(--t3)';btnN.style.borderColor='var(--brd2)';}
   }
-  // Also run after load (for safety)
-  window.addEventListener('load', function(){ setTimeout(setup, 100); });
-})();
+}
+
+function initDemoDrawer(){
+  // Tab switching
+  document.querySelectorAll('.dd-tab').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var tab = btn.getAttribute('data-tab');
+      document.querySelectorAll('.dd-tab').forEach(function(b){
+        b.classList.toggle('dd-tab-active', b.getAttribute('data-tab')===tab);
+      });
+      document.querySelectorAll('.dd-panel').forEach(function(p){
+        p.style.display = p.getAttribute('data-panel')===tab ? 'block' : 'none';
+      });
+      if(tab==='report' && typeof renderReport==='function') renderReport();
+    });
+  });
+
+  // Close button
+  var closeBtn = document.getElementById('ddCloseBtn');
+  if(closeBtn) closeBtn.addEventListener('click', toggleDemoPanel);
+
+  // Auto trade
+  var atBtn = document.getElementById('autoTradeBtn');
+  if(atBtn) atBtn.addEventListener('click', toggleAutoTrade);
+
+  // Charge buttons  
+  var c1 = document.getElementById('btn-charge1');
+  if(c1) c1.addEventListener('click', function(){ chargeDemo(1000); });
+  var c5 = document.getElementById('btn-charge5');
+  if(c5) c5.addEventListener('click', function(){ chargeDemo(5000); });
+
+  // Analytics & Reset
+  var anlBtn = document.getElementById('btn-analytics');
+  if(anlBtn) anlBtn.addEventListener('click', openAnalytics);
+  var rstBtn = document.getElementById('btn-reset');
+  if(rstBtn) rstBtn.addEventListener('click', resetDemo);
+
+  // Trade amount
+  var taInp = document.getElementById('demoTradeAmount');
+  if(taInp) taInp.addEventListener('input', function(){
+    DEMO.tradeAmount = Math.max(1, parseFloat(this.value)||100);
+    updateDemoUI();
+  });
+
+  // Strategy
+  var stEl = document.getElementById('atStrategy');
+  if(stEl) stEl.addEventListener('change', function(){ AT_SETTINGS.strategy=this.value; demoLog('📋 استراتژی: '+this.options[this.selectedIndex].text); });
+  var slEl = document.getElementById('atSLType');
+  if(slEl) slEl.addEventListener('change', function(){ AT_SETTINGS.slType=this.value; });
+  var asl = document.getElementById('atATRSL');
+  if(asl) asl.addEventListener('input', function(){ AT_SETTINGS.atrMultSL=parseFloat(this.value)||1.5; });
+  var atp2 = document.getElementById('atATRTP');
+  if(atp2) atp2.addEventListener('input', function(){ AT_SETTINGS.atrMultTP=parseFloat(this.value)||3.0; });
+  var mrr = document.getElementById('atMinRR');
+  if(mrr) mrr.addEventListener('input', function(){ AT_SETTINGS.minRR=parseFloat(this.value)||1.3; });
+  var rb = document.getElementById('atRSIBuy');
+  if(rb) rb.addEventListener('input', function(){ AT_SETTINGS.rsiFilterBuy=parseInt(this.value)||65; });
+  var rs = document.getElementById('atRSISell');
+  if(rs) rs.addEventListener('input', function(){ AT_SETTINGS.rsiFilterSell=parseInt(this.value)||35; });
+  var re2 = document.getElementById('atRequireEMA');
+  if(re2) re2.addEventListener('change', function(){ AT_SETTINGS.requireAllEMA=this.checked; });
+
+  // AI
+  var aiProv = document.getElementById('aiProvider');
+  if(aiProv) aiProv.addEventListener('change', updateAIStatusUI);
+  var savBtn = document.getElementById('btn-ai-save');
+  if(savBtn) savBtn.addEventListener('click', saveAIConfig);
+  var tstBtn = document.getElementById('btn-ai-test');
+  if(tstBtn) tstBtn.addEventListener('click', testAIConnection);
+
+  // Bridge
+  var brBtn = document.getElementById('bridgeBtn');
+  if(brBtn) brBtn.addEventListener('click', toggleBridge);
+
+  // Log copy
+  var cpBtn = document.getElementById('btn-copy-log');
+  if(cpBtn) cpBtn.addEventListener('click', copyDemoLog);
+
+  // Report export
+  var expBtn = document.getElementById('btn-export-report');
+  if(expBtn) expBtn.addEventListener('click', exportReport);
+}
 
 window.addEventListener('load',async()=>{
   S.symbols=loadSyms();
@@ -3960,6 +3967,7 @@ window.addEventListener('load',async()=>{
   // Load AI config
   loadAIConfig();
   updateAIStatusUI();
+  initDemoDrawer(); // Setup demo drawer events
 
   renderChips();
   switchChart(S.active);
