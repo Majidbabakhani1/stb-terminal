@@ -337,7 +337,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v13.01</div><div class="brand-s">Twelve Data · Live</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v13.2</div><div class="brand-s">Twelve Data · Live</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -3752,10 +3752,24 @@ window.addEventListener('load',async()=>{
   fetchCalendar();
   fetchRSS();
   await runAnalysis(S.active,S.mode);
-  setTimeout(async()=>{for(const sym of S.symbols){if(sym!==S.active){await runAnalysis(sym,S.mode);await new Promise(r=>setTimeout(r,600));}}},2000);
+  // تحلیل نمادها با فاصله ۸ ثانیه (Groq rate limit safe)
+  setTimeout(async()=>{
+    const others=S.symbols.filter(s=>s!==S.active&&(DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s])));
+    for(let i=0;i<others.length;i++){
+      await new Promise(r=>setTimeout(r,i*8000)); // هر ۸ ثانیه یکی
+      runAnalysis(others[i],S.mode);
+    }
+  },3000);
   setInterval(pollAV, 30000); // 30s interval
   setInterval(()=>runAnalysis(S.active,S.mode),3*60*1000);
-  setInterval(async()=>{for(const sym of S.symbols){if(sym!==S.active){await runAnalysis(sym,S.mode);await new Promise(r=>setTimeout(r,500));}}},5*60*1000);
+  // تحلیل مجدد هر ۵ دقیقه با فاصله ۸ ثانیه بین نمادها
+  setInterval(async()=>{
+    const syms=S.symbols.filter(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]));
+    for(let i=0;i<syms.length;i++){
+      await new Promise(r=>setTimeout(r,i*8000));
+      runAnalysis(syms[i],S.mode);
+    }
+  },5*60*1000);
   setInterval(fetchCalendar,10*60*1000);
   setInterval(renderPosList,5000);
   setInterval(()=>{if(isCanvas(S.active)&&S.candles[S.active]?.length)drawChart(S.active);},3000);
