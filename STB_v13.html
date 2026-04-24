@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v10.0 · داده واقعی Twelve Data</title>
+<title>STB v13.0 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -454,7 +454,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
     </div>
     <button onclick="toggleDemoPanel()" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:18px;padding:0;font-family:monospace;line-height:1">×</button>
   </div>
-  <div class="demo-drawer-body">
+  <div class="demo-drawer-body" style="overflow-y:auto;max-height:calc(90vh - 60px)">
     <!-- Stats row -->
     <div class="demo-grid" style="margin-bottom:10px">
       <div class="demo-card"><div class="demo-card-l">موجودی دمو</div><div class="demo-card-v" id="dBalance" style="color:var(--g)">$10,000</div></div>
@@ -3333,7 +3333,7 @@ async function callGemini(prompt){
   if(!key) throw new Error('Gemini key ندارید — از aistudio.google.com رایگان بگیرید');
 
   // Gemini 2.0 Flash — رایگان، سریع
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${key}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
   const body = {
     contents:[{role:'user', parts:[{text:prompt}]}],
     generationConfig:{
