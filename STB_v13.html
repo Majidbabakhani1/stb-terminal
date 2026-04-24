@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v15 · داده واقعی Twelve Data</title>
+<title>STB v15.2.2 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v15</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v15.2.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.2.2</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -584,6 +584,63 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
       <label style="display:flex;align-items:center;gap:7px;font-size:9px;color:var(--t2);cursor:pointer">
         <input type="checkbox" id="atRequireEMA"> همسویی کامل EMA الزامی
       </label>
+
+      <hr style="border:none;border-top:1px solid var(--brd2);margin:10px 0">
+
+      <!-- Variable settings -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+        <div>
+          <div class="dd-inp-l">حداکثر پوزیشن همزمان</div>
+          <input type="number" id="maxPosInput" value="5" min="1" max="20" class="dd-inp" style="color:var(--b)"
+            oninput="DEMO_CONFIG.maxOpenPositions=parseInt(this.value)||5;demoLog('⚙️ حداکثر پوزیشن: '+this.value)">
+        </div>
+        <div>
+          <div class="dd-inp-l">فاصله AI (دقیقه)</div>
+          <select id="aiIntervalSel" class="dd-sel"
+            onchange="AI_CONFIG.aiIntervalMin=parseInt(this.value);demoLog('⏱ فاصله AI: '+this.value+' دقیقه')">
+            <option value="1">۱ دقیقه</option>
+            <option value="2">۲ دقیقه</option>
+            <option value="3" selected>۳ دقیقه (پیش‌فرض)</option>
+            <option value="5">۵ دقیقه</option>
+            <option value="10">۱۰ دقیقه</option>
+            <option value="15">۱۵ دقیقه</option>
+            <option value="30">۳۰ دقیقه</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Smart PM -->
+      <div style="background:var(--bg3);border:1px solid var(--brd2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--c)">🧹 Smart Position Manager</div>
+          <button id="smartPMBtn" class="demo-btn" onclick="toggleSmartPM()"
+            style="font-size:8.5px;padding:2px 10px;color:var(--t3)">
+            🧹 Smart PM: خاموش
+          </button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:8px">
+          <div>
+            <div class="dd-inp-l">چک هر (دقیقه)</div>
+            <input type="number" id="pmIntervalInput" value="5" min="1" max="60" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.intervalMin=parseInt(this.value)||5">
+          </div>
+          <div>
+            <div class="dd-inp-l">حداقل WR نگهداری (%)</div>
+            <input type="number" id="pmMinWR" value="55" min="30" max="90" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.minStratWR=parseInt(this.value)||55">
+          </div>
+          <div>
+            <div class="dd-inp-l">حداکثر سن (دقیقه)</div>
+            <input type="number" id="pmMaxAge" value="120" min="10" max="1440" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.maxAgeMin=parseInt(this.value)||120">
+          </div>
+          <div>
+            <div class="dd-inp-l">حداکثر ضرر برای بستن (%)</div>
+            <input type="number" id="pmMaxLoss" value="0.5" min="0.1" max="5" step="0.1" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.maxLossToKeep=-Math.abs(parseFloat(this.value)||0.5)">
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- AI -->
@@ -604,8 +661,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
       <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
         <div><div class="dd-inp-l">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
           <input type="password" id="geminiKey" placeholder="AIza..." class="dd-inp"></div>
-        <div><div class="dd-inp-l">Groq Key <span style="color:var(--g)">(console.groq.com)</span></div>
-          <input type="password" id="groqKey" placeholder="gsk_..." class="dd-inp"></div>
+        <div>
+          <div class="dd-inp-l">Groq Keys <span style="color:var(--g)">(۵ تا — Round-Robin)</span> <span id="groqKeyActive" style="color:var(--c);font-size:7.5px"></span></div>
+          <input type="password" id="groqKey"  placeholder="gsk_... (key 1)" class="dd-inp" style="margin-bottom:4px">
+          <input type="password" id="groqKey2" placeholder="gsk_... (key 2)" class="dd-inp" style="margin-bottom:4px;margin-top:3px">
+          <input type="password" id="groqKey3" placeholder="gsk_... (key 3)" class="dd-inp" style="margin-bottom:4px;margin-top:3px">
+          <input type="password" id="groqKey4" placeholder="gsk_... (key 4)" class="dd-inp" style="margin-bottom:4px;margin-top:3px">
+          <input type="password" id="groqKey5" placeholder="gsk_... (key 5)" class="dd-inp" style="margin-top:3px">
+        </div>
         <div><div class="dd-inp-l">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
           <input type="password" id="openrouterKey" placeholder="sk-or-..." class="dd-inp"></div>
         <div><div class="dd-inp-l">Anthropic Key</div>
@@ -2334,7 +2397,7 @@ const DEMO_CONFIG = {
   tradeAmount: 100,       // Default $100 per trade (configurable)
   trailActivePct: 0.5,    // Activate trailing at 50% of TP
   trailDistance: 0.5,     // Trail distance = 50% of initial SL
-  maxOpenPositions: 10,   // Max simultaneous positions
+  maxOpenPositions: 5,    // Max simultaneous (قابل تغییر در UI)
   cooldownMs: 60000,      // 1 min cooldown per symbol after trade
 };
 // ── DEMO STATE ──
@@ -2662,7 +2725,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.2.2';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -2696,16 +2759,17 @@ function openDemoPos(sym, sigResult, price) {
 // ── CLOSE DEMO POSITION ──
 function closeDemoPos(pos, exitPrice, reason) {
   if (!pos) return;
-  const idx = DEMO.openPositions.findIndex(p => p.signalId === pos.signalId);
-  if (idx >= 0) DEMO.openPositions.splice(idx, 1);
+  const idx2 = DEMO.openPositions.findIndex(p => p.signalId === pos.signalId);
+  if (idx2 >= 0) DEMO.openPositions.splice(idx2, 1);
 
-  // Exit slippage
+  // Exit price with slippage
   const slip = DEMO_CONFIG.slippage * (0.5 + Math.random());
-  const exit = reason === 'SL'
-    ? (pos.dir === 'buy' ? exitPrice * (1 - slip) : exitPrice * (1 + slip))
-    : (reason === 'TP' ? exitPrice : exitPrice);
+  const exit = reason==='SL'
+    ? (pos.dir==='buy' ? exitPrice*(1-slip) : exitPrice*(1+slip))
+    : exitPrice;
 
-  const rawPnl = pos.dir === 'buy'
+  // P&L calculation
+  const rawPnl = pos.dir==='buy'
     ? (exit - pos.entry) * pos.size
     : (pos.entry - exit) * pos.size;
   const exitComm = pos.tradeAmount * DEMO_CONFIG.commission;
@@ -2713,86 +2777,74 @@ function closeDemoPos(pos, exitPrice, reason) {
   const pnlPct = (netPnl / pos.tradeAmount) * 100;
   const duration = Math.round((Date.now() - pos.entryTime) / 60000);
 
-  // Balance update — real impact
+  // Update balance
   DEMO.balance = Math.max(0, DEMO.balance + netPnl);
-  
-  // Strategy win rate tracking
-  if(!DEMO.strategyStats) DEMO.strategyStats = {};
-  const _sk = trade.strategy || pos.strategy || 'AUTO';
-  if(!DEMO.strategyStats[_sk]) DEMO.strategyStats[_sk] = {trades:0,wins:0,losses:0,pnl:0,totalR:0};
-  DEMO.strategyStats[_sk].trades++;
-  if(trade.win) DEMO.strategyStats[_sk].wins++;
-  else DEMO.strategyStats[_sk].losses++;
-  DEMO.strategyStats[_sk].pnl += netPnl;
-  DEMO.strategyStats[_sk].totalR += (trade.rr||0);
-  
-  // Journal — for real trading simulation
-  if(!DEMO.journal) DEMO.journal = [];
-  DEMO.journal.push({
-    ...trade,
-    balanceAfter: DEMO.balance,
-    realEquivalent: (netPnl / pos.tradeAmount * 100).toFixed(2) + '%',
-  });
 
+  // Build trade record
   const trade = {
-    signalId: pos.signalId,
-    sym: pos.sym,
-    dir: pos.dir,
-    strength: pos.strength || 'normal',
-    entry: pos.entry,
-    entryRaw: pos.entryRaw,
-    exit, exitRaw: exitPrice,
-    sl: pos.sl, tp: pos.tp,
-    size: pos.size,
-    rr: pos.rr, wr: pos.wr,
-    tradeAmount: pos.tradeAmount,
-    grossPnl: rawPnl,
-    commission: (pos.commission || 0) + exitComm,
-    netPnl, pnlPct,
-    slippage: Math.abs(pos.entry - pos.entryRaw) + Math.abs(exit - exitPrice),
-    duration,
-    status: reason === 'TP' ? 'Closed (TP)' : reason === 'SL' ? 'Closed (SL)' : 'Closed (Manual)',
-    win: netPnl > 0,
-    entryTime: pos.entryTimeStr,
-    exitTime: nowStr(),
-    entryTs: pos.entryTime,
-    exitTs: Date.now(),
-    // Signal metadata
-    buyScore: pos.buyScore,
-    sellScore: pos.sellScore,
-    rsiAtEntry: pos.rsiAtEntry,
-    volSurge: pos.volSurge,
+    signalId:   pos.signalId,
+    sym:        pos.sym,
+    dir:        pos.dir,
+    strategy:   pos.strategy || 'AUTO',
+    strength:   pos.strength || 'normal',
+    entry:      pos.entry,
+    exit:       exit,
+    sl:         pos.sl,
+    tp:         pos.tp,
+    size:       pos.size,
+    rr:         pos.rr || 0,
+    wr:         pos.wr || 0,
+    tradeAmount:pos.tradeAmount,
+    grossPnl:   rawPnl,
+    commission: (pos.commission||0) + exitComm,
+    netPnl:     netPnl,
+    pnlPct:     pnlPct,
+    maxAdv:     pos.maxAdv || 0,
+    duration:   duration,
+    status:     reason==='TP'?'Closed (TP)':reason==='SL'?'Closed (SL)':'Closed (Manual)',
+    win:        netPnl > 0,
+    entryTime:  pos.entryTimeStr || '',
+    exitTime:   nowStr(),
+    entryTs:    pos.entryTime,
+    exitTs:     Date.now(),
+    balanceAfter: DEMO.balance,
+    buyScore:   pos.buyScore || 0,
+    sellScore:  pos.sellScore || 0,
+    rsiAtEntry: pos.rsiAtEntry || 0,
+    aiConfidence: pos.aiConfidence || 0,
   };
 
+  // Push to trades array (for export/analytics)
   DEMO.trades.push(trade);
+
   // Update strategy stats
-  const stratKey = trade.strategy || 'AUTO';
+  const sk = trade.strategy;
   if (!DEMO.strategyStats) DEMO.strategyStats = {};
-  if (!DEMO.strategyStats[stratKey]) DEMO.strategyStats[stratKey] = {trades:0,wins:0,pnl:0};
-  DEMO.strategyStats[stratKey].trades++;
-  if(trade.win) DEMO.strategyStats[stratKey].wins++;
-  DEMO.strategyStats[stratKey].pnl += trade.netPnl;
-  S.tradeLog = S.tradeLog || [];
-  S.tradeLog.push({ sym: trade.sym, dir: trade.dir, entry: trade.entry, exit: trade.exit, pnl: trade.netPnl, rr: trade.rr, time: trade.exitTime, win: trade.win });
+  if (!DEMO.strategyStats[sk]) DEMO.strategyStats[sk] = {trades:0,wins:0,losses:0,pnl:0,totalR:0};
+  DEMO.strategyStats[sk].trades++;
+  if (trade.win) DEMO.strategyStats[sk].wins++;
+  else DEMO.strategyStats[sk].losses++;
+  DEMO.strategyStats[sk].pnl += netPnl;
+  DEMO.strategyStats[sk].totalR += (trade.rr||0);
 
   updateDemoUI();
 
-  const pnlStr = (netPnl>=0?'+':'')+`$${netPnl.toFixed(2)} (${(pnlPct>=0?'+':'')+pnlPct.toFixed(2)}%)`;
-  const _sk2 = pos.strategy || 'AUTO';
-  const _ss = DEMO.strategyStats?.[_sk2] || {trades:1,wins:trade.win?1:0};
-  const _stratWR = _ss.trades>0 ? Math.round(_ss.wins/_ss.trades*100) : 0;
+  // Log
+  const pnlStr = (netPnl>=0?'+':'') + '$'+netPnl.toFixed(2) + ' ('+(pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%)';
+  const stratWR = DEMO.strategyStats[sk].trades>0
+    ? Math.round(DEMO.strategyStats[sk].wins/DEMO.strategyStats[sk].trades*100) : 0;
   demoLog(`${trade.win?'✅ WIN':'❌ LOSS'} [${pos.signalId}] ${reason} ${DB[pos.sym]?.label||pos.sym} @ ${fmt(exit,pos.sym)}`);
   demoLog(`   💰 ${pnlStr} | ⏱ ${duration}min | موجودی: $${DEMO.balance.toFixed(0)}`);
-  demoLog(`   📈 ${pos.strategy||'AUTO'} Win Rate: ${_stratWR}% (${_ss.trades} معامله)`);
+  demoLog(`   📈 ${sk} WR: ${stratWR}% (${DEMO.strategyStats[sk].trades} معامله)`);
 
   fireAlarm(
-    `${trade.win ? '✅' : '❌'} دمو ${reason} — ${DB[pos.sym]?.label||pos.sym}`,
-    `[${pos.signalId}] ${pnlStr} | R:R 1:${pos.rr.toFixed(1)}`,
-    trade.win ? 'buy' : 'sell'
+    `${trade.win?'✅':'❌'} ${reason} — ${DB[pos.sym]?.label||pos.sym}`,
+    pnlStr + ' | R:R 1:'+(trade.rr||0).toFixed(1),
+    trade.win?'buy':'sell'
   );
 
   renderDemoOpenPos();
-  if (isCanvas(pos.sym) && S.candles[pos.sym]?.length) drawChart(pos.sym);
+  if(typeof isCanvas==='function'&&isCanvas(pos.sym)&&S.candles[pos.sym]?.length) drawChart(pos.sym);
 }
 
 // ── MONITOR POSITIONS (called on each price tick) ──
@@ -2885,9 +2937,16 @@ function checkAutoTrade(sym, sigResult, price) {
 
   // Run AI analysis if enabled
   if(AI_CONFIG.provider !== 'internal'){
-    // فقط وقتی score بالاست AI صدا بزن (صرفه‌جویی در API calls)
+    // AI interval check
+    const aiNow = Date.now();
+    const aiLastKey = 'ai_last_' + sym;
+    const aiIntervalMs = (AI_CONFIG.aiIntervalMin || 3) * 60000;
+    if(aiNow - (AI_CONFIG[aiLastKey]||0) < aiIntervalMs) {
+      openDemoPos(sym, sigResult, price);
+      return;
+    }
     const score = Math.max(sigResult.buyScore||0, sigResult.sellScore||0);
-    if(score >= 7.0){ // فقط سیگنال‌های خیلی قوی → AI
+    if(score >= 7.0){
       // بررسی cooldown برای AI (هر نماد هر ۲ دقیقه حداکثر یه بار)
       const aiKey = 'ai_' + sym;
       const lastAI = AI_CONFIG[aiKey]||0;
@@ -2897,6 +2956,7 @@ function checkAutoTrade(sym, sigResult, price) {
         return;
       }
       AI_CONFIG[aiKey] = Date.now();
+      AI_CONFIG['ai_last_' + sym] = Date.now();
       demoLog(`🧠 Gemini در حال تحلیل ${DB[sym]?.label||sym}...`);
       runAIAnalysis(sym, sigResult, price).then(aiResult => {
         const finalSig = mergeAIWithInternal(sym, sigResult, aiResult, price);
@@ -3390,14 +3450,20 @@ const AI_CONFIG = {
   provider: 'internal',     // internal | gemini | groq | openrouter | haiku | sonnet
   geminiKey: '',            // Google AI API Key
   claudeKey: '',            // Anthropic API Key
-  groqKey: '',              // Groq API Key (groq.com — رایگان)
-  openrouterKey: '',        // OpenRouter API Key (openrouter.ai — رایگان)
+  groqKey: '',              // Groq key 1 (اصلی)
+  groqKey2: '',             // Groq key 2
+  groqKey3: '',             // Groq key 3
+  groqKey4: '',             // Groq key 4
+  groqKey5: '',             // Groq key 5
+  _groqKeyIndex: 0,         // current key index
+  openrouterKey: '',
   groqModel: 'llama-3.3-70b-versatile',
   openrouterModel: 'meta-llama/llama-3.1-8b-instruct:free',
   autoFallback: true,
   maxRetries: 2,
   timeoutMs: 10000,
   callsToday: 0,
+  aiIntervalMin: 3,         // دقیقه بین هر AI call (متغیر)
   lastReset: new Date().toDateString(),
 };
 
@@ -3580,8 +3646,20 @@ async function callGemini(prompt){
 }
 
 // ── GROQ API (رایگان — llama 70b) ──
+function getNextGroqKey(){
+  // Round-robin روی ۵ key
+  const keys = [
+    AI_CONFIG.groqKey, AI_CONFIG.groqKey2, AI_CONFIG.groqKey3,
+    AI_CONFIG.groqKey4, AI_CONFIG.groqKey5
+  ].filter(k=>k&&k.trim().length>10);
+  if(!keys.length) return null;
+  const idx = AI_CONFIG._groqKeyIndex % keys.length;
+  AI_CONFIG._groqKeyIndex = (AI_CONFIG._groqKeyIndex+1) % keys.length;
+  return keys[idx];
+}
+
 async function callGroq(prompt){
-  const key = AI_CONFIG.groqKey;
+  const key = getNextGroqKey();
   if(!key) throw new Error('Groq key ندارید — از console.groq.com رایگان بگیرید');
   const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
     method:'POST',
@@ -3799,11 +3877,15 @@ function saveAIConfig(){
   AI_CONFIG.provider = prov;
   AI_CONFIG.geminiKey = gKey;
   AI_CONFIG.claudeKey = cKey;
-  AI_CONFIG.groqKey = groqKey;
+  AI_CONFIG.groqKey  = groqKey;
+  AI_CONFIG.groqKey2 = document.getElementById('groqKey2')?.value?.trim()||'';
+  AI_CONFIG.groqKey3 = document.getElementById('groqKey3')?.value?.trim()||'';
+  AI_CONFIG.groqKey4 = document.getElementById('groqKey4')?.value?.trim()||'';
+  AI_CONFIG.groqKey5 = document.getElementById('groqKey5')?.value?.trim()||'';
   AI_CONFIG.openrouterKey = orKey;
   try{
     localStorage.setItem('stb_ai_config', JSON.stringify({
-      provider:prov, geminiKey:gKey, claudeKey:cKey, groqKey, openrouterKey:orKey
+      provider:prov, geminiKey:gKey, claudeKey:cKey, groqKey, openrouterKey:orKey, groqKey2:AI_CONFIG.groqKey2, groqKey3:AI_CONFIG.groqKey3, groqKey4:AI_CONFIG.groqKey4, groqKey5:AI_CONFIG.groqKey5
     }));
   }catch(e){}
   updateAIStatusUI();
@@ -3823,6 +3905,9 @@ function loadAIConfig(){
     if(saved.geminiKey){const el=document.getElementById('geminiKey');if(el)el.value=saved.geminiKey;}
     if(saved.claudeKey){const el=document.getElementById('claudeKey');if(el)el.value=saved.claudeKey;}
     if(saved.groqKey){AI_CONFIG.groqKey=saved.groqKey;const el=document.getElementById('groqKey');if(el)el.value=saved.groqKey;}
+    ['2','3','4','5'].forEach(n=>{
+      if(saved['groqKey'+n]){AI_CONFIG['groqKey'+n]=saved['groqKey'+n];const el=document.getElementById('groqKey'+n);if(el)el.value=saved['groqKey'+n];}
+    });
     if(saved.openrouterKey){AI_CONFIG.openrouterKey=saved.openrouterKey;const el=document.getElementById('openrouterKey');if(el)el.value=saved.openrouterKey;}
   }catch(e){}
 }
@@ -3861,6 +3946,94 @@ function showBpTab(tab, btn){
     if(calEl){ calEl.style.display='block'; calEl.innerHTML = document.getElementById('econList')?.innerHTML||''; }
     if(btnC){btnC.style.background='var(--bdim)';btnC.style.color='var(--b)';btnC.style.borderColor='var(--b)';}
     if(btnN){btnN.style.background='transparent';btnN.style.color='var(--t3)';btnN.style.borderColor='var(--brd2)';}
+  }
+}
+
+// ══════════════════════════════════════════════
+// SMART POSITION MANAGER
+// هر X دقیقه پوزیشن‌های ضعیف رو می‌بنده
+// ══════════════════════════════════════════════
+const SMART_PM = {
+  enabled: false,
+  intervalMin: 5,          // هر ۵ دقیقه چک
+  minProfitToClose: 0.1,   // اگه سود بیشتر از 0.1% بود و ضعیفه → ببند
+  maxLossToKeep: -0.5,     // اگه ضرر بیشتر از 0.5% بود → ببند
+  maxAgeMin: 120,          // حداکثر ۲ ساعت باز بمونه
+  minStratWR: 55,          // WR استراتژی باید بالای این باشه تا نگه داره
+  _timer: null,
+};
+
+function toggleSmartPM(){
+  SMART_PM.enabled = !SMART_PM.enabled;
+  const btn = document.getElementById('smartPMBtn');
+  if(btn){
+    btn.style.background = SMART_PM.enabled ? 'rgba(0,229,255,.15)' : '';
+    btn.style.color = SMART_PM.enabled ? 'var(--c)' : '';
+    btn.style.borderColor = SMART_PM.enabled ? 'var(--c)' : '';
+    btn.textContent = '🧹 Smart PM: ' + (SMART_PM.enabled?'روشن':'خاموش');
+  }
+  if(SMART_PM.enabled){
+    demoLog('🧹 Smart Position Manager فعال — هر '+SMART_PM.intervalMin+' دقیقه چک');
+    if(SMART_PM._timer) clearInterval(SMART_PM._timer);
+    SMART_PM._timer = setInterval(runSmartPM, SMART_PM.intervalMin * 60000);
+    runSmartPM(); // immediate check
+  } else {
+    if(SMART_PM._timer){ clearInterval(SMART_PM._timer); SMART_PM._timer=null; }
+    demoLog('⏹ Smart Position Manager متوقف شد');
+  }
+}
+
+function runSmartPM(){
+  if(!SMART_PM.enabled || !DEMO.openPositions.length) return;
+  const now = Date.now();
+  const toClose = [];
+
+  for(const pos of DEMO.openPositions){
+    const pd = S.prices[pos.sym];
+    const price = pd?.price || pos.entry;
+    const pnl = pos.dir==='buy'
+      ? (price-pos.entry)/pos.entry*100
+      : (pos.entry-price)/pos.entry*100;
+    const ageMin = (now - pos.entryTime) / 60000;
+    const stratKey = pos.strategy || 'AUTO';
+    const stratWR = DEMO.strategyStats?.[stratKey]
+      ? Math.round(DEMO.strategyStats[stratKey].wins/Math.max(1,DEMO.strategyStats[stratKey].trades)*100)
+      : 50;
+
+    let closeReason = null;
+
+    // Rule 1: پوزیشن خیلی پیر + بدون سود
+    if(ageMin > SMART_PM.maxAgeMin && pnl < 0.1){
+      closeReason = `⏰ پیر (${Math.round(ageMin)}min) + بدون سود`;
+    }
+    // Rule 2: ضرر زیاد + WR استراتژی ضعیف
+    else if(pnl < SMART_PM.maxLossToKeep && stratWR < SMART_PM.minStratWR){
+      closeReason = `📉 ضرر ${pnl.toFixed(2)}% + WR ${stratWR}% ضعیف`;
+    }
+    // Rule 3: سود کم + ریسک بالا (SL نزدیک)
+    else if(pnl > SMART_PM.minProfitToClose && pnl < 0.5){
+      const slDist = Math.abs(price-(pos.trailingActive?pos.trailingSL:pos.sl))/price*100;
+      if(slDist < 0.2 && stratWR < 55){
+        closeReason = `💰 سود ${pnl.toFixed(2)}% + SL خیلی نزدیک`;
+      }
+    }
+    // Rule 4: WR قوی → نگه دار (override)
+    if(closeReason && stratWR >= SMART_PM.minStratWR + 10){
+      demoLog(`🛡 [${pos.signalId}] نگه‌داشته شد — WR ${stratWR}% قوی`);
+      closeReason = null;
+    }
+
+    if(closeReason) toClose.push({pos, reason: closeReason, pnl, price});
+  }
+
+  if(toClose.length){
+    demoLog(`🧹 Smart PM: ${toClose.length} پوزیشن برای بستن`);
+    for(const {pos, reason, pnl, price} of toClose){
+      demoLog(`   [${pos.signalId}] ${DB[pos.sym]?.label||pos.sym} P&L:${pnl.toFixed(2)}% | ${reason}`);
+      closeDemoPos(pos, price, 'SmartPM');
+    }
+  } else {
+    demoLog('🧹 Smart PM: همه پوزیشن‌ها سالم هستند');
   }
 }
 
@@ -4016,14 +4189,18 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v15',
+    version:'STB v15.2.2',
     summary:{
-      initialBalance:DEMO.initialBalance,
-      finalBalance:DEMO.balance,
-      totalPnl:(DEMO.balance-DEMO.initialBalance).toFixed(2),
-      trades:trades.length,
-      wins:trades.filter(t=>t.win).length,
-      winRate:trades.length>0?(trades.filter(t=>t.win).length/trades.length*100).toFixed(1)+'%':'0%',
+      initialBalance: DEMO.initialBalance,
+      finalBalance: +DEMO.balance.toFixed(4),
+      totalPnl: +(DEMO.balance-DEMO.initialBalance).toFixed(2),
+      trades: trades.length,
+      wins: trades.filter(t=>t.win).length,
+      losses: trades.filter(t=>!t.win).length,
+      winRate: trades.length>0?(trades.filter(t=>t.win).length/trades.length*100).toFixed(1)+'%':'0%',
+      avgRR: trades.length>0?(trades.reduce((a,t)=>a+(t.rr||0),0)/trades.length).toFixed(2):'0',
+      totalCommission: +trades.reduce((a,t)=>a+(t.commission||0),0).toFixed(3),
+      netPnl: +trades.reduce((a,t)=>a+(t.netPnl||0),0).toFixed(2),
     },
     strategyPerformance:DEMO.strategyStats||{},
     trades:trades.map(t=>{
