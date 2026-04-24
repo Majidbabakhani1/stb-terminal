@@ -337,7 +337,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v14.1</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v14.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -447,7 +447,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:14px">💰</span>
       <div>
-        <div style="font-size:11px;font-weight:900;color:#ff6d00">پنل دمو · STB v14.1</div>
+        <div style="font-size:11px;font-weight:900;color:#ff6d00">پنل دمو · STB v14.2</div>
         <div style="font-size:8.5px;color:var(--t3)" id="demoStatus">آماده</div>
       </div>
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
@@ -2394,7 +2394,7 @@ function computeSignalV2(sym, c4h, c15m, c5m, price) {
     for(let i=1;i<=n;i++){const d=s[i]-s[i-1];if(d>0)g+=d;else l-=d;}
     if(!l)return 100;return 100-(100/(1+(g/n)/(l/n)));
   }
-  const rsi5=calcRSI(cls5), rsi15=calcRSI(cls15), rsi4h=calcRSI(cls4h_);
+  const rsi5=+calcRSI(cls5)||50, rsi15=+calcRSI(cls15)||50, rsi4h=+calcRSI(cls4h_)||50;
 
   const atrs=[];
   for(let i=1;i<c5m.length;i++)
@@ -2645,7 +2645,7 @@ function openDemoPos(sym, sigResult, price) {
 
   const details = [
     `EMA: ${sigResult.ema?.bull4h?'H4✅':'H4❌'} ${sigResult.ema?.bull15m?'M15✅':'M15❌'} ${sigResult.ema?.bull5m?'M5✅':'M5❌'}`,
-    `RSI M5: ${sigResult.rsi?.m5?.toFixed(0)||'—'}`,
+    `RSI M5: ${(+(sigResult.rsi?.m5||sigResult.rsi||50)).toFixed(0)||'—'}`,
     `Score: ${Math.max(sigResult.buyScore||0, sigResult.sellScore||0)}`,
     sigResult.nearOB ? 'نزدیک OB ✅' : '',
     sigResult.volSurge ? 'حجم ✅' : '',
@@ -3419,7 +3419,7 @@ EMA200: Price ${ema.above200?'ABOVE (bullish bias)':'BELOW (bearish bias)'}
 EMA Cross: ${ema.crossBull?'GOLDEN CROSS ✓':ema.crossBear?'DEATH CROSS ✓':'None'}
 
 === INDICATORS ===
-RSI M5:  ${rsi.m5?.toFixed(1)||50} ${rsi.m5>70?'⚠️ OVERBOUGHT':rsi.m5<30?'⚠️ OVERSOLD':''}
+RSI M5:  ${(+(rsi?.m5||rsi||50)).toFixed(1)||50} ${rsi.m5>70?'⚠️ OVERBOUGHT':rsi.m5<30?'⚠️ OVERSOLD':''}
 RSI M15: ${rsi.m15?.toFixed(1)||50}
 RSI H4:  ${rsi.h4?.toFixed(1)||50}
 Volume Surge: ${sigResult?.volSurge?'YES — strong momentum':'No'}
