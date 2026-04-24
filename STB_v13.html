@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v15.7.3.2 · داده واقعی Twelve Data</title>
+<title>STB v15.8.3.2 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v15.7.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v15.8.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.7.3.2</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.8.3.2</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2789,7 +2789,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.7.3.2';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.8.3.2';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -3923,51 +3923,41 @@ async function runAIAnalysis(sym, sigResult, price){
 
 // ── MERGE AI RESULT WITH INTERNAL SIGNAL ──
 function mergeAIWithInternal(sym, internalSig, aiResult, price){
-  if(!aiResult || aiResult.signal === 'WAIT'){
-    if(aiResult?.signal === 'WAIT'){
-      demoLog(`🛑 AI گفت WAIT: ${aiResult.reason||''}`);
-    }
-    return null; // don't trade
-  }
+  if(!aiResult) return internalSig; // null → use internal
+  if(aiResult.signal==='WAIT') return null;
 
-  const dir = aiResult.signal === 'BUY' ? 'buy' : 'sell';
+  const dir = (aiResult.signal||'').toUpperCase()==='BUY' ? 'buy' : 'sell';
+  const atr = internalSig?.atr5 || price*0.002;
+  const minDist = price*0.003;
+  const maxDist = price*0.05;
 
-  // Validate AI SL/TP
   let sl = parseFloat(aiResult.sl)||0;
   let tp = parseFloat(aiResult.tp)||0;
 
-  const minDist = price * 0.003;
-  const maxDist = price * 0.06;
-
-  if(dir === 'buy'){
-    if(!sl || sl >= price || price-sl < minDist) sl = price - Math.max(internalSig?.atr5*1.8||minDist*2, minDist);
-    if(price-sl > maxDist) sl = price - maxDist;
-    if(!tp || tp <= price) tp = price + (price-sl)*2.5;
+  // Validate SL
+  if(dir==='buy'){
+    if(!sl||sl>=price||price-sl<minDist) sl = price - Math.max(atr*1.8, minDist*1.5);
+    if(price-sl>maxDist) sl = price-maxDist;
+    if(!tp||tp<=price) tp = price + (price-sl)*Math.max(AT_SETTINGS?.minRR||1.5, 1.5);
   } else {
-    if(!sl || sl <= price || sl-price < minDist) sl = price + Math.max(internalSig?.atr5*1.8||minDist*2, minDist);
-    if(sl-price > maxDist) sl = price + maxDist;
-    if(!tp || tp >= price) tp = price - (sl-price)*2.5;
+    if(!sl||sl<=price||sl-price<minDist) sl = price + Math.max(atr*1.8, minDist*1.5);
+    if(sl-price>maxDist) sl = price+maxDist;
+    if(!tp||tp>=price) tp = price - (sl-price)*Math.max(AT_SETTINGS?.minRR||1.5, 1.5);
   }
 
   const risk = Math.abs(price-sl);
   const reward = Math.abs(tp-price);
-  const rr = risk > 0 ? reward/risk : 0;
+  const rr = risk>0 ? reward/risk : 0;
 
-  // Merge best of both
   return {
     ...(internalSig||{}),
     sig: dir,
-    strength: (aiResult.confidence||0) >= 70 ? 'strong' : 'normal',
+    strength: (aiResult.confidence||0)>=70 ? 'strong' : 'normal',
     sl, tp, rr,
-    slMethod: aiResult.sl_method || 'ai',
     aiConfidence: aiResult.confidence||0,
     aiReason: aiResult.reason||'',
     aiProvider: AI_CONFIG.provider,
-    keyLevel: aiResult.key_level,
-    marketCondition: aiResult.market_condition,
     entry: price, price,
-    buyScore: internalSig?.buyScore||0,
-    sellScore: internalSig?.sellScore||0,
   };
 }
 
@@ -4461,7 +4451,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v15.7.3.2',
+    version:'STB v15.8.3.2',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
