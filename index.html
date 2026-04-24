@@ -910,7 +910,6 @@ function drawChart(sym){
   if(W<20||H<20){setTimeout(()=>drawChart(sym),150);return;}
   cv.width=W; cv.height=H;
   const ctx=cv.getContext('2d');
-  const W=cv.width,H=cv.height;
   const candles=S.candles[sym]||[];
   const pd=S.prices[sym];
   const price=pd?.price||0;
