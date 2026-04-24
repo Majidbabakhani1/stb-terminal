@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v15.5.3.2 · داده واقعی Twelve Data</title>
+<title>STB v15.7.3.2 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v15.5.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v15.7.3.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.5.3.2</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15.7.3.2</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -1574,6 +1574,7 @@ async function runAnalysis(sym,mode){
     };
     S.analysis[sym]=analysisObj;
     // Auto-trade hook
+    if(DEMO._lastScanUpdate) DEMO._lastScanUpdate();
     if(sig!=='wait'&&price>0)checkAutoTrade(sym,analysisObj,price);
     if(isMine){
       renderSB(sym);
@@ -2653,13 +2654,28 @@ function toggleAutoTrade() {
   const btn = document.getElementById('autoTradeBtn');
   const ind = document.getElementById('demoAutoIndicator');
   const st  = document.getElementById('demoStatus');
-  if (btn) {
+  if(btn){
     btn.className = 'demo-btn' + (DEMO.autoOn ? ' auto-on' : '');
-    btn.textContent = '🤖 Auto: ' + (DEMO.autoOn ? 'روشن' : 'خاموش');
+    btn.textContent = '🤖 Auto Trade: ' + (DEMO.autoOn ? 'روشن' : 'خاموش');
   }
-  if (ind) { ind.style.background = DEMO.autoOn ? 'var(--g)' : 'var(--t3)'; ind.style.boxShadow = DEMO.autoOn ? '0 0 6px var(--g)' : ''; }
-  if (st)  st.textContent = DEMO.autoOn ? 'در حال اسکن...' : 'آماده';
-  demoLog(DEMO.autoOn ? '🤖 Auto Trade فعال — اسکن EMA+RSI+SMC شروع شد' : '⏹ Auto Trade متوقف شد');
+  if(ind){ ind.style.background = DEMO.autoOn?'var(--g)':'var(--t3)'; ind.style.boxShadow = DEMO.autoOn?'0 0 8px var(--g)':''; }
+  if(st) st.textContent = DEMO.autoOn ? 'در حال اسکن...' : 'آماده';
+  demoLog(DEMO.autoOn ? '🤖 Auto Trade فعال' : '⏹ Auto Trade متوقف شد');
+  
+  // Start scan ticker
+  if(DEMO.autoOn){
+    clearInterval(DEMO._scanTicker);
+    let lastScanTime = Date.now();
+    DEMO._scanTicker = setInterval(()=>{
+      if(!DEMO.autoOn){ clearInterval(DEMO._scanTicker); return; }
+      const secAgo = Math.round((Date.now()-lastScanTime)/1000);
+      if(st) st.textContent = `اسکن ${S.symbols.length} نماد | آخرین: ${secAgo}s پیش`;
+    }, 1000);
+    // Update lastScanTime when analysis runs
+    DEMO._lastScanUpdate = ()=>{ lastScanTime = Date.now(); };
+  } else {
+    clearInterval(DEMO._scanTicker);
+  }
 }
 
 // ── CHARGE / RESET ──
@@ -2698,8 +2714,8 @@ function openDemoPos(sym, sigResult, price) {
     demoLog(`⚠️ حداکثر ${DEMO_CONFIG.maxOpenPositions} پوزیشن همزمان`);
     return;
   }
-  if (DEMO.balance < DEMO.tradeAmount * 0.5) {
-    demoLog(`⚠️ موجودی کافی نیست ($${DEMO.balance.toFixed(0)})`);
+  if (DEMO.balance < DEMO.tradeAmount) {
+    demoLog(`⚠️ موجودی کافی نیست: $${DEMO.balance.toFixed(0)} < $${DEMO.tradeAmount}`);
     return;
   }
 
@@ -2773,7 +2789,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.5.3.2';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v15.7.3.2';
   const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
     ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
   // Trend summary
@@ -2965,78 +2981,100 @@ function monitorDemoPos(sym, price) {
 // ── AUTO TRADE TRIGGER ──
 function checkAutoTrade(sym, sigResult, price) {
   if (!DEMO.autoOn) return;
-  if (!sigResult || sigResult.sig === 'wait') return;
+  if (!sigResult || sigResult.sig==='wait') return;
 
-  // فقط Binance کریپتو — داده واقعی ۱۰۰٪
-  const src=DB[sym]?.src||'';
-  if(src!=='binance'&&!(sym.endsWith('USDT')&&!DB[sym])){
-    return; // فارکس/طلا/نفت: AV rate limit مانع داده واقعیه
-  }
+  // فقط Binance کریپتو
+  const src = DB[sym]?.src||'';
+  if(src!=='binance' && !(sym.endsWith('USDT'))) return;
 
-  // Require strong signal
-  if (sigResult.strength !== 'strong') return;
+  // Strength check
+  if(sigResult.strength !== 'strong') return;
 
-  // Check cooldown
-  const lastTrade = DEMO.cooldowns[sym] || 0;
-  if (Date.now() - lastTrade < DEMO_CONFIG.cooldownMs) return;
+  // Cooldown check
+  if(Date.now() - (DEMO.cooldowns[sym]||0) < DEMO_CONFIG.cooldownMs) return;
 
-  // Check no open position on this sym
-  if (DEMO.openPositions.find(p => p.sym === sym && p.status === 'Open')) return;
+  // پوزیشن باز روی این نماد
+  if(DEMO.openPositions.find(p=>p.sym===sym && p.status==='Open')) return;
 
-  // Minimum R:R check
-  if (sigResult.rr < 1.5) {
-    demoLog(`⏭ [${sym}] رد شد: R:R ${sigResult.rr.toFixed(2)} < 1.5`);
+  // حداکثر پوزیشن
+  if(DEMO.openPositions.length >= (DEMO_CONFIG.maxOpenPositions||10)) return;
+
+  // موجودی
+  if(DEMO.balance < DEMO.tradeAmount) {
+    demoLog(`⚠️ موجودی کم: $${DEMO.balance.toFixed(0)}`);
     return;
   }
 
-  // Minimum score check
-  const score = Math.max(sigResult.buyScore || 0, sigResult.sellScore || 0);
-  // minScore از strategy می‌آید
-  const activeS = AT_SETTINGS?.strategy==='AUTO'
-    ? autoSelectStrategy('bull', 50, false, false)
-    : (AT_SETTINGS?.strategy||'SMC');
-  const stratMin = STRATEGIES[activeS]?.minScore || 5.5;
-  if (score < stratMin) {
-    demoLog(`⏭ [${sym}] رد: Score ${score} < ${stratMin}`);
+  // حالت معاملاتی
+  const mode = TRADING_MODES[ACTIVE_MODE] || TRADING_MODES.BALANCED;
+
+  // R:R check
+  if(sigResult.rr < mode.minRR) {
+    demoLog(`⏭ [${DB[sym]?.label||sym}] R:R ${sigResult.rr.toFixed(2)} < ${mode.minRR}`);
     return;
   }
 
-  // Run AI analysis if enabled
+  // Score check
+  const score = Math.max(sigResult.buyScore||0, sigResult.sellScore||0);
+  if(score < mode.minScore) {
+    DEMO._rejectCount = (DEMO._rejectCount||0)+1;
+    if(DEMO._rejectCount%10===1)
+      demoLog(`⏭ رد: ${DB[sym]?.label||sym} Score ${score.toFixed(1)} < ${mode.minScore} (${DEMO._rejectCount} رد)`);
+    return;
+  }
+
+  // EMA check (اگه mode الزامی کرده)
+  if(mode.requireEMA || AT_SETTINGS.requireAllEMA){
+    const e = sigResult.ema;
+    if(sigResult.sig==='buy' && !(e?.bull4h && e?.bull15m)){
+      demoLog(`⏭ [${DB[sym]?.label||sym}] EMA H4/M15 ناهمسو برای BUY`);
+      return;
+    }
+    if(sigResult.sig==='sell' && (e?.bull4h || e?.bull15m)){
+      demoLog(`⏭ [${DB[sym]?.label||sym}] EMA H4/M15 ناهمسو برای SELL`);
+      return;
+    }
+  }
+
+  // ── AI Analysis ──
   if(AI_CONFIG.provider !== 'internal'){
-    // AI interval check
-    const aiNow = Date.now();
-    const aiLastKey = 'ai_last_' + sym;
-    const aiIntervalMs = (AI_CONFIG.aiIntervalMin || 3) * 60000;
-    if(aiNow - (AI_CONFIG[aiLastKey]||0) < aiIntervalMs) {
+    const aiIntervalMs = (AI_CONFIG.aiIntervalMin||3)*60000;
+    const lastAI = AI_CONFIG['ai_last_'+sym]||0;
+
+    if(Date.now()-lastAI < aiIntervalMs){
+      // هنوز cooldown AI → برو با منطق داخلی
       openDemoPos(sym, sigResult, price);
       return;
     }
-    const score = Math.max(sigResult.buyScore||0, sigResult.sellScore||0);
-    if(score >= 7.0){
-      // بررسی cooldown برای AI (هر نماد هر ۲ دقیقه حداکثر یه بار)
-      const aiKey = 'ai_' + sym;
-      const lastAI = AI_CONFIG[aiKey]||0;
-      if(Date.now()-lastAI < 120000){
-        // cooldown فعاله → منطق داخلی
+
+    AI_CONFIG['ai_last_'+sym] = Date.now();
+    demoLog(`🧠 AI تحلیل ${DB[sym]?.label||sym}...`);
+
+    runAIAnalysis(sym, sigResult, price).then(aiResult=>{
+      if(!aiResult){
+        // AI null → منطق داخلی
         openDemoPos(sym, sigResult, price);
         return;
       }
-      AI_CONFIG[aiKey] = Date.now();
-      AI_CONFIG['ai_last_' + sym] = Date.now();
-      demoLog(`🧠 Gemini در حال تحلیل ${DB[sym]?.label||sym}...`);
-      runAIAnalysis(sym, sigResult, price).then(aiResult => {
-        const finalSig = mergeAIWithInternal(sym, sigResult, aiResult, price);
-        if(finalSig && finalSig.sig !== 'wait'){
-          openDemoPos(sym, finalSig, price);
-        }
-      }).catch(()=>{
+      if(aiResult.signal==='WAIT'){
+        demoLog(`🛑 AI: WAIT — ${aiResult.reason||''}`);
+        return;
+      }
+      // AI تأیید کرد
+      const merged = mergeAIWithInternal(sym, sigResult, aiResult, price);
+      if(merged && merged.sig!=='wait'){
+        openDemoPos(sym, merged, price);
+      } else {
+        // merge نشد → با سیگنال داخلی برو
         openDemoPos(sym, sigResult, price);
-      });
-    } else {
-      // score متوسط → منطق داخلی (بدون API call)
+      }
+    }).catch(e=>{
+      demoLog(`⚠️ AI خطا → داخلی: ${(e.message||'').slice(0,30)}`);
       openDemoPos(sym, sigResult, price);
-    }
+    });
+
   } else {
+    // بدون AI
     openDemoPos(sym, sigResult, price);
   }
 }
@@ -4423,7 +4461,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v15.5.3.2',
+    version:'STB v15.7.3.2',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
