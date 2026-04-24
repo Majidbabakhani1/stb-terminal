@@ -337,7 +337,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v14.0</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v14.1</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -447,7 +447,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:14px">💰</span>
       <div>
-        <div style="font-size:11px;font-weight:900;color:#ff6d00">پنل دمو · STB v14.0</div>
+        <div style="font-size:11px;font-weight:900;color:#ff6d00">پنل دمو · STB v14.1</div>
         <div style="font-size:8.5px;color:var(--t3)" id="demoStatus">آماده</div>
       </div>
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
@@ -2353,6 +2353,21 @@ const DEMO = {
 
 
 // ── SIGNAL ENGINE v2 (EMA + RSI + SMC) ──
+function autoSelectStrategy(trendH4, rsi5m, volSurge, nearOB) {
+  // بازار رنج
+  if (trendH4 === 'side') {
+    if (nearOB) return 'SMC';
+    return 'MEAN_REV';
+  }
+  // بازار ترند قوی
+  if (trendH4 !== 'side' && volSurge) {
+    return 'TREND';
+  }
+  // شکست سطح
+  if (nearOB && volSurge) return 'BREAKOUT';
+  // پیش‌فرض
+  return 'SMC';
+}
 function computeSignalV2(sym, c4h, c15m, c5m, price) {
   if (!c5m?.length || !c4h?.length || !price) return null;
 
@@ -4018,21 +4033,6 @@ function calcSL(dir, price, candles5m, candles4h, sw4h, sw15m, atr, nearOB, slTy
 // ══════════════════════════════════════════════════════════════
 // AUTO-SELECT STRATEGY based on market condition
 // ══════════════════════════════════════════════════════════════
-function autoSelectStrategy(trendH4, rsi5m, volSurge, nearOB) {
-  // بازار رنج
-  if (trendH4 === 'side') {
-    if (nearOB) return 'SMC';
-    return 'MEAN_REV';
-  }
-  // بازار ترند قوی
-  if (trendH4 !== 'side' && volSurge) {
-    return 'TREND';
-  }
-  // شکست سطح
-  if (nearOB && volSurge) return 'BREAKOUT';
-  // پیش‌فرض
-  return 'SMC';
-}
 
 // ══════════════════════════════════════════════════════════════
 // SIGNAL ENGINE v3 — Multi-Strategy
