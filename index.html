@@ -365,9 +365,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- BODY -->
 <div class="body">
   <div class="left-col">
-    <div class="chart-zone">
+    <div class="chart-zone" style="min-height:400px">
       <!-- Self-drawn chart for crypto -->
-      <canvas id="myChart"></canvas>
+      <canvas id="myChart" style="display:block;width:100%;height:100%"></canvas>
       <!-- TradingView for forex/commodities -->
       <div id="tvCont"></div>
       <!-- Chart header -->
@@ -902,8 +902,13 @@ function getCS(sym){return CHART_STATE[sym]||(CHART_STATE[sym]={zoom:1,offset:0}
 
 function drawChart(sym){
   const cv=document.getElementById('myChart');
-  const zone=document.getElementById('myChart').parentElement;
-  cv.width=zone.offsetWidth; cv.height=zone.offsetHeight;
+  if(!cv)return;
+  const zone=cv.parentElement||document.querySelector('.chart-zone');
+  if(!zone)return;
+  const W=zone.offsetWidth||window.innerWidth-285||800;
+  const H=zone.offsetHeight||Math.max(window.innerHeight-200,400);
+  if(W<20||H<20){setTimeout(()=>drawChart(sym),150);return;}
+  cv.width=W; cv.height=H;
   const ctx=cv.getContext('2d');
   const W=cv.width,H=cv.height;
   const candles=S.candles[sym]||[];
@@ -1116,25 +1121,28 @@ function loadTV(sym,tf){
 
 // Switch between self-chart and TradingView
 function switchChart(sym){
-  const db3=DB[sym]||{};
-  const isBin=db3.src==='binance'||(sym.endsWith('USDT')&&!DB[sym]);
-  const isTD=db3.src==='td';
   const cv=document.getElementById('myChart');
   const tv=document.getElementById('tvCont');
-  if(isBin||isTD){
-    // Self-drawn Canvas chart for both Binance crypto AND Twelve Data forex/commodities
+  if(!cv||!tv)return;
+  const canvas=(typeof isCanvas==='function')?isCanvas(sym):true;
+  if(canvas){
     cv.style.display='block';tv.style.display='none';
+    // Force canvas size
+    const zone=cv.parentElement;
+    if(zone){cv.width=zone.offsetWidth||800;cv.height=zone.offsetHeight||450;}
   }else{
     cv.style.display='none';tv.style.display='block';
-    loadTV(sym,S.tf);
+    if(typeof loadTV==='function')loadTV(sym,S.tf||'5');
   }
-  const srcLabel=isBin?'Binance WS':isTD?'Twelve Data':db3.src||'—';
-  document.getElementById('chartSrc').textContent=srcLabel;
-  // Setup zoom/pan for canvas chart
-  if(isBin||isTD) setupChartInteraction();
+  const db=DB[sym]||{};
+  const srcLabel=db.src==='binance'?'Binance WS':db.src==='av'?'Alpha Vantage':'—';
+  const hSym=document.getElementById('chartSym');
+  const hSrc=document.getElementById('chartSrc');
+  if(hSym)hSym.textContent=(db.label||sym)+' · '+(S.tf||'5')+'m';
+  if(hSrc)hSrc.textContent=srcLabel;
+  if(canvas&&typeof setupChartInteraction==='function')setupChartInteraction();
 }
 
-let _chartDrag=null;
 function setupChartInteraction(){
   const cv=document.getElementById('myChart');
   // Remove old listeners by replacing element
@@ -2736,19 +2744,46 @@ function exportCSV() {
 window.addEventListener('load',async()=>{
   S.symbols=loadSyms();
   S.active=S.symbols.find(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]))||S.symbols[0]||'BTCUSDT';
+
+  // Request notifications
+  if(Notification.permission==='default')Notification.requestPermission();
+
   renderChips();
   switchChart(S.active);
+  setupChartInteraction();
+
+  // Symbar mousewheel
+  const sb=document.getElementById('symBar');
+  if(sb)sb.addEventListener('wheel',e=>{e.preventDefault();sb.scrollLeft+=e.deltaY*2;},{passive:false});
+
+  // Close dropdown on outside click
+  document.addEventListener('click',e=>{
+    const wrap=document.getElementById('addWrap');
+    if(wrap&&!wrap.contains(e.target))hideSug();
+  });
+
+  // Canvas resize observer — redraws when container size changes
+  const cv=document.getElementById('myChart');
+  if(cv&&window.ResizeObserver){
+    new ResizeObserver(()=>{
+      if(isCanvas(S.active)&&S.candles[S.active]?.length)drawChart(S.active);
+    }).observe(cv.parentElement);
+  }
+  window.addEventListener('resize',()=>{if(isCanvas(S.active))drawChart(S.active);});
+
   connectWS();
   for(const s of S.symbols)if(DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]))fetch24h(s);
   await pollAV();
   fetchCalendar();
+  fetchRSS();
   await runAnalysis(S.active,S.mode);
   setTimeout(async()=>{for(const sym of S.symbols){if(sym!==S.active){await runAnalysis(sym,S.mode);await new Promise(r=>setTimeout(r,600));}}},2000);
-  setInterval(pollAV, 30000); // Twelve Data: every 10s
+  setInterval(pollAV, 30000);every 10s
   setInterval(()=>runAnalysis(S.active,S.mode),3*60*1000);
   setInterval(async()=>{for(const sym of S.symbols){if(sym!==S.active){await runAnalysis(sym,S.mode);await new Promise(r=>setTimeout(r,500));}}},5*60*1000);
   setInterval(fetchCalendar,10*60*1000);
   setInterval(renderPosList,5000);
+  setInterval(()=>{if(isCanvas(S.active)&&S.candles[S.active]?.length)drawChart(S.active);},3000);
   // Self-chart refresh every 3s for active crypto
   setInterval(()=>{if((DB[S.active]?.src==='binance'||DB[S.active]?.src==='av')&&S.candles[S.active]?.length)drawChart(S.active);},3000);
   // Resize handler
