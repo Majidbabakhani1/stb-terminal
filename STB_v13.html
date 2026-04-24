@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v14.9</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v15</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2204,18 +2204,6 @@ function renderDash(results,filter){
 // ═══════════════════════════════════════════
 const ALARM_LOG = [];
 
-function openAlarmPanel() {
-  document.getElementById('alarmPanelModal').classList.add('open');
-  clearAlarms(); // reset badge
-  renderAlarmPanel();
-}
-function closeAlarmPanel() {
-  document.getElementById('alarmPanelModal').classList.remove('open');
-}
-function clearAlarmLogs() {
-  ALARM_LOG.length = 0;
-  renderAlarmPanel();
-}
 function renderAlarmPanel() {
   const el = document.getElementById('alarmTab');
   const sub = document.getElementById('alarmPanelSub');
@@ -4094,21 +4082,7 @@ window.addEventListener('load',async()=>{
 // ── AUTO TRADE CONFIG ──
 
 // ── DEMO STATE ──
-const DEMO = {
-  balance:       DEMO_CONFIG.initialBalance,
-  initialBalance:DEMO_CONFIG.initialBalance,
-  tradeAmount:   DEMO_CONFIG.tradeAmount,
-  autoOn:        false,
-  trades:        [],
-  openPositions: [],
-  signalIdCounter:0,
-  cooldowns:     {},
-  strategyStats: {SMC:{trades:0,wins:0,pnl:0},TREND:{trades:0,wins:0,pnl:0},
-                  BREAKOUT:{trades:0,wins:0,pnl:0},MEAN_REV:{trades:0,wins:0,pnl:0},
-                  GANN:{trades:0,wins:0,pnl:0},AUTO:{trades:0,wins:0,pnl:0}},
-};
 
-function demoNextId(){return 'SIG-'+(++DEMO.signalIdCounter).toString().padStart(4,'0');}
 
 // ══════════════════════════════════════════════════════════════
 // SL CALCULATION ENGINE — 5 روش مختلف
