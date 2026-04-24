@@ -575,6 +575,55 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
       <!-- Strategy description -->
       <div id="stratDesc" style="font-size:8.5px;color:var(--t3);margin-top:6px;padding-top:5px;border-top:1px solid var(--brd)">🤖 AUTO: بهترین استراتژی بر اساس شرایط بازار انتخاب می‌شود</div>
     </div>
+
+    <!-- AI ENGINE SETTINGS -->
+    <div style="background:var(--bg2);border:1px solid rgba(206,147,216,.25);border-radius:8px;padding:10px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div id="aiStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
+          <span style="font-size:9px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:.5px">🧠 AI Engine</span>
+          <span id="aiStatusLabel" style="font-size:8.5px;color:var(--t3)">منطق داخلی</span>
+        </div>
+        <span id="aiCallCount" style="font-size:8px;color:var(--t3)">0 امروز</span>
+      </div>
+      <!-- Provider selector -->
+      <div style="margin-bottom:7px">
+        <div style="font-size:8px;color:var(--t3);margin-bottom:3px">منبع تحلیل</div>
+        <select id="aiProvider" onchange="updateAIStatusUI()"
+          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;padding:5px 7px;outline:none">
+          <option value="internal">⚙️ منطق داخلی (رایگان)</option>
+          <option value="gemini">✨ Gemini Flash (رایگان/پولی)</option>
+          <option value="haiku">🤖 Claude Haiku</option>
+          <option value="sonnet">💎 Claude Sonnet</option>
+        </select>
+      </div>
+      <!-- Gemini Key -->
+      <div style="margin-bottom:5px">
+        <div style="font-size:8px;color:var(--t3);margin-bottom:3px">Google AI API Key (Gemini)</div>
+        <input type="password" id="geminiKey" placeholder="AIza..."
+          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
+      </div>
+      <!-- Claude Key -->
+      <div style="margin-bottom:7px">
+        <div style="font-size:8px;color:var(--t3);margin-bottom:3px">Anthropic API Key (Claude)</div>
+        <input type="password" id="claudeKey" placeholder="sk-ant-..."
+          style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:10px;padding:5px 7px;outline:none">
+      </div>
+      <!-- Save button -->
+      <div style="display:flex;gap:5px">
+        <button onclick="saveAIConfig()"
+          style="flex:1;padding:7px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(206,147,216,.4);background:rgba(206,147,216,.1);color:var(--p);font-family:var(--f)">
+          💾 ذخیره
+        </button>
+        <button onclick="testAIConnection()"
+          style="flex:1;padding:7px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid rgba(61,159,255,.4);background:rgba(61,159,255,.1);color:var(--b);font-family:var(--f)">
+          🧪 تست اتصال
+        </button>
+      </div>
+      <div style="font-size:7.5px;color:var(--t3);margin-top:5px;text-align:center">
+        API key در مرورگر ذخیره می‌شود · هرگز به سرور ارسال نمی‌شود
+      </div>
+    </div>
     <!-- OLD strategy info div removed -->
     <div style="font-size:8.5px;color:var(--t3);font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">لاگ زنده</div>
     <div class="demo-log" id="demoLog">— آماده برای معاملات دمو —</div>
@@ -2332,7 +2381,7 @@ function computeSignalV2(sym, c4h, c15m, c5m, price) {
 
   if(buyScore>sellScore&&buyScore>=minScore&&rsiBuyOK){
     sig='buy';
-    strength=buyScore>=(minScore+1.5)?'strong':'normal';
+    strength=buyScore>=(minScore+1)?'strong':'normal';
     sl=(typeof calcSL==='function')
       ?calcSL('buy',price,c5m,c4h,sw4h,sw15m,atr,{ob_d:nearD,ob_s:nearS},strat.slType)
       :(nearD?nearD.lo*0.998:price-atr*1.5);
@@ -2341,7 +2390,7 @@ function computeSignalV2(sym, c4h, c15m, c5m, price) {
     tp=tgtH.length?tgtH[0].p:price+atr*3;
   } else if(sellScore>buyScore&&sellScore>=minScore&&rsiSellOK){
     sig='sell';
-    strength=sellScore>=(minScore+1.5)?'strong':'normal';
+    strength=sellScore>=(minScore+1)?'strong':'normal';
     sl=(typeof calcSL==='function')
       ?calcSL('sell',price,c5m,c4h,sw4h,sw15m,atr,{ob_d:nearD,ob_s:nearS},strat.slType)
       :(nearS?nearS.hi*1.002:price+atr*1.5);
@@ -2684,13 +2733,31 @@ function checkAutoTrade(sym, sigResult, price) {
 
   // Minimum score check
   const score = Math.max(sigResult.buyScore || 0, sigResult.sellScore || 0);
-  const minScore = S.mode === 'scalp' ? STRATEGY.strongScore : STRATEGY.strongScore + 0.5;
-  if (score < minScore) {
-    demoLog(`⏭ [${sym}] رد شد: Score ${score} < ${minScore}`);
+  // minScore از strategy می‌آید
+  const activeS = AT_SETTINGS?.strategy==='AUTO'
+    ? autoSelectStrategy('bull', 50, false, false)
+    : (AT_SETTINGS?.strategy||'SMC');
+  const stratMin = STRATEGIES[activeS]?.minScore || 5.5;
+  if (score < stratMin) {
+    demoLog(`⏭ [${sym}] رد: Score ${score} < ${stratMin}`);
     return;
   }
 
-  openDemoPos(sym, sigResult, price);
+  // Run AI analysis if enabled
+  if(AI_CONFIG.provider !== 'internal'){
+    // AI تحلیل می‌کنه
+    runAIAnalysis(sym, sigResult, price).then(aiResult => {
+      const finalSig = mergeAIWithInternal(sym, sigResult, aiResult, price);
+      if(finalSig && finalSig.sig !== 'wait'){
+        openDemoPos(sym, finalSig, price);
+      }
+    }).catch(()=>{
+      // fallback به منطق داخلی
+      openDemoPos(sym, sigResult, price);
+    });
+  } else {
+    openDemoPos(sym, sigResult, price);
+  }
 }
 
 // ── UPDATE UI ──
@@ -3156,12 +3223,369 @@ async function sendToBridge(sym, sigResult, price) {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+//  STB AI ENGINE v1.0
+//  پشتیبانی از: منطق داخلی | Gemini | Claude Haiku | Claude Sonnet
+// ═══════════════════════════════════════════════════════════════
+
+const AI_CONFIG = {
+  provider: 'internal',     // internal | gemini | haiku | sonnet
+  geminiKey: '',            // Google AI API Key
+  claudeKey: '',            // Anthropic API Key
+  autoFallback: true,       // اگه AI کار نکرد → منطق داخلی
+  maxRetries: 2,
+  timeoutMs: 8000,
+  callsToday: 0,
+  lastReset: new Date().toDateString(),
+};
+
+// Reset daily counter
+function checkAIReset(){
+  const today = new Date().toDateString();
+  if(AI_CONFIG.lastReset !== today){
+    AI_CONFIG.callsToday = 0;
+    AI_CONFIG.lastReset = today;
+  }
+}
+
+// ── BUILD PROMPT ──
+function buildMarketPrompt(sym, sigResult, candles5m, price){
+  const db = DB[sym]||{};
+  const atr = sigResult?.atr5||price*0.002;
+
+  // آخرین ۳۰ کندل با اطلاعات کامل
+  const candleData = (candles5m||[]).slice(-30).map((c,i)=>{
+    const chg = c.o>0?((c.c-c.o)/c.o*100).toFixed(2):'0';
+    const body = Math.abs(c.c-c.o);
+    const upperWick = c.h - Math.max(c.c,c.o);
+    const lowerWick = Math.min(c.c,c.o) - c.l;
+    const type = c.c>c.o?'Bull':'Bear';
+    return `${type} O:${c.o.toFixed(4)} H:${c.h.toFixed(4)} L:${c.l.toFixed(4)} C:${c.c.toFixed(4)} (${chg}%)`;
+  }).join('\n');
+
+  // سطوح مهم
+  const smcLevels = (sigResult?.levels||[]).slice(0,6).map(l=>
+    `  - ${l.type} @ ${Number(l.price).toFixed(4)} [${l.tf}]${Math.abs(price-l.price)/price<0.01?' ← NEARBY':''}`)
+  .join('\n');
+
+  // ساختار بازار
+  const struct = (sigResult?.struct||[]).slice(0,4).map(s=>
+    `  - ${s.en||s.type} @ ${Number(s.price).toFixed(4)} [${s.tf}]`)
+  .join('\n');
+
+  const trend = sigResult?.trend||{};
+  const rsi = sigResult?.rsi||{};
+  const ema = sigResult?.ema||{};
+  const internalSig = sigResult?.sig||'wait';
+  const buyScore = sigResult?.buyScore||0;
+  const sellScore = sigResult?.sellScore||0;
+
+  return `You are an expert algorithmic trader specializing in crypto markets.
+Analyze ${db.label||sym} and provide a precise trading decision.
+
+=== PRICE ACTION (Last 30 x 5min candles) ===
+${candleData}
+
+=== CURRENT MARKET STATE ===
+Price: ${price.toFixed(4)}
+ATR(14): ${atr.toFixed(4)} = ${(atr/price*100).toFixed(3)}%
+VWAP: ${(sigResult?.vwap||price).toFixed(4)} — Price is ${price>(sigResult?.vwap||price)?'ABOVE':'BELOW'} VWAP
+
+=== TREND ALIGNMENT ===
+H4: ${trend.h4==='bull'?'BULLISH ↑':trend.h4==='bear'?'BEARISH ↓':'SIDEWAYS →'}
+M15: ${trend.m15==='bull'?'BULLISH ↑':trend.m15==='bear'?'BEARISH ↓':'SIDEWAYS →'}
+M5: ${trend.m5==='bull'?'BULLISH ↑':trend.m5==='bear'?'BEARISH ↓':'SIDEWAYS →'}
+EMA200: Price ${ema.above200?'ABOVE (bullish bias)':'BELOW (bearish bias)'}
+EMA Cross: ${ema.crossBull?'GOLDEN CROSS ✓':ema.crossBear?'DEATH CROSS ✓':'None'}
+
+=== INDICATORS ===
+RSI M5:  ${rsi.m5?.toFixed(1)||50} ${rsi.m5>70?'⚠️ OVERBOUGHT':rsi.m5<30?'⚠️ OVERSOLD':''}
+RSI M15: ${rsi.m15?.toFixed(1)||50}
+RSI H4:  ${rsi.h4?.toFixed(1)||50}
+Volume Surge: ${sigResult?.volSurge?'YES — strong momentum':'No'}
+
+=== SMC STRUCTURE ===
+${smcLevels||'No major levels detected'}
+
+=== MARKET STRUCTURE (BOS/CHoCH) ===
+${struct||'No structure breaks detected'}
+
+=== INTERNAL SIGNAL ===
+Signal: ${internalSig.toUpperCase()}
+Buy Score: ${buyScore} / Sell Score: ${sellScore}
+Demand OB: ${sigResult?.nearD?'YES @ '+sigResult.nearD.price?.toFixed(4):'None near price'}
+Supply OB: ${sigResult?.nearS?'YES @ '+sigResult.nearS.price?.toFixed(4):'None near price'}
+
+=== YOUR TASK ===
+1. Analyze the candles, trend, RSI, and SMC levels
+2. Identify the market condition (trending/ranging/reversal)
+3. Find the optimal entry, SL, and TP
+4. SL RULES: minimum 0.3% from price, maximum 5%, SL for BUY must be below price, SL for SELL above price
+5. TP RULES: minimum R:R 1.5, target nearest significant structure level
+
+Respond with ONLY this JSON (no markdown, no extra text):
+{"signal":"BUY or SELL or WAIT","confidence":0-100,"sl":exact_number,"tp":exact_number,"rr":number,"sl_method":"structural or atr or orderblock or sr","reason":"Persian text max 60 chars","key_level":important_price_number,"market_condition":"trending or ranging or reversal","analysis":"one line English summary"}`;
+}
+
+// ── GEMINI API ──
+async function callGemini(prompt){
+  const key = AI_CONFIG.geminiKey;
+  if(!key) throw new Error('Gemini key ندارید — از aistudio.google.com رایگان بگیرید');
+
+  // Gemini 2.0 Flash — رایگان، سریع
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${key}`;
+  const body = {
+    contents:[{role:'user', parts:[{text:prompt}]}],
+    generationConfig:{
+      temperature: 0.1,
+      maxOutputTokens: 400,
+      responseMimeType: 'application/json',
+    },
+    safetySettings:[
+      {category:'HARM_CATEGORY_HARASSMENT',threshold:'BLOCK_NONE'},
+      {category:'HARM_CATEGORY_HATE_SPEECH',threshold:'BLOCK_NONE'},
+      {category:'HARM_CATEGORY_SEXUALLY_EXPLICIT',threshold:'BLOCK_NONE'},
+      {category:'HARM_CATEGORY_DANGEROUS_CONTENT',threshold:'BLOCK_NONE'},
+    ]
+  };
+
+  let r, j;
+  try {
+    r = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body),
+      signal:AbortSignal.timeout(AI_CONFIG.timeoutMs)
+    });
+    j = await r.json();
+  } catch(e) {
+    throw new Error('Gemini network error: ' + e.message);
+  }
+
+  // Check for API errors
+  if(!r.ok || j.error) {
+    const errMsg = j.error?.message || ('HTTP ' + r.status);
+    if(r.status === 400) throw new Error('Gemini key نامعتبر است');
+    if(r.status === 429) throw new Error('Gemini rate limit — کمی صبر کنید');
+    throw new Error('Gemini: ' + errMsg.slice(0,50));
+  }
+
+  // Extract text
+  const text = j.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  if(!text) throw new Error('Gemini پاسخ خالی داد');
+
+  // Parse JSON — robust
+  try {
+    // Remove markdown code blocks if present
+    const clean = text.replace(/^```json\n?/,'').replace(/\n?```$/,'').trim();
+    return JSON.parse(clean);
+  } catch(e) {
+    // Try to extract JSON object from text
+    const match = text.match(/\{[\s\S]+\}/);
+    if(match) return JSON.parse(match[0]);
+    throw new Error('Gemini JSON parse failed: ' + text.slice(0,80));
+  }
+}
+
+// ── CLAUDE API ──
+async function callClaude(prompt, model='claude-haiku-4-5-20251001'){
+  const key = AI_CONFIG.claudeKey;
+  if(!key) throw new Error('No Claude key');
+  const r = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01'
+    },
+    body:JSON.stringify({
+      model,
+      max_tokens:300,
+      messages:[{role:'user',content:prompt}]
+    }),
+    signal:AbortSignal.timeout(AI_CONFIG.timeoutMs)
+  });
+  if(!r.ok) throw new Error('Claude '+r.status);
+  const j = await r.json();
+  const text = j.content?.[0]?.text||'';
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
+}
+
+// ── MAIN AI ANALYZER ──
+async function testAIConnection(){
+  saveAIConfig();
+  const provider = AI_CONFIG.provider;
+  if(provider === 'internal'){
+    showToast('منطق داخلی', 'هیچ API لازم نیست — همین الان فعاله', 'info');
+    return;
+  }
+  demoLog(`🧪 تست اتصال ${provider}...`);
+  const testPrompt = 'Respond with only this JSON: {"signal":"WAIT","confidence":100,"sl":0,"tp":0,"rr":0,"sl_method":"test","reason":"تست موفق","key_level":0,"market_condition":"ranging","analysis":"Connection test OK"}';
+  try {
+    let result;
+    if(provider === 'gemini') result = await callGemini(testPrompt);
+    else result = await callClaude(testPrompt, provider==='sonnet'?'claude-sonnet-4-20250514':'claude-haiku-4-5-20251001');
+    demoLog(`✅ ${provider.toUpperCase()} متصل شد — ${result.reason||'OK'}`);
+    showToast('اتصال موفق', provider.toUpperCase() + ' آماده تحلیل است', 'buy');
+    updateAIStatusUI();
+  } catch(e) {
+    demoLog(`❌ ${provider.toUpperCase()} خطا: ${e.message}`);
+    showToast('خطای اتصال', e.message, 'warn');
+  }
+}
+
+async function runAIAnalysis(sym, sigResult, price){
+  checkAIReset();
+  const provider = AI_CONFIG.provider;
+  if(provider === 'internal') return null; // از منطق داخلی استفاده کن
+
+  const prompt = buildMarketPrompt(sym, sigResult, S.candles[sym], price);
+  let result = null;
+  let usedProvider = provider;
+
+  try{
+    if(provider === 'gemini'){
+      result = await callGemini(prompt);
+    } else if(provider === 'haiku'){
+      result = await callClaude(prompt, 'claude-haiku-4-5-20251001');
+    } else if(provider === 'sonnet'){
+      result = await callClaude(prompt, 'claude-sonnet-4-20250514');
+    }
+    AI_CONFIG.callsToday++;
+
+    // Validate response
+    if(!result?.signal || !['BUY','SELL','WAIT'].includes(result.signal)){
+      throw new Error('Invalid AI response');
+    }
+
+    // Log AI decision
+    const conf = result.confidence||0;
+    const icon = conf>=75?'🟢':conf>=50?'🟡':'🔴';
+    const condIcon = result.market_condition==='trending'?'📈':result.market_condition==='ranging'?'↔️':'🔄';
+    demoLog(`${icon} [${usedProvider.toUpperCase()}] ${sym}: ${result.signal} — اطمینان: ${conf}% | ${condIcon} ${result.market_condition||''}`);
+    demoLog(`   📝 ${result.reason||''}`);
+    if(result.signal!=='WAIT'){
+      const risk=Math.abs(price-(result.sl||price));
+      const rew=Math.abs((result.tp||price)-price);
+      demoLog(`   SL: ${Number(result.sl||0).toFixed(4)} | TP: ${Number(result.tp||0).toFixed(4)} | R:R 1:${(result.rr||0).toFixed(2)} | روش: ${result.sl_method||'auto'}`);
+      if(result.analysis) demoLog(`   🔍 ${result.analysis}`);
+    }
+    updateAIStatusUI();
+
+    return result;
+
+  }catch(e){
+    console.warn('AI error:', e.message);
+    demoLog(`⚠️ AI خطا (${usedProvider}): ${e.message.slice(0,40)} — منطق داخلی`);
+    if(AI_CONFIG.autoFallback) return null; // fallback to internal
+    return null;
+  }
+}
+
+// ── MERGE AI RESULT WITH INTERNAL SIGNAL ──
+function mergeAIWithInternal(sym, internalSig, aiResult, price){
+  if(!aiResult || aiResult.signal === 'WAIT'){
+    if(aiResult?.signal === 'WAIT'){
+      demoLog(`🛑 AI گفت WAIT: ${aiResult.reason||''}`);
+    }
+    return null; // don't trade
+  }
+
+  const dir = aiResult.signal === 'BUY' ? 'buy' : 'sell';
+
+  // Validate AI SL/TP
+  let sl = parseFloat(aiResult.sl)||0;
+  let tp = parseFloat(aiResult.tp)||0;
+
+  const minDist = price * 0.003;
+  const maxDist = price * 0.06;
+
+  if(dir === 'buy'){
+    if(!sl || sl >= price || price-sl < minDist) sl = price - Math.max(internalSig?.atr5*1.8||minDist*2, minDist);
+    if(price-sl > maxDist) sl = price - maxDist;
+    if(!tp || tp <= price) tp = price + (price-sl)*2.5;
+  } else {
+    if(!sl || sl <= price || sl-price < minDist) sl = price + Math.max(internalSig?.atr5*1.8||minDist*2, minDist);
+    if(sl-price > maxDist) sl = price + maxDist;
+    if(!tp || tp >= price) tp = price - (sl-price)*2.5;
+  }
+
+  const risk = Math.abs(price-sl);
+  const reward = Math.abs(tp-price);
+  const rr = risk > 0 ? reward/risk : 0;
+
+  // Merge best of both
+  return {
+    ...(internalSig||{}),
+    sig: dir,
+    strength: (aiResult.confidence||0) >= 70 ? 'strong' : 'normal',
+    sl, tp, rr,
+    slMethod: aiResult.sl_method || 'ai',
+    aiConfidence: aiResult.confidence||0,
+    aiReason: aiResult.reason||'',
+    aiProvider: AI_CONFIG.provider,
+    keyLevel: aiResult.key_level,
+    marketCondition: aiResult.market_condition,
+    entry: price, price,
+    buyScore: internalSig?.buyScore||0,
+    sellScore: internalSig?.sellScore||0,
+  };
+}
+
+// ── SETTINGS UI FUNCTIONS ──
+function saveAIConfig(){
+  const prov = document.getElementById('aiProvider')?.value||'internal';
+  const gKey = document.getElementById('geminiKey')?.value?.trim()||'';
+  const cKey = document.getElementById('claudeKey')?.value?.trim()||'';
+  AI_CONFIG.provider = prov;
+  AI_CONFIG.geminiKey = gKey;
+  AI_CONFIG.claudeKey = cKey;
+  // Save to localStorage
+  try{
+    localStorage.setItem('stb_ai_config', JSON.stringify({
+      provider:prov, geminiKey:gKey, claudeKey:cKey
+    }));
+  }catch(e){}
+  updateAIStatusUI();
+  demoLog(`⚙️ AI تنظیم شد: ${prov.toUpperCase()}`);
+  showToast('ذخیره شد', 'تنظیمات AI ذخیره شد', 'info');
+}
+
+function loadAIConfig(){
+  try{
+    const saved = JSON.parse(localStorage.getItem('stb_ai_config')||'{}');
+    if(saved.provider) AI_CONFIG.provider = saved.provider;
+    if(saved.geminiKey) AI_CONFIG.geminiKey = saved.geminiKey;
+    if(saved.claudeKey) AI_CONFIG.claudeKey = saved.claudeKey;
+    // Update UI
+    const provEl = document.getElementById('aiProvider');
+    if(provEl) provEl.value = AI_CONFIG.provider;
+    if(saved.geminiKey){const el=document.getElementById('geminiKey');if(el)el.value=saved.geminiKey;}
+    if(saved.claudeKey){const el=document.getElementById('claudeKey');if(el)el.value=saved.claudeKey;}
+  }catch(e){}
+}
+
+function updateAIStatusUI(){
+  const dot = document.getElementById('aiStatusDot');
+  const lbl = document.getElementById('aiStatusLabel');
+  const cnt = document.getElementById('aiCallCount');
+  if(!dot||!lbl) return;
+  const colors = {internal:'var(--t3)', gemini:'var(--b)', haiku:'var(--p)', sonnet:'var(--g)'};
+  const names = {internal:'منطق داخلی', gemini:'Gemini Flash', haiku:'Claude Haiku', sonnet:'Claude Sonnet'};
+  dot.style.background = colors[AI_CONFIG.provider]||'var(--t3)';
+  lbl.textContent = names[AI_CONFIG.provider]||AI_CONFIG.provider;
+  if(cnt) cnt.textContent = AI_CONFIG.callsToday + ' امروز';
+}
+
 window.addEventListener('load',async()=>{
   S.symbols=loadSyms();
   S.active=S.symbols.find(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]))||S.symbols[0]||'BTCUSDT';
 
   // Request notifications
   if(Notification.permission==='default')Notification.requestPermission();
+  // Load AI config
+  loadAIConfig();
+  updateAIStatusUI();
 
   renderChips();
   switchChart(S.active);
@@ -3273,7 +3697,7 @@ const STRATEGIES = {
     id:'SMC', name:'SMC کامل', nameEn:'Smart Money Concept',
     desc:'Order Block + FVG + BOS + Liquidity',
     color:'var(--b)', icon:'🧱',
-    minScore:6.5, rrMin:1.5,
+    minScore:5.5, rrMin:1.5,
     slType:'orderblock', // SL پشت OB
     bestMarket:['Crypto','Forex'], bestCondition:['trend','range'],
   },
@@ -3281,7 +3705,7 @@ const STRATEGIES = {
     id:'TREND', name:'Trend Following', nameEn:'Trend Following',
     desc:'EMA 9/21/200 + RSI فیلتر + حجم',
     color:'var(--g)', icon:'📈',
-    minScore:5.5, rrMin:1.5,
+    minScore:5.0, rrMin:1.5,
     slType:'structural', // SL پشت آخرین کندل ساختاری
     bestMarket:['Crypto'], bestCondition:['trend'],
   },
@@ -3289,7 +3713,7 @@ const STRATEGIES = {
     id:'BREAKOUT', name:'Breakout', nameEn:'Breakout',
     desc:'شکست سطوح + تایید حجم + BOS',
     color:'var(--c)', icon:'⚡',
-    minScore:6.0, rrMin:2.0,
+    minScore:5.5, rrMin:1.8,
     slType:'sr', // SL پشت S/R
     bestMarket:['Crypto','Commodities'], bestCondition:['trend'],
   },
@@ -3297,7 +3721,7 @@ const STRATEGIES = {
     id:'MEAN_REV', name:'Mean Reversion', nameEn:'Mean Reversion',
     desc:'برگشت به میانگین: RSI اشباع + VWAP + OB',
     color:'var(--a)', icon:'🔄',
-    minScore:6.0, rrMin:1.8,
+    minScore:5.0, rrMin:1.5,
     slType:'atr', // SL بر اساس ATR
     bestMarket:['Crypto','Commodities'], bestCondition:['range'],
   },
@@ -3313,7 +3737,7 @@ const STRATEGIES = {
     id:'AUTO', name:'هوشمند (AUTO)', nameEn:'Auto Select',
     desc:'انتخاب خودکار بهترین استراتژی بر اساس بازار',
     color:'var(--o)', icon:'🤖',
-    minScore:6.5, rrMin:1.5,
+    minScore:5.5, rrMin:1.5,
     slType:'auto',
     bestMarket:['All'], bestCondition:['all'],
   },
