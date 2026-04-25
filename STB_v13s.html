@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v16.5 · داده واقعی Twelve Data</title>
+<title>STB v16.6 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v16.5</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v16.6</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.5</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.6</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2927,7 +2927,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.5';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.6';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3283,45 +3283,119 @@ function updateDemoUI() {
   if (openBadge) { openBadge.textContent = openCount > 0 ? openCount : ''; openBadge.style.display = openCount > 0 ? 'inline' : 'none'; }
 }
 
-function renderDemoOpenPos() {
+function renderDemoOpenPos(){
   const listEl = document.getElementById('demoOpenPosList');
-  const noMsg = document.getElementById('demoNoPosMsg');
-  const badge = document.getElementById('openPosCountBadge');
+  const noMsg  = document.getElementById('demoNoPosMsg');
+  const badge  = document.getElementById('openPosCountBadge');
   if(!listEl) return;
   const cnt = DEMO.openPositions.length;
-  if(badge) badge.textContent = cnt > 0 ? '('+cnt+')' : '';
-  if(noMsg) noMsg.style.display = cnt ? 'none' : 'block';
-  if(!cnt && !listEl) return;
+  if(badge) badge.textContent = cnt>0?`(${cnt})`:'';
+  if(noMsg) noMsg.style.display = cnt?'none':'block';
+  if(!cnt){ listEl.innerHTML=''; return; }
+
   listEl.innerHTML = DEMO.openPositions.map(pos => {
-    const pd = S.prices[pos.sym];
-    const price = pd?.price || pos.entry;
-    const pnl = pos.dir === 'buy' ? (price - pos.entry) * pos.size : (pos.entry - price) * pos.size;
-    const pnlPct = (pnl / pos.tradeAmount * 100).toFixed(2);
-    const elapsed = Math.round((Date.now() - pos.entryTime) / 60000);
-    return `<div style="background:var(--bg2);border:1px solid ${pnl>=0?'rgba(0,230,118,.25)':'rgba(255,63,95,.25)'};border-radius:6px;padding:7px 10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:8.5px;padding:2px 6px;border-radius:3px;font-weight:700;background:${pos.dir==='buy'?'var(--gdim)':'var(--rdim)'};color:${pos.dir==='buy'?'var(--g)':'var(--r)'}">${pos.dir==='buy'?'LONG':'SHORT'}</span>
-          <span style="font-size:12px;font-weight:800">${DB[pos.sym]?.label||pos.sym}</span>
-          <span style="font-size:7.5px;padding:1px 5px;border-radius:2px;background:var(--bdim);color:var(--b);font-family:monospace">${pos.signalId}</span>
-          ${pos.trailingActive?'<span style="font-size:8px;color:var(--a)">🔄Trail</span>':''}
-          ${pos.strength==='strong'?'<span style="font-size:8px;color:var(--a)">💪</span>':''}
+    const price = S.prices[pos.sym]?.price || pos.entry;
+    const dir   = pos.dir;
+    const pnlPct = dir==='buy'?(price-pos.entry)/pos.entry*100:(pos.entry-price)/pos.entry*100;
+    const profitDollar = pnlPct/100 * pos.tradeAmount * (pos.leverage||1);
+    const elapsed = Math.round((Date.now()-pos.entryTime)/60000);
+    const isPos = profitDollar >= 0;
+    const pColor = isPos?'var(--g)':'var(--r)';
+
+    // Progress bar (قیمت بین SL و TP)
+    const range = Math.abs(pos.tp - pos.sl);
+    const progress = range>0 ? Math.max(0,Math.min(100,
+      dir==='buy' ? (price-pos.sl)/range*100 : (pos.sl-price)/range*100
+    )) : 50;
+
+    // Progress bar color segments
+    const bars = 20;
+    const filled = Math.round(progress/100*bars);
+    const barHtml = Array.from({length:bars},(_,i)=>{
+      const pct = i/bars*100;
+      const c = pct<40?'var(--r)':pct<70?'var(--a)':'var(--g)';
+      return `<span style="display:inline-block;width:5px;height:10px;border-radius:1px;margin:0 1px;background:${i<filled?c:'var(--bg3)'}"></span>`;
+    }).join('');
+
+    // Milestone checklists ($2, $4, $6, $10, $15, $20)
+    const milestones = [2,4,6,10,15,20];
+    const milestoneHtml = milestones.map(m=>{
+      const reached = pos.maxAdv && (pos.maxAdv/pos.entry*(pos.leverage||1)*pos.tradeAmount) >= m;
+      return `<span style="font-size:8px;padding:1px 5px;border-radius:3px;border:1px solid ${reached?'var(--g)':'var(--brd2)'};background:${reached?'rgba(0,230,118,.15)':'transparent'};color:${reached?'var(--g)':'var(--t4)'}">$${m}</span>`;
+    }).join('');
+
+    // Strategy WR
+    const sk = pos.strategy||'AUTO';
+    const ss = DEMO.strategyStats?.[sk];
+    const stratWR = ss?.trades>0 ? Math.round(ss.wins/ss.trades*100) : '—';
+    const slWR = '—'; // placeholder
+
+    // Smart TP/PM status
+    const hasSmartTP = SMART_TP.enabled;
+    const hasSmartPM = SMART_PM.enabled;
+
+    // News signal (placeholder)
+    const newsSignal = pos.newsSignal||null;
+
+    return `<div style="background:var(--bg2);border:1px solid ${isPos?'rgba(0,230,118,.3)':'rgba(255,63,95,.3)'};border-radius:7px;padding:8px 10px;position:relative">
+      <!-- Row 1: P&L + progress + Smart badges -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <div>
+          <div style="font-size:18px;font-weight:900;color:${pColor};line-height:1">${isPos?'+':''}${pnlPct.toFixed(2)}%</div>
+          <div style="font-size:10px;color:${pColor}">${isPos?'+':''}$${profitDollar.toFixed(2)}</div>
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
+            ${barHtml}
+            <span style="font-size:9px;color:var(--t3);margin-right:2px">${progress.toFixed(0)}%</span>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${hasSmartTP?'var(--g)':'var(--brd2)'};color:${hasSmartTP?'var(--g)':'var(--t4)'};cursor:pointer" onclick="SMART_TP.enabled=!SMART_TP.enabled;renderDemoOpenPos()">Smart TP</span>
+            <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${hasSmartPM?'var(--b)':'var(--brd2)'};color:${hasSmartPM?'var(--b)':'var(--t4)'};cursor:pointer" onclick="SMART_PM.enabled=!SMART_PM.enabled;renderDemoOpenPos()">Smart PM</span>
+            ${newsSignal?`<span style="font-size:8px;padding:1px 6px;border-radius:3px;background:rgba(255,179,0,.15);border:1px solid var(--a);color:var(--a)">📰 ${newsSignal}</span>`:''}
+          </div>
         </div>
         <div style="text-align:left">
-          <div style="font-size:14px;font-weight:900;font-family:monospace;color:${pnl>=0?'var(--g)':'var(--r)'}">${pnl>=0?'+':''}${pnlPct}%</div>
-          <div style="font-size:9.5px;font-family:monospace;color:${pnl>=0?'var(--g)':'var(--r)'}">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)}</div>
+          <div style="font-size:8.5px;color:var(--t3)">${elapsed}min پیش</div>
+          <div style="font-size:8px;color:var(--t4)">${pos.signalId}</div>
+          <div style="display:flex;gap:3px;align-items:center">
+            <span style="font-size:9px;font-weight:700;color:${dir==='buy'?'var(--g)':'var(--r)'}">●</span>
+            <span style="font-size:10px;font-weight:700;color:var(--t1)">${DB[pos.sym]?.label||pos.sym}</span>
+            <span style="font-size:8px;padding:1px 5px;border-radius:3px;background:${dir==='buy'?'rgba(0,230,118,.15)':'rgba(255,63,95,.15)'};color:${dir==='buy'?'var(--g)':'var(--r)'};">${dir==='buy'?'LONG':'SHORT'}</span>
+          </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;font-size:9px;font-family:monospace;margin-bottom:5px">
-        <div style="background:var(--bg3);border-radius:3px;padding:3px 5px"><div style="color:var(--t3);font-size:7px;margin-bottom:1px">ورود</div><div style="color:var(--b)">${fmt(pos.entry,pos.sym)}</div></div>
-        <div style="background:var(--bg3);border-radius:3px;padding:3px 5px"><div style="color:var(--t3);font-size:7px;margin-bottom:1px">الان</div><div style="color:${pnl>=0?'var(--g)':'var(--r)'}">${fmt(price,pos.sym)}</div></div>
-        <div style="background:var(--bg3);border-radius:3px;padding:3px 5px"><div style="color:var(--t3);font-size:7px;margin-bottom:1px">SL${pos.trailingActive?' 🔄':''}</div><div style="color:var(--r)">${fmt(pos.trailingActive?pos.trailingSL:pos.sl,pos.sym)}</div></div>
-        <div style="background:var(--bg3);border-radius:3px;padding:3px 5px"><div style="color:var(--t3);font-size:7px;margin-bottom:1px">TP</div><div style="color:var(--g)">${fmt(pos.tp,pos.sym)}</div></div>
+
+      <!-- Row 2: SL/TP/Entry/Now -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px;background:var(--bg3);border-radius:5px;padding:5px">
+        <div style="text-align:center"><div style="font-size:7.5px;color:var(--t3)">ورود</div><div style="font-size:10px;font-family:monospace;color:var(--t2)">${fmt(pos.entry,pos.sym)}</div></div>
+        <div style="text-align:center"><div style="font-size:7.5px;color:var(--t3)">الان</div><div style="font-size:10px;font-family:monospace;color:${pColor}">${fmt(price,pos.sym)}</div></div>
+        <div style="text-align:center"><div style="font-size:7.5px;color:var(--r)">SL</div><div style="font-size:10px;font-family:monospace;color:var(--r)">${fmt(pos.trailingActive?pos.trailingSL:pos.sl,pos.sym)}</div></div>
+        <div style="text-align:center"><div style="font-size:7.5px;color:var(--g)">TP</div><div style="font-size:10px;font-family:monospace;color:var(--g)">${fmt(pos.tp,pos.sym)}</div></div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:8.5px;color:var(--t3)">
-        <span>${pos.leverage||1}× | مارجین $${pos.margin||pos.tradeAmount} | پوزیشن $${((pos.margin||pos.tradeAmount)*(pos.leverage||1)).toFixed(0)} | R:R 1:${pos.rr.toFixed(1)} | ${elapsed}min</span>
-        <button onclick="closeDemoPos(DEMO.openPositions.find(p=>p.signalId==='${pos.signalId}'),S.prices['${pos.sym}']?.price||${pos.entry},'Manual')" style="font-size:8.5px;padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);transition:all .15s" onmouseover="this.style.color='var(--r)'" onmouseout="this.style.color='var(--t3)'">بستن ×</button>
+
+      <!-- Row 3: Milestones -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
+        ${milestoneHtml}
       </div>
+
+      <!-- Row 4: Strategy + SL WR + Meta -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <div style="font-size:8px">
+          <span style="color:var(--a)">Strategy: <b>${sk}</b></span>
+          <span style="color:var(--t3);margin-right:6px"> WR: <b style="color:${stratWR>=60?'var(--g)':stratWR>=45?'var(--a)':'var(--r)'}">${stratWR}%</b></span>
+          <span style="color:var(--t3)">SL: <b style="color:var(--t2)">${pos.slType||AT_SETTINGS?.slType||'auto'}</b></span>
+        </div>
+        <div style="font-size:8px;color:var(--t3)">${pos.leverage||1}× | $${((pos.tradeAmount||100)*(pos.leverage||1)).toFixed(0)} | R:R 1:${(pos.rr||0).toFixed(1)}</div>
+      </div>
+
+      <!-- Row 5: Close button -->
+      <button onclick="closeDemoPos(DEMO.openPositions.find(p=>p.signalId==='${pos.signalId}'),S.prices['${pos.sym}']?.price||${price},'Manual')"
+        style="width:100%;padding:4px;border-radius:4px;font-size:9px;cursor:pointer;border:1px solid var(--brd2);background:transparent;color:var(--t3);font-family:var(--f);transition:all .15s"
+        onmouseover="this.style.borderColor='var(--r)';this.style.color='var(--r)'"
+        onmouseout="this.style.borderColor='var(--brd2)';this.style.color='var(--t3)'">
+        × بستن
+      </button>
     </div>`;
   }).join('');
 }
@@ -4821,7 +4895,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v16.5',
+    version:'STB v16.6',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
@@ -5148,7 +5222,9 @@ function calcSL(dir, price, candles5m, candles4h, sw4h, sw15m, atr, nearOB, slTy
   const maxDist = price * maxPct;
 
   // اطمینان از ATR معقول
-  const safeATR = Math.max(atr || price*0.005, price * 0.003);
+  // برای قیمت‌های خیلی کوچیک (FLOKI, SHIB, PEPE...)
+  const minPriceUnit = price < 0.001 ? price * 0.05 : price < 0.01 ? price * 0.03 : price * 0.003;
+  const safeATR = Math.max(atr || minPriceUnit * 1.5, minPriceUnit);
 
   function validate(sl) {
     if (!sl || isNaN(sl)) return dir==='buy' ? price - safeATR*1.5 : price + safeATR*1.5;
