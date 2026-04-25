@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v16.1 · داده واقعی Twelve Data</title>
+<title>STB v16.4 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v16.1</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v16.4</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.1</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.4</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -641,6 +641,38 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
         </div>
       </div>
 
+      <!-- Smart TP -->
+      <div style="background:var(--bg3);border:1px solid rgba(0,229,255,.2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--c)">🎯 Smart Trailing TP</div>
+          <button id="smartTPBtn" class="demo-btn" onclick="toggleSmartTP()"
+            style="font-size:8.5px;padding:2px 10px;color:var(--t3)">
+            🎯 Smart TP: خاموش
+          </button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+          <div>
+            <div class="dd-inp-l">حالت تحلیل</div>
+            <select id="smartTPMode" class="dd-sel"
+              onchange="SMART_TP.mode=this.value;demoLog('🎯 Smart TP حالت: '+this.options[this.selectedIndex].text)">
+              <option value="internal">⚙️ منطق داخلی (سریع)</option>
+              <option value="groq">⚡ Groq (دقیق‌تر)</option>
+            </select>
+          </div>
+          <div>
+            <div class="dd-inp-l">حداقل سود فعال‌سازی ($)</div>
+            <input type="number" id="smartTPMinProfit" value="1" min="0.1" max="50" step="0.5" class="dd-inp"
+              style="color:var(--g)" oninput="SMART_TP.minProfitToActivate=parseFloat(this.value)||1">
+          </div>
+        </div>
+        <div style="font-size:8px;color:var(--t3);line-height:1.8">
+          <div>🟢 <b>HOLD</b> — نگه داشتن (روند ادامه داره)</div>
+          <div>🔒 <b>LOCK</b> — TP رو نزدیک کن (سود محفوظ)</div>
+          <div>📈 <b>EXTEND</b> — TP رو ببر بالاتر (روند قوی)</div>
+          <div>❌ <b>CLOSE</b> — ببند (سیگنال برگشت قوی)</div>
+        </div>
+      </div>
+
       <!-- Smart PM -->
       <div style="background:var(--bg3);border:1px solid var(--brd2);border-radius:6px;padding:8px;margin-bottom:8px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -710,7 +742,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
         <button id="btn-ai-save" class="demo-btn" style="color:var(--p);border-color:rgba(206,147,216,.4)">💾 ذخیره</button>
         <button id="btn-ai-test" class="demo-btn" style="color:var(--b);border-color:rgba(61,159,255,.4)">🧪 تست اتصال</button>
       </div>
-      <div style="font-size:7.5px;color:var(--t3);text-align:center">🔒 فقط در مرورگر ذخیره می‌شود</div>
+      <div style="font-size:7.5px;color:var(--t3);text-align:center">🔒 API key فقط در مرورگر ذخیره می‌شود</div>
+      <hr style="border:none;border-top:1px solid var(--brd2);margin:8px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <div style="font-size:9px;font-weight:700;color:var(--g)">🗄️ Supabase</div>
+        <div id="sbStatus" style="font-size:8px;color:var(--t3)">در حال اتصال...</div>
+      </div>
+      <div style="font-size:7.5px;color:var(--t3)">معاملات و سیگنال‌های رد شده ذخیره می‌شوند</div>
       <hr style="border:none;border-top:1px solid var(--brd2);margin:10px 0">
       <div style="font-size:9px;font-weight:700;color:var(--t3);margin-bottom:6px">🔗 MT4/MT5 Bridge</div>
       <button id="bridgeBtn" class="demo-btn" style="width:100%;margin-bottom:6px;color:var(--t3)">🔗 Bridge: خاموش</button>
@@ -868,6 +906,85 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 
 </div>
 <script src="https://s3.tradingview.com/tv.js"></script>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPA_URL = 'https://wmglswdbxuoklorwdqvg.supabase.co';
+const SUPA_KEY = 'sb_publishable_Ep8OrksO0iq9TSs4Mm9K1Q_TCo_g-su';
+let _sb = null;
+
+function initSupabase(){
+  try{
+    _sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+    _sb.from('trades').select('id').limit(1).then(({error})=>{
+      const el = document.getElementById('sbStatus');
+      if(error && error.code==='42P01'){
+        if(el){el.textContent='⚠️ جدول نیاز به ساخت';el.style.color='var(--a)';}
+        demoLog('⚠️ Supabase: جدول trades رو در dashboard بساز');
+      } else {
+        if(el){el.textContent='✅ متصل';el.style.color='var(--g)';}
+        demoLog('✅ Supabase متصل شد');
+      }
+    });
+  }catch(e){ console.warn('Supabase:', e.message); }
+}
+
+async function saveTrade(tr){
+  if(!_sb) return;
+  try{
+    const {error} = await _sb.from('trades').insert({
+      signal_id:     tr.signalId,
+      sym:           tr.sym,
+      symbol_label:  (typeof DB!=='undefined'&&DB[tr.sym]?.label)||tr.sym,
+      direction:     tr.dir,
+      strategy:      tr.strategy||'AUTO',
+      entry:         tr.entry,
+      exit_price:    tr.exit,
+      sl:            tr.sl,
+      tp:            tr.tp,
+      rr:            tr.rr,
+      leverage:      tr.leverage||1,
+      margin:        tr.margin||tr.tradeAmount,
+      position_value:(tr.margin||tr.tradeAmount)*(tr.leverage||1),
+      net_pnl:       tr.netPnl,
+      pnl_pct:       tr.pnlPct,
+      max_advance:   tr.maxAdv||0,
+      duration_min:  tr.duration||0,
+      win:           tr.win,
+      balance_after: tr.balanceAfter,
+      ai_confidence: tr.aiConfidence||0,
+      ai_provider:   tr.aiProvider||(typeof AI_CONFIG!=='undefined'?AI_CONFIG.provider:'internal'),
+      mode:          typeof ACTIVE_MODE!=='undefined'?ACTIVE_MODE:'BALANCED',
+      sl_method:     typeof AT_SETTINGS!=='undefined'?AT_SETTINGS.slType:'auto',
+      created_at:    new Date().toISOString(),
+    });
+    if(error) console.warn('saveTrade:', error.message);
+    else if(typeof demoLog==='function') demoLog('💾 ['+tr.signalId+'] ذخیره در Supabase');
+  }catch(e){ console.warn('saveTrade err:', e.message); }
+}
+
+async function saveRejected(sym2, price2, reason2, score2, sig2){
+  if(!_sb) return;
+  try{
+    await _sb.from('rejected_signals').insert({
+      sym: sym2, price: price2, reason: reason2,
+      score: score2, signal: sig2,
+      mode: typeof ACTIVE_MODE!=='undefined'?ACTIVE_MODE:'BALANCED',
+      created_at: new Date().toISOString(),
+    });
+  }catch(e){}
+}
+
+async function loadTradeHistory(){
+  if(!_sb) return [];
+  try{
+    const {data,error} = await _sb.from('trades').select('*').order('created_at',{ascending:false}).limit(500);
+    return error?[]:(data||[]);
+  }catch(e){ return []; }
+}
+</script>
+
 <script>
 'use strict';
 
@@ -2810,9 +2927,17 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.1';
-  const _sName = (typeof STRATEGIES!=='undefined' && STRATEGIES[sigResult.strategy||'AUTO'])
-    ? STRATEGIES[sigResult.strategy||'AUTO'].name : (sigResult.strategy||'AUTO');
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.4';
+  // اسم استراتژی واقعی
+  const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
+  const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
+  const _stratMap = {
+    AUTO:'هوشمند AUTO', SMC:'SMC کامل', TREND:'Trend Following',
+    BREAKOUT:'Breakout', MEAN_REV:'Mean Reversion', GANN:'Gann+SMC'
+  };
+  const _sName = _stratMap[_stratKey] || _stratKey;
+  const _slMethodMap = {auto:'خودکار',structural:'ساختاری',sr:'S/R',atr:'ATR',orderblock:'OB',candle:'کندل',gann:'Gann'};
+  const _slName = _slMethodMap[sigResult.slType||AT_SETTINGS?.slType||'auto']||'خودکار';
   // Trend summary
   const _t = sigResult.trend||{};
   const _tSum = `H4:${_t.h4==='bull'?'↑':_t.h4==='bear'?'↓':'→'} M15:${_t.m15==='bull'?'↑':_t.m15==='bear'?'↓':'→'} M5:${_t.m5==='bull'?'↑':_t.m5==='bear'?'↓':'→'}`;
@@ -2906,11 +3031,13 @@ function closeDemoPos(pos, exitPrice, reason) {
     aiConfidence: pos.aiConfidence || 0,
   };
 
-  // Push to trades array (for export/analytics)
   DEMO.trades.push(trade);
+  saveTrade(trade);
 
   // Update strategy stats
-  const sk = trade.strategy;
+  const sk = trade.strategy || 'AUTO';
+  const _stratNames = {AUTO:'هوشمند AUTO',SMC:'SMC',TREND:'Trend',BREAKOUT:'Breakout',MEAN_REV:'Mean Rev',GANN:'Gann'};
+  const _skName = _stratNames[sk]||sk;
   if (!DEMO.strategyStats) DEMO.strategyStats = {};
   if (!DEMO.strategyStats[sk]) DEMO.strategyStats[sk] = {trades:0,wins:0,losses:0,pnl:0,totalR:0};
   DEMO.strategyStats[sk].trades++;
@@ -2931,7 +3058,7 @@ function closeDemoPos(pos, exitPrice, reason) {
   demoLog(`${trade.win?'✅ WIN':'❌ LOSS'} [${pos.signalId}] ${reason} ${DB[pos.sym]?.label||pos.sym} @ ${fmt(exit,pos.sym)}`);
   demoLog(`   📈 Max پیشرفت: +${maxAdvPip.toFixed(1)} pip (${maxAdvPct.toFixed(0)}% از TP) | ⏱ ${duration}min`);
   demoLog(`   💰 ${pnlStr} | ⏱ ${duration}min | موجودی: $${DEMO.balance.toFixed(0)}`);
-  demoLog(`   📈 ${sk} WR: ${stratWR}% (${DEMO.strategyStats[sk].trades} معامله)`);
+  demoLog(`   📈 ${_skName} | WR: ${stratWR}% (${DEMO.strategyStats[sk].trades} معامله) | Avg R: ${(DEMO.strategyStats[sk].totalR/Math.max(1,DEMO.strategyStats[sk].trades)).toFixed(2)}`);
 
   fireAlarm(
     `${trade.win?'✅':'❌'} ${reason} — ${DB[pos.sym]?.label||pos.sym}`,
@@ -3034,7 +3161,9 @@ function checkAutoTrade(sym, sigResult, price) {
 
   // R:R check
   if(sigResult.rr < mode.minRR) {
-    demoLog(`⏭ [${DB[sym]?.label||sym}] R:R ${sigResult.rr.toFixed(2)} < ${mode.minRR}`);
+    const _now2 = new Date();
+    const _hm2 = _now2.getHours().toString().padStart(2,'0')+':'+_now2.getMinutes().toString().padStart(2,'0');
+    demoLog(`⏭ [${_hm2}] ${DB[sym]?.label||sym} @ ${fmt(price,sym)} | R:R ${sigResult.rr.toFixed(2)}<${mode.minRR} | Score ${Math.max(sigResult.buyScore||0,sigResult.sellScore||0).toFixed(1)}`);
     return;
   }
 
@@ -3042,8 +3171,11 @@ function checkAutoTrade(sym, sigResult, price) {
   const score = Math.max(sigResult.buyScore||0, sigResult.sellScore||0);
   if(score < mode.minScore) {
     DEMO._rejectCount = (DEMO._rejectCount||0)+1;
-    if(DEMO._rejectCount%10===1)
-      demoLog(`⏭ رد: ${DB[sym]?.label||sym} Score ${score.toFixed(1)} < ${mode.minScore} (${DEMO._rejectCount} رد)`);
+    // هر رد رو با قیمت و ساعت لاگ کن — برای آنالیز
+    const _now = new Date();
+    const _hm = _now.getHours().toString().padStart(2,'0')+':'+_now.getMinutes().toString().padStart(2,'0');
+    demoLog(`⏭ [${_hm}] ${DB[sym]?.label||sym} @ ${fmt(price,sym)} | Score ${score.toFixed(1)}<${mode.minScore} | R:R ${(sigResult.rr||0).toFixed(2)}<${mode.minRR} | ${sigResult.sig?.toUpperCase()||'?'}`);
+    saveRejected(sym, price, 'Score<'+mode.minScore, score, sigResult.sig);
     return;
   }
 
@@ -3051,11 +3183,15 @@ function checkAutoTrade(sym, sigResult, price) {
   if(mode.requireEMA || AT_SETTINGS.requireAllEMA){
     const e = sigResult.ema;
     if(sigResult.sig==='buy' && !(e?.bull4h && e?.bull15m)){
-      demoLog(`⏭ [${DB[sym]?.label||sym}] EMA H4/M15 ناهمسو برای BUY`);
+      const _nowE = new Date();
+      const _hmE = _nowE.getHours().toString().padStart(2,'0')+':'+_nowE.getMinutes().toString().padStart(2,'0');
+      demoLog(`⏭ [${_hmE}] ${DB[sym]?.label||sym} @ ${fmt(price,sym)} | EMA ناهمسو BUY | H4:${sigResult.trend?.h4||'?'} M15:${sigResult.trend?.m15||'?'}`);
       return;
     }
     if(sigResult.sig==='sell' && (e?.bull4h || e?.bull15m)){
-      demoLog(`⏭ [${DB[sym]?.label||sym}] EMA H4/M15 ناهمسو برای SELL`);
+      const _nowE2 = new Date();
+      const _hmE2 = _nowE2.getHours().toString().padStart(2,'0')+':'+_nowE2.getMinutes().toString().padStart(2,'0');
+      demoLog(`⏭ [${_hmE2}] ${DB[sym]?.label||sym} @ ${fmt(price,sym)} | EMA ناهمسو SELL | H4:${sigResult.trend?.h4||'?'} M15:${sigResult.trend?.m15||'?'}`);
       return;
     }
   }
@@ -4321,6 +4457,208 @@ function updateModeUI(){
   });
 }
 
+// ══════════════════════════════════════════════════════════
+// SMART TRAILING TP — تحلیل کندل + Groq
+// ══════════════════════════════════════════════════════════
+const SMART_TP = {
+  enabled: false,
+  mode: 'internal',      // 'internal' | 'groq'
+  minProfitToActivate: 1.0,  // حداقل سود ($) برای فعال شدن
+  lockProfitPct: 0.5,    // چند درصد سود رو lock کن (0.5 = نصف)
+  intervalMs: 60000,     // هر ۱ دقیقه چک
+  _timer: null,
+  _lastGroqCall: {},     // آخرین call برای هر sym
+};
+
+// ── تحلیل کندل داخلی ──
+function analyzeCandlePressure(sym){
+  const candles = (S.candles[sym]||[]).slice(-5); // ۵ کندل آخر
+  if(candles.length < 3) return {pressure:'neutral', score:0};
+
+  let buyPressure = 0, sellPressure = 0;
+
+  for(const c of candles){
+    const body = Math.abs(c.c - c.o);
+    const range = c.h - c.l || 0.0001;
+    const upperWick = c.h - Math.max(c.c, c.o);
+    const lowerWick = Math.min(c.c, c.o) - c.l;
+    const bodyRatio = body / range;
+
+    if(c.c > c.o){
+      // کندل صعودی
+      buyPressure += bodyRatio * 2;
+      buyPressure += (lowerWick/range); // wick پایین = رد فروش
+      sellPressure += (upperWick/range) * 0.5;
+    } else {
+      // کندل نزولی
+      sellPressure += bodyRatio * 2;
+      sellPressure += (upperWick/range); // wick بالا = رد خرید
+      buyPressure += (lowerWick/range) * 0.5;
+    }
+  }
+
+  // آخرین کندل وزن بیشتری داره
+  const last = candles[candles.length-1];
+  if(last.c > last.o) buyPressure *= 1.3;
+  else sellPressure *= 1.3;
+
+  const total = buyPressure + sellPressure || 1;
+  const buyPct = Math.round(buyPressure/total*100);
+  const sellPct = 100 - buyPct;
+
+  if(buyPct >= 65) return {pressure:'buy', score:buyPct, buyPct, sellPct};
+  if(sellPct >= 65) return {pressure:'sell', score:sellPct, buyPct, sellPct};
+  return {pressure:'neutral', score:50, buyPct, sellPct};
+}
+
+// ── تحلیل کندل با Groq ──
+async function analyzeCandleWithGroq(sym, pos){
+  const now = Date.now();
+  if(now - (SMART_TP._lastGroqCall[sym]||0) < 120000) return null; // هر ۲ دقیقه
+  SMART_TP._lastGroqCall[sym] = now;
+
+  const candles = (S.candles[sym]||[]).slice(-10);
+  const price = S.prices[sym]?.price || pos.entry;
+  const pnlPct = pos.dir==='buy'?(price-pos.entry)/pos.entry*100:(pos.entry-price)/pos.entry*100;
+  const currentProfit = pnlPct/100 * pos.tradeAmount * (pos.leverage||1);
+
+  const candleStr = candles.map(c=>{
+    const dir = c.c>=c.o?'▲':'▼';
+    return `${dir}O:${c.o.toFixed(4)} H:${c.h.toFixed(4)} L:${c.l.toFixed(4)} C:${c.c.toFixed(4)}`;
+  }).join(' | ');
+
+  const prompt = `You are analyzing a ${pos.dir.toUpperCase()} position on ${DB[sym]?.label||sym}.
+Entry: ${pos.entry.toFixed(4)}, Current: ${price.toFixed(4)}, Profit: $${currentProfit.toFixed(2)}
+SL: ${pos.sl.toFixed(4)}, TP: ${pos.tp.toFixed(4)}
+
+Last 10 candles (5min): ${candleStr}
+
+Should we:
+1. HOLD - keep current TP, trend continues
+2. LOCK - move TP closer to lock profit (momentum weakening)  
+3. CLOSE - close now (strong reversal signal)
+4. EXTEND - move TP higher (strong continuation)
+
+Respond ONLY with JSON: {"action":"HOLD|LOCK|CLOSE|EXTEND","reason":"max 40 chars","confidence":0-100}`;
+
+  try{
+    const key = getNextGroqKey();
+    if(!key) return null;
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({
+        model: AI_CONFIG.groqModel,
+        messages:[{role:'user',content:prompt}],
+        temperature:0.1, max_tokens:100,
+        response_format:{type:'json_object'},
+      }),
+      signal:AbortSignal.timeout(8000)
+    });
+    if(!r.ok) return null;
+    const j = await r.json();
+    const text = j.choices?.[0]?.message?.content||'';
+    return JSON.parse(text);
+  } catch(e){ return null; }
+}
+
+// ── اجرای Smart TP برای یک پوزیشن ──
+async function runSmartTPForPos(pos){
+  const price = S.prices[pos.sym]?.price;
+  if(!price) return;
+
+  const pnl = pos.dir==='buy'
+    ? (price-pos.entry)/pos.entry*100
+    : (pos.entry-price)/pos.entry*100;
+  const profitDollar = pnl/100 * pos.tradeAmount * (pos.leverage||1);
+
+  // فقط اگه سود کافی داشت
+  if(profitDollar < SMART_TP.minProfitToActivate) return;
+
+  let action = null;
+  let reason = '';
+
+  if(SMART_TP.mode === 'groq'){
+    const groqResult = await analyzeCandleWithGroq(pos.sym, pos);
+    if(groqResult){
+      action = groqResult.action;
+      reason = groqResult.reason || '';
+      demoLog(`🧠 SmartTP [${pos.signalId}] Groq: ${action} (${groqResult.confidence}%) — ${reason}`);
+    }
+  }
+
+  // اگه Groq نداشتیم یا null برگشت → منطق داخلی
+  if(!action){
+    const analysis = analyzeCandlePressure(pos.sym);
+    if(pos.dir==='buy'){
+      if(analysis.pressure==='sell' && analysis.score>=65) action='LOCK';
+      else if(analysis.pressure==='sell' && analysis.score>=80) action='CLOSE';
+      else if(analysis.pressure==='buy' && analysis.score>=70) action='EXTEND';
+      else action='HOLD';
+    } else {
+      if(analysis.pressure==='buy' && analysis.score>=65) action='LOCK';
+      else if(analysis.pressure==='buy' && analysis.score>=80) action='CLOSE';
+      else if(analysis.pressure==='sell' && analysis.score>=70) action='EXTEND';
+      else action='HOLD';
+    }
+    reason = `فشار ${analysis.pressure==='buy'?'خرید':analysis.pressure==='sell'?'فروش':'خنثی'} ${analysis.score}%`;
+    if(SMART_TP.mode==='internal')
+      demoLog(`📊 SmartTP [${pos.signalId}] داخلی: ${action} — ${reason}`);
+  }
+
+  // اجرای action
+  if(action==='CLOSE'){
+    demoLog(`🔒 SmartTP: بستن [${pos.signalId}] سود $${profitDollar.toFixed(2)}`);
+    closeDemoPos(pos, price, 'SmartTP-Close');
+
+  } else if(action==='LOCK'){
+    // TP رو بکش به قیمت فعلی - کمی فاصله
+    const newTP = pos.dir==='buy'
+      ? price * (1 - 0.001)  // 0.1% زیر قیمت فعلی
+      : price * (1 + 0.001);
+    if((pos.dir==='buy' && newTP > pos.entry) || (pos.dir==='sell' && newTP < pos.entry)){
+      pos.tp = newTP;
+      demoLog(`🔒 SmartTP: Lock [${pos.signalId}] TP→${fmt(newTP,pos.sym)} سود $${profitDollar.toFixed(2)} محفوظ`);
+    }
+
+  } else if(action==='EXTEND'){
+    // TP رو ببر بالاتر
+    const atr = (S.candles[pos.sym]||[]).slice(-14).reduce((a,c)=>a+(c.h-c.l),0)/14||price*0.005;
+    const newTP = pos.dir==='buy' ? pos.tp + atr*0.5 : pos.tp - atr*0.5;
+    pos.tp = newTP;
+    demoLog(`📈 SmartTP: Extend [${pos.signalId}] TP→${fmt(newTP,pos.sym)}`);
+  }
+  // HOLD → کاری نکن
+}
+
+// ── چرخه Smart TP ──
+function runSmartTP(){
+  if(!SMART_TP.enabled || !DEMO.openPositions.length) return;
+  for(const pos of [...DEMO.openPositions]){
+    runSmartTPForPos(pos).catch(e=>console.warn('SmartTP error:', e));
+  }
+}
+
+function toggleSmartTP(){
+  SMART_TP.enabled = !SMART_TP.enabled;
+  const btn = document.getElementById('smartTPBtn');
+  if(btn){
+    btn.style.background = SMART_TP.enabled?'rgba(0,229,255,.12)':'transparent';
+    btn.style.color = SMART_TP.enabled?'var(--c)':'var(--t3)';
+    btn.style.borderColor = SMART_TP.enabled?'var(--c)':'var(--brd2)';
+    btn.textContent = '🎯 Smart TP: ' + (SMART_TP.enabled?'روشن':'خاموش');
+  }
+  if(SMART_TP.enabled){
+    clearInterval(SMART_TP._timer);
+    SMART_TP._timer = setInterval(runSmartTP, SMART_TP.intervalMs);
+    demoLog('🎯 Smart Trailing TP فعال — حالت: ' + (SMART_TP.mode==='groq'?'Groq':'منطق داخلی'));
+    runSmartTP();
+  } else {
+    clearInterval(SMART_TP._timer);
+    demoLog('⏹ Smart TP متوقف شد');
+  }
+}
+
 function initDemoDrawer(){
   // Tab switching
   document.querySelectorAll('.dd-tab').forEach(function(btn){
@@ -4475,7 +4813,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v16.1',
+    version:'STB v16.4',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
@@ -4500,6 +4838,151 @@ function exportReport(){
   demoLog('📤 گزارش export شد');
 }
 
+// ══════════════════════════════════════════════════════════
+// SUPABASE DATABASE
+// ══════════════════════════════════════════════════════════
+const SB = {
+  url: 'https://wmglswdbxuoklorwdqvg.supabase.co',
+  key: 'sb_publishable_Ep8OrksO0iq9TSs4Mm9K1Q_TCo_g-su',
+  enabled: true,
+  sessionId: Date.now().toString(36), // شناسه session
+};
+
+// ── Generic request ──
+async function sbReq(method, table, body=null, query=''){
+  if(!SB.enabled) return null;
+  try{
+    const r = await fetch(`${SB.url}/rest/v1/${table}${query}`, {
+      method,
+      headers:{
+        'Content-Type':'application/json',
+        'apikey': SB.key,
+        'Authorization': 'Bearer ' + SB.key,
+        'Prefer': method==='POST' ? 'return=representation' : '',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if(!r.ok){
+      const err = await r.text();
+      console.warn('Supabase error:', r.status, err.slice(0,100));
+      return null;
+    }
+    return method==='DELETE' ? true : await r.json();
+  } catch(e){
+    console.warn('Supabase fetch error:', e.message);
+    return null;
+  }
+}
+
+// ── Save trade to DB ──
+async function sbSaveTrade(trade){
+  if(!SB.enabled) return;
+  const row = {
+    signal_id:    trade.signalId,
+    session_id:   SB.sessionId,
+    sym:          trade.sym,
+    label:        DB[trade.sym]?.label || trade.sym,
+    dir:          trade.dir,
+    strategy:     trade.strategy || 'AUTO',
+    entry:        trade.entry,
+    exit:         trade.exit,
+    sl:           trade.sl,
+    tp:           trade.tp,
+    rr:           trade.rr,
+    leverage:     trade.leverage || 1,
+    trade_amount: trade.tradeAmount,
+    position_value: (trade.tradeAmount||100) * (trade.leverage||1),
+    gross_pnl:    trade.grossPnl,
+    commission:   trade.commission,
+    net_pnl:      trade.netPnl,
+    pnl_pct:      trade.pnlPct,
+    max_advance:  trade.maxAdv || 0,
+    max_adverse:  trade.maxAdverse || 0,
+    duration_min: trade.duration,
+    status:       trade.status,
+    win:          trade.win,
+    buy_score:    trade.buyScore || 0,
+    sell_score:   trade.sellScore || 0,
+    rsi_entry:    trade.rsiAtEntry || 0,
+    ai_confidence:trade.aiConfidence || 0,
+    ai_provider:  trade.aiProvider || 'internal',
+    entry_time:   trade.entryTime,
+    exit_time:    trade.exitTime,
+    balance_after:trade.balanceAfter,
+    created_at:   new Date().toISOString(),
+  };
+  const result = await sbReq('POST', 'trades', row);
+  if(result) demoLog(`💾 ذخیره در DB: [${trade.signalId}] ${trade.win?'WIN':'LOSS'}`);
+}
+
+// ── Save rejected signal ──
+async function sbSaveReject(sym, price, reason, score, rr, sig){
+  if(!SB.enabled) return;
+  await sbReq('POST', 'rejects', {
+    session_id: SB.sessionId,
+    sym, label: DB[sym]?.label||sym,
+    price, sig: sig||'?',
+    score, rr,
+    reason,
+    created_at: new Date().toISOString(),
+  });
+}
+
+// ── Load trades from DB ──
+async function sbLoadTrades(){
+  const rows = await sbReq('GET', 'trades', null, '?order=created_at.desc&limit=500');
+  if(!rows?.length) return;
+  // Merge into DEMO.trades (avoid duplicates)
+  const existing = new Set(DEMO.trades.map(t=>t.signalId));
+  let added = 0;
+  for(const row of rows){
+    if(!existing.has(row.signal_id)){
+      DEMO.trades.push({
+        signalId: row.signal_id,
+        sym: row.sym, dir: row.dir,
+        strategy: row.strategy,
+        entry: row.entry, exit: row.exit,
+        sl: row.sl, tp: row.tp, rr: row.rr,
+        leverage: row.leverage,
+        tradeAmount: row.trade_amount,
+        netPnl: row.net_pnl,
+        grossPnl: row.gross_pnl,
+        commission: row.commission,
+        pnlPct: row.pnl_pct,
+        maxAdv: row.max_advance,
+        duration: row.duration_min,
+        status: row.status, win: row.win,
+        buyScore: row.buy_score,
+        sellScore: row.sell_score,
+        aiConfidence: row.ai_confidence,
+        entryTime: row.entry_time,
+        exitTime: row.exit_time,
+        balanceAfter: row.balance_after,
+      });
+      added++;
+    }
+  }
+  if(added>0){
+    demoLog(`📂 ${added} معامله از DB بارگذاری شد`);
+    updateDemoUI();
+  }
+}
+
+// ── Init DB ──
+async function sbInit(){
+  if(!SB.enabled) return;
+  demoLog('🔌 اتصال به Supabase...');
+  // Test connection
+  const test = await sbReq('GET', 'trades', null, '?limit=1');
+  if(test !== null){
+    demoLog('✅ Supabase متصل شد | جلسه: ' + SB.sessionId);
+    await sbLoadTrades();
+  } else {
+    demoLog('⚠️ Supabase: جدول trades وجود ندارد — باید در Supabase بسازی');
+    SB.enabled = false;
+  }
+}
+
 window.addEventListener('load',async()=>{
   S.symbols=loadSyms();
   S.active=S.symbols.find(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]))||S.symbols[0]||'BTCUSDT';
@@ -4509,7 +4992,8 @@ window.addEventListener('load',async()=>{
   // Load AI config
   loadAIConfig();
   updateAIStatusUI();
-  initDemoDrawer(); // Setup demo drawer events
+  initDemoDrawer();
+  initSupabase(); // Setup demo drawer events
 
   renderChips();
   switchChart(S.active);
