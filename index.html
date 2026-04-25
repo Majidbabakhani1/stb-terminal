@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v17.6 · داده واقعی Twelve Data</title>
+<title>STB v17.7 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -491,7 +491,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v17.6</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v17.7</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -608,7 +608,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.6</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.7</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -666,7 +666,11 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
           </button>
         </div>
       </div>
-      <button id="autoTradeBtn" class="demo-btn" style="width:100%;padding:10px;font-size:12px;font-weight:900;margin-bottom:8px">🤖 Auto Trade: خاموش</button>
+      <button id="autoTradeBtn" class="demo-btn" style="width:100%;padding:10px;font-size:12px;font-weight:900;margin-bottom:6px">🤖 Auto Trade: خاموش</button>
+      <button id="reverseModeBtn" onclick="toggleReverseMode()"
+        style="width:100%;padding:6px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--brd2);background:transparent;color:var(--t3);font-family:var(--f);margin-bottom:8px;transition:all .2s">
+        🔄 Reverse Mode: خاموش
+      </button>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px">
         <button id="btn-charge1" class="demo-btn" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$1k</button>
         <button id="btn-charge5" class="demo-btn" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$5k</button>
@@ -2876,6 +2880,16 @@ function computeSignalV2(sym, c4h, c15m, c5m, price) {
   if(rsi4h>60)sellScore+=0.5;
   if(volSurge){const lc=c5m.at(-1);if(lc.c>lc.o)buyScore+=1.2;else sellScore+=1.2;}
   if(price>vwap)buyScore+=0.5;else sellScore+=0.5;
+
+  // Range Position — نزدیک قله = SELL، نزدیک کف = BUY
+  if(nearRangeTop){
+    sellScore += 2.0;
+    buyScore   = Math.max(0, buyScore - 1.5);
+  }
+  if(nearRangeBottom){
+    buyScore  += 2.0;
+    sellScore  = Math.max(0, sellScore - 1.5);
+  }
   if(nearD)buyScore+=2;
   if(nearS)sellScore+=2;
 
@@ -3066,7 +3080,12 @@ function openDemoPos(sym, sigResult, price) {
   const entry = sigResult.sig === 'buy' ? price * (1 + slip) : price * (1 - slip);
   const commission = DEMO.tradeAmount * DEMO_CONFIG.commission;
 
-  const dir = sigResult.sig; // 'buy' or 'sell'
+  // Reverse Mode
+  const _rawDir = sigResult.sig;
+  const dir = REVERSE_MODE
+    ? (_rawDir==='buy'?'sell':'buy')
+    : _rawDir;
+  if(REVERSE_MODE) demoLog(`🔄 Reverse: ${_rawDir.toUpperCase()}→${dir.toUpperCase()}`);
   // Size with leverage
   const leverage = DEMO_CONFIG.leverage || 1;
   const positionValue = DEMO.tradeAmount * leverage;
@@ -3131,7 +3150,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.6';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.7';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3315,7 +3334,9 @@ function monitorDemoPos(sym, price) {
       const lossUSD = (dir==='buy'
         ? (pos.entry-price)/pos.entry
         : (price-pos.entry)/pos.entry) * pos.tradeAmount * (pos.leverage||1);
-      if(lossUSD >= DEMO_CONFIG.globalMaxLossUSD){
+      // فقط اگه Smart SL فعال نیست یا هنوز breakeven نشده
+      const smartSLActive = pos.trailingActive && pos.trailingSL;
+      if(!smartSLActive && lossUSD >= DEMO_CONFIG.globalMaxLossUSD){
         demoLog(`🛑 Global SL [${pos.signalId}] ضرر $${lossUSD.toFixed(2)} ≥ $${DEMO_CONFIG.globalMaxLossUSD}`);
         closeDemoPos(pos, price, 'GlobalSL');
         continue;
@@ -5211,12 +5232,12 @@ function toggleSupervisor(){
 const SMART_SL = {
   enabled: true,
   steps: [
-    {profitUSD: 2,  lockUSD: 0},   // $2 سود → SL به entry (breakeven)
-    {profitUSD: 4,  lockUSD: 2},   // $4 سود → lock $2
-    {profitUSD: 6,  lockUSD: 4},   // $6 سود → lock $4
-    {profitUSD: 10, lockUSD: 7},   // $10 سود → lock $7
-    {profitUSD: 15, lockUSD: 11},  // $15 سود → lock $11
-    {profitUSD: 20, lockUSD: 15},  // $20 سود → lock $15
+    {profitPct: 0.5, lockPct: 0},    // 0.5% سود → Breakeven
+    {profitPct: 1.0, lockPct: 0.5},  // 1% سود → lock 0.5%
+    {profitPct: 2.0, lockPct: 1.0},  // 2% سود → lock 1%
+    {profitPct: 3.0, lockPct: 2.0},  // 3% سود → lock 2%
+    {profitPct: 5.0, lockPct: 3.5},  // 5% سود → lock 3.5%
+    {profitPct: 8.0, lockPct: 6.0},  // 8% سود → lock 6%
   ],
 };
 
@@ -5230,15 +5251,15 @@ function updateSmartSL(pos, price){
     : (pos.entry-price)/pos.entry*100;
   const profitUSD = pnlPct/100 * pos.tradeAmount * (pos.leverage||1);
 
-  // پیدا کن بالاترین step که رسیدیم
+  // پیدا کن بالاترین step که رسیدیم (percentage-based)
   let bestStep = null;
   for(const step of SMART_SL.steps){
-    if(profitUSD >= step.profitUSD) bestStep = step;
+    if(pnlPct >= step.profitPct) bestStep = step;
   }
   if(!bestStep) return;
 
-  // محاسبه SL جدید بر اساس lock amount
-  const lockPct = bestStep.lockUSD / (pos.tradeAmount * (pos.leverage||1));
+  // محاسبه SL جدید بر اساس lock percentage
+  const lockPct = bestStep.lockPct / 100;
   const newSL = dir==='buy'
     ? pos.entry * (1 + lockPct)
     : pos.entry * (1 - lockPct);
@@ -5253,10 +5274,10 @@ function updateSmartSL(pos, price){
     const oldSL = pos.trailingSL || pos.sl;
     pos.trailingSL = newSL;
     pos.trailingActive = true;
-    if(bestStep.lockUSD === 0){
-      demoLog(`🛡 SmartSL [${pos.signalId}] Breakeven @ ${fmt(newSL,pos.sym)} | سود $${profitUSD.toFixed(2)} محفوظ`);
+    if(bestStep.lockPct === 0){
+      demoLog(`🛡 SmartSL [${pos.signalId}] Breakeven @ ${fmt(newSL,pos.sym)} | سود ${pnlPct.toFixed(2)}%`);
     } else {
-      demoLog(`🔐 SmartSL [${pos.signalId}] Lock $${bestStep.lockUSD} | SL: ${fmt(oldSL,pos.sym)}→${fmt(newSL,pos.sym)}`);
+      demoLog(`🔐 SmartSL [${pos.signalId}] Lock ${bestStep.lockPct}% | SL: ${fmt(oldSL,pos.sym)}→${fmt(newSL,pos.sym)}`);
     }
     renderDemoOpenPos();
   }
@@ -5391,6 +5412,24 @@ async function getBinanceCandles(sym, interval, limit){
   if(!r.ok) throw new Error('Binance '+r.status);
   const data = await r.json();
   return data.map(k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]}));
+}
+
+// ── REVERSE MODE ──
+let REVERSE_MODE = false;
+
+function toggleReverseMode(){
+  REVERSE_MODE = !REVERSE_MODE;
+  const btn = document.getElementById('reverseModeBtn');
+  if(btn){
+    btn.style.background = REVERSE_MODE?'rgba(255,63,95,.2)':'transparent';
+    btn.style.color = REVERSE_MODE?'var(--r)':'var(--t3)';
+    btn.style.borderColor = REVERSE_MODE?'var(--r)':'var(--brd2)';
+    btn.textContent = '🔄 Reverse: ' + (REVERSE_MODE?'روشن ⚠️':'خاموش');
+  }
+  demoLog(REVERSE_MODE
+    ? '🔄 Reverse Mode فعال — هر BUY→SELL و SELL→BUY'
+    : '⏹ Reverse Mode خاموش شد'
+  );
 }
 
 function initDemoDrawer(){
@@ -5547,7 +5586,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v17.6',
+    version:'STB v17.7',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
