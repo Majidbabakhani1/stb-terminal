@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v17.0 · داده واقعی Twelve Data</title>
+<title>STB v17.1 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -50,7 +50,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 .add-inp::placeholder{color:var(--t3);text-transform:none;font-weight:400}
 .add-btn{padding:4px 8px;border-radius:4px;background:var(--bdim);border:1px solid var(--b);color:var(--b);font-family:var(--f);font-size:10px;font-weight:700;cursor:pointer;transition:all .2s}
 .add-btn:hover{background:var(--b);color:#fff}
-.sug-drop{position:fixed;background:var(--bg2);border:1px solid var(--brd2);border-radius:5px;z-index:99999;min-width:220px;display:none;max-height:300px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.8)}
+.sug-drop{position:fixed;background:linear-gradient(180deg,#0a0810,#06060c);border:1px solid rgba(200,160,40,.3);border-radius:8px;z-index:99999;min-width:280px;display:none;max-height:400px;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.9),0 0 20px rgba(200,160,40,.1)}
 .sug-drop.open{display:block}
 .sug-item{padding:6px 10px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s}
 .sug-item:hover{background:var(--brd2)}
@@ -376,6 +376,113 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;
   padding:5px 6px;outline:none}
 
+
+/* ══ STB v17 Dark Gold Theme ══ */
+body{background:var(--bg0)!important;color:var(--t1)!important}
+
+/* Glassmorphism cards */
+.pnl,.card,.bp{
+  background:linear-gradient(135deg,rgba(14,12,8,.95),rgba(10,8,4,.98))!important;
+  border:1px solid rgba(200,160,40,.2)!important;
+  box-shadow:0 4px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(200,160,40,.08)!important;
+}
+
+/* Signal box */
+.sig-box{
+  background:linear-gradient(135deg,rgba(20,16,8,.95),rgba(14,10,4,.98))!important;
+  border:1px solid rgba(200,160,40,.25)!important;
+  box-shadow:var(--glow)!important;
+}
+
+/* Trend boxes */
+.trend-box{
+  background:linear-gradient(135deg,rgba(14,12,8,.9),rgba(10,8,4,.95))!important;
+  border:1px solid rgba(200,160,40,.15)!important;
+}
+
+/* Top bar */
+.top{
+  background:linear-gradient(90deg,#04040a 0%,#080610 50%,#04040a 100%)!important;
+  border-bottom:1px solid rgba(200,160,40,.3)!important;
+  box-shadow:0 2px 20px rgba(0,0,0,.9)!important;
+}
+
+/* Sidebar */
+.sb{background:linear-gradient(180deg,#06060e,#08080e)!important;
+  border-right:1px solid rgba(200,160,40,.1)!important;}
+
+/* Demo drawer */
+.demo-drawer{
+  background:linear-gradient(180deg,#0a0810,#06060c)!important;
+  border-top:2px solid var(--gold)!important;
+  box-shadow:-8px 0 40px rgba(200,160,40,.2),-4px 0 60px rgba(0,0,0,.95)!important;
+}
+
+/* Chips */
+.chip{
+  background:linear-gradient(135deg,rgba(20,16,8,.9),rgba(14,10,4,.95))!important;
+  border:1px solid rgba(200,160,40,.2)!important;
+  color:var(--t2)!important;
+}
+.chip.active,.chip:hover{
+  background:linear-gradient(135deg,rgba(200,160,40,.2),rgba(180,140,20,.15))!important;
+  border-color:var(--gold)!important;
+  color:var(--gold)!important;
+  box-shadow:0 0 12px rgba(200,160,40,.3)!important;
+}
+
+/* Buttons */
+.demo-btn{
+  background:linear-gradient(135deg,rgba(20,16,8,.8),rgba(14,10,4,.9))!important;
+  border:1px solid rgba(200,160,40,.2)!important;
+  transition:all .2s!important;
+}
+.demo-btn:hover{
+  background:linear-gradient(135deg,rgba(200,160,40,.15),rgba(180,140,20,.1))!important;
+  border-color:var(--gold)!important;
+  box-shadow:0 0 10px rgba(200,160,40,.2)!important;
+}
+.demo-btn.auto-on{
+  background:linear-gradient(135deg,rgba(200,160,40,.25),rgba(255,200,0,.15))!important;
+  border-color:var(--gold)!important;
+  color:var(--gold)!important;
+  box-shadow:0 0 16px rgba(200,160,40,.4)!important;
+}
+
+/* Tab buttons */
+.dd-tab{color:rgba(200,160,40,.5)!important;border-bottom-color:transparent!important}
+.dd-tab:hover{color:rgba(200,160,40,.8)!important;background:rgba(200,160,40,.05)!important}
+.dd-tab-active{color:var(--gold)!important;border-bottom-color:var(--gold)!important;background:rgba(200,160,40,.08)!important}
+
+/* Inputs */
+.dd-inp,.dd-sel{
+  background:rgba(10,8,4,.8)!important;
+  border-color:rgba(200,160,40,.2)!important;
+  color:var(--t1)!important;
+}
+.dd-inp:focus,.dd-sel:focus{border-color:var(--gold)!important;box-shadow:0 0 8px rgba(200,160,40,.2)!important}
+
+/* Phase header */
+.ph{background:linear-gradient(90deg,rgba(200,160,40,.08),transparent)!important;
+  border-right:3px solid var(--gold)!important;}
+.phb{background:var(--gold)!important;}
+
+/* Brand */
+.brand-n{
+  background:linear-gradient(90deg,#ffd700,#c8a028,#ffd700)!important;
+  -webkit-background-clip:text!important;
+  -webkit-text-fill-color:transparent!important;
+  font-weight:900!important;
+}
+
+/* Bottom panel */
+.bp-title{border-bottom:1px solid rgba(200,160,40,.15)!important}
+.bp-dot{background:var(--gold)!important}
+
+/* Scrollbars */
+::-webkit-scrollbar-thumb{background:rgba(200,160,40,.3)!important}
+::-webkit-scrollbar-track{background:rgba(10,8,4,.5)!important}
+
 </style>
 </head>
 <body>
@@ -384,7 +491,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v17.0</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v17.1</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -501,7 +608,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.0</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.1</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2960,7 +3067,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.0';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.1';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3644,6 +3751,17 @@ function selSym(sym){
   if(S.analysis[sym])renderSB(sym);
   else{setSt('stTrend','load','...');setSt('stSMC','load','...');runAnalysis(sym,S.mode);}
   if(isCanvas(sym)&&S.candles[sym]?.length)setTimeout(()=>drawChart(sym),50);
+}
+
+function addSymDirect(sym){
+  if(!sym) return;
+  const s = sym.toUpperCase().trim();
+  if(!s.endsWith('USDT') && !DB[s]) return;
+  if(S.symbols.includes(s)) return;
+  S.symbols.push(s);
+  if(!DB[s]) DB[s]={label:s.replace('USDT',''),src:'binance',dp:4};
+  saveSyms(); renderChips(); selSym(s);
+  document.getElementById('addInp').value='';
 }
 
 function showSug(val){
@@ -5089,7 +5207,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v17.0',
+    version:'STB v17.1',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
