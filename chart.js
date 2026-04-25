@@ -269,7 +269,6 @@ function switchChart(sym){
   }
 }
 
-let _chartDrag = null;
 function setupChartInteraction(){
   const cv=document.getElementById('myChart');
   // Remove old listeners by replacing element

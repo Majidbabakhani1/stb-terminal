@@ -712,8 +712,6 @@ function renderDash(results,filter){
 // ═══════════════════════════════════════════
 // ALARM PANEL
 // ═══════════════════════════════════════════
-const ALARM_LOG = [];
-
 function renderAlarmPanel() {
   const el = document.getElementById('alarmTab');
   const sub = document.getElementById('alarmPanelSub');
@@ -746,130 +744,6 @@ const _origFireAlarm = fireAlarm;
 //  Strategy: EMA Cross + RSI + SMC Confluence
 // ═══════════════════════════════════════════════════════════
 
-// ── STRATEGY PARAMETERS ──
-const STRATEGY = {
-  // EMA periods
-  emaFast: 9,
-  emaSlow: 21,
-  ema200: 200,           // Trend filter
-
-  // RSI
-  rsiBuy: 40,            // Buy when RSI below this (oversold area)
-  rsiSell: 60,           // Sell when RSI above this (overbought area)
-  rsiExtrBuy: 30,        // Strong buy signal
-  rsiExtrSell: 70,       // Strong sell signal
-
-  // Volume confirmation
-  volMultiplier: 1.3,    // Volume must be X times average
-
-  // SMC confluence
-  requireOB: false,       // Require Order Block (stricter)
-  requireBOS: false,      // Require BOS
-
-  // Signal scoring thresholds
-  minScalp: 4,            // Min score for scalp
-  minSwing: 5,            // Min score for swing
-  strongScore: 6.5,       // Strong signal score
-
-  // Only trade crypto (Binance — real data)
-  allowedSrc: ['binance'],
-};
-
-// ── DEMO CONFIG ──
-
-// ── AUTO TRADE SETTINGS ──
-const AT_SETTINGS = {
-  strategy:'AUTO', mode:'scalp', slType:'auto',
-  atrMultSL:1.5, atrMultTP:3.0, candlesSL:3,
-  minRR:1.3, minScore:5.5, requireAllEMA:false,
-  rsiFilterBuy:65, rsiFilterSell:35,
-};
-
-// ── STRATEGY DEFINITIONS ──
-const STRATEGIES = {
-  SMC: {
-    id:'SMC', name:'SMC کامل', nameEn:'Smart Money Concept',
-    desc:'Order Block + FVG + BOS + Liquidity',
-    color:'var(--b)', icon:'🧱',
-    minScore:5.5, rrMin:1.5,
-    slType:'orderblock', // SL پشت OB
-    bestMarket:['Crypto','Forex'], bestCondition:['trend','range'],
-  },
-  TREND: {
-    id:'TREND', name:'Trend Following', nameEn:'Trend Following',
-    desc:'EMA 9/21/200 + RSI فیلتر + حجم',
-    color:'var(--g)', icon:'📈',
-    minScore:5.0, rrMin:1.5,
-    slType:'structural', // SL پشت آخرین کندل ساختاری
-    bestMarket:['Crypto'], bestCondition:['trend'],
-  },
-  BREAKOUT: {
-    id:'BREAKOUT', name:'Breakout', nameEn:'Breakout',
-    desc:'شکست سطوح + تایید حجم + BOS',
-    color:'var(--c)', icon:'⚡',
-    minScore:5.5, rrMin:1.8,
-    slType:'sr', // SL پشت S/R
-    bestMarket:['Crypto','Commodities'], bestCondition:['trend'],
-  },
-  MEAN_REV: {
-    id:'MEAN_REV', name:'Mean Reversion', nameEn:'Mean Reversion',
-    desc:'برگشت به میانگین: RSI اشباع + VWAP + OB',
-    color:'var(--a)', icon:'🔄',
-    minScore:5.0, rrMin:1.5,
-    slType:'atr', // SL بر اساس ATR
-    bestMarket:['Crypto','Commodities'], bestCondition:['range'],
-  },
-  GANN: {
-    id:'GANN', name:'Gann + SMC', nameEn:'Gann + SMC',
-    desc:'سطوح Gann 50% + OB + روند',
-    color:'var(--p)', icon:'⚖️',
-    minScore:6.0, rrMin:2.0,
-    slType:'gann',
-    bestMarket:['Forex','Commodities'], bestCondition:['trend','range'],
-  },
-  AUTO: {
-    id:'AUTO', name:'هوشمند (AUTO)', nameEn:'Auto Select',
-    desc:'انتخاب خودکار بهترین استراتژی بر اساس بازار',
-    color:'var(--o)', icon:'🤖',
-    minScore:5.5, rrMin:1.5,
-    slType:'auto',
-    bestMarket:['All'], bestCondition:['all'],
-  },
-};
-
-const DEMO_CONFIG = {
-  commission: 0.001,      // 0.1% per side (Binance spot ~0.1%)
-  slippage: 0.0003,       // 0.03% realistic slippage
-  initialBalance: 1000,   // Start with $1,000 as requested
-  tradeAmount: 100,       // Default $100 per trade (configurable)
-  trailActivePct: 0.5,    // Activate trailing at 50% of TP
-  trailDistance: 0.5,
-  leverage: 10,
-  globalMaxLossUSD: 10,    // حداکثر ضرر هر معامله به دلار             // اهرم معاملاتی
-  maxOpenPositions: 5,    // Max simultaneous (قابل تغییر در UI)
-  cooldownMs: 60000,      // 1 min cooldown per symbol after trade
-};
-// ── DEMO STATE ──
-const DEMO = {
-  balance:        1000,
-  initialBalance: 1000,
-  tradeAmount:    100,
-  autoOn:         false,
-  trades:         [],
-  openPositions:  [],
-  signalIdCounter:0,
-  cooldowns:      {},
-  strategyStats:  {SMC:{trades:0,wins:0,pnl:0},TREND:{trades:0,wins:0,pnl:0},
-                   BREAKOUT:{trades:0,wins:0,pnl:0},MEAN_REV:{trades:0,wins:0,pnl:0},
-                   GANN:{trades:0,wins:0,pnl:0},AUTO:{trades:0,wins:0,pnl:0}},
-};
-
-
-
-
-
-// ── SIGNAL ENGINE v2 (EMA + RSI + SMC) ──
-function autoSelectStrategy(trendH4, rsi5m, volSurge, nearOB) {
 function addSymDirect(sym){
   if(!sym) return;
   const s = sym.toUpperCase().trim();
@@ -1030,7 +904,6 @@ function setTF(btn,tf){
 // ═══════════════════════════════════════════════════════
 // CHART CONTROLS
 // ═══════════════════════════════════════════════════════
-const _cs={};
 function gcs(sym){return _cs[sym]||(_cs[sym]={zoom:1,offset:0});}
 function chartZoomIn(){const c=gcs(S.active);c.zoom=Math.min(10,c.zoom*1.3);if(isCanvas(S.active))drawChart(S.active);}
 function chartZoomOut(){const c=gcs(S.active);c.zoom=Math.max(.15,c.zoom*.77);if(isCanvas(S.active))drawChart(S.active);}
@@ -1057,11 +930,6 @@ function playAlarmSound(type){
 // ═══════════════════════════════════════════════════════
 // REAL BRIDGE — MT4/MT5 Connector
 // ═══════════════════════════════════════════════════════
-const BRIDGE = {
-  enabled: false,
-  url: 'http://localhost:5678',
-  status: 'disconnected',
-};
 
 async function toggleBridge() {
   BRIDGE.enabled = !BRIDGE.enabled;
@@ -1213,6 +1081,3 @@ function exportReport(){
   demoLog('📤 گزارش export شد');
 }
 
-// ══════════════════════════════════════════════════════════
-// SUPABASE DATABASE
-// ══════════════════════════════════════════════════════════
