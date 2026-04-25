@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STB v17.7 · داده واقعی Twelve Data</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#04070d;--bg1:#070c16;--bg2:#0b1020;--bg3:#0f1528;
+  --brd:#17213a;--brd2:#1d2b45;--brd3:#243355;
+  --g:#00e676;--gdim:rgba(0,230,118,.1);--gglow:rgba(0,230,118,.2);
+  --r:#ff3f5f;--rdim:rgba(255,63,95,.1);--rglow:rgba(255,63,95,.2);
+  --a:#ffb300;--adim:rgba(255,179,0,.1);
+  --b:#3d9fff;--bdim:rgba(61,159,255,.09);
+  --c:#00e5ff;--cdim:rgba(0,229,255,.09);
+  --p:#ce93d8;--pdim:rgba(206,147,216,.09);
+  --t1:#dce8f8;--t2:#7a94b4;--t3:#3a506c;--t4:#1e2f45;
+  --f:'Vazirmatn',sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font-family:var(--f);direction:rtl;font-size:13px}
+.app{display:grid;grid-template-rows:48px 1fr;height:100vh;overflow:hidden}
+
+/* ══ TOP ══ */
+.top{background:linear-gradient(90deg,#06060e,#0a0810,#06060e);border-bottom:1px solid rgba(200,160,40,.25);box-shadow:0 2px 20px rgba(0,0,0,.8);padding:0 10px;display:flex;align-items:center;gap:6px;overflow:hidden;flex-shrink:0}
+.logo{width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,#0a3d7a,var(--b));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;flex-shrink:0}
+.brand-n{font-size:12px;font-weight:800;color:var(--b);white-space:nowrap}
+.brand-s{font-size:8px;color:var(--t3);white-space:nowrap}
+
+.sym-bar{display:flex;align-items:center;gap:2px;overflow-x:auto;flex:1;min-width:0;padding:0 2px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.sym-bar::-webkit-scrollbar{height:3px}.sym-bar::-webkit-scrollbar-track{background:var(--brd)}
+.sym-bar::-webkit-scrollbar-thumb{background:var(--brd3);border-radius:3px}
+.sym-sep{width:1px;height:22px;background:var(--brd2);flex-shrink:0;margin:0 4px}
+.sym-sep-label{font-size:8px;color:var(--t4);font-weight:700;letter-spacing:.5px;white-space:nowrap;padding:0 2px}
+.chip{display:flex;align-items:center;gap:3px;padding:3px 7px;border-radius:5px;border:1px solid var(--brd);background:transparent;color:var(--t3);font-family:var(--f);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.chip:hover{border-color:var(--b);color:var(--t1)}
+.chip.active{background:var(--bdim);color:var(--b);border-color:var(--b)}
+.chip.pos{border-color:var(--g)!important;background:rgba(0,230,118,.07)!important}
+.chip.pos-sell{border-color:var(--r)!important;background:rgba(255,63,95,.07)!important}
+.chip-p{font-family:monospace;font-size:9px;opacity:.8}
+.chip-c{font-family:monospace;font-size:8px}
+.chip-c.up{color:var(--g)}.chip-c.dn{color:var(--r)}
+.chip-pos-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;animation:bl .8s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+
+.add-wrap{display:flex;align-items:center;gap:3px;flex-shrink:0;position:relative}
+.add-inp{background:var(--bg2);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;font-weight:700;padding:4px 7px;width:90px;outline:none;text-transform:uppercase}
+.add-inp:focus{border-color:var(--b)}
+.add-inp::placeholder{color:var(--t3);text-transform:none;font-weight:400}
+.add-btn{padding:4px 8px;border-radius:4px;background:var(--bdim);border:1px solid var(--b);color:var(--b);font-family:var(--f);font-size:10px;font-weight:700;cursor:pointer;transition:all .2s}
+.add-btn:hover{background:var(--b);color:#fff}
+.sug-drop{position:fixed;background:linear-gradient(180deg,#0a0810,#06060c);border:1px solid rgba(200,160,40,.3);border-radius:8px;z-index:99999;min-width:280px;display:none;max-height:400px;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.9),0 0 20px rgba(200,160,40,.1)}
+.sug-drop.open{display:block}
+.sug-item{padding:6px 10px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s}
+.sug-item:hover{background:var(--brd2)}
+.sug-lbl{color:var(--t1);font-weight:700}.sug-cat{color:var(--t3);font-size:8px}
+
+.mode-tog{display:flex;gap:2px;flex-shrink:0;background:var(--bg2);border-radius:5px;padding:2px;border:1px solid var(--brd)}
+.mode-btn{padding:3px 8px;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer;border:none;font-family:var(--f);color:var(--t3);background:transparent}
+.mode-btn.active{background:var(--bdim);color:var(--b)}
+.tf-pills{display:flex;gap:2px;flex-shrink:0}
+.tf-p{padding:3px 7px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--brd);color:var(--t3);background:transparent;font-family:var(--f);transition:all .15s}
+.tf-p.active{background:var(--cdim);color:var(--c);border-color:var(--c)}
+
+.top-btn{padding:4px 9px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--brd2);color:var(--t2);background:transparent;font-family:var(--f);transition:all .2s;white-space:nowrap}
+.top-btn:hover{background:var(--bdim);color:var(--b);border-color:var(--b)}
+.top-btn.ringing{background:var(--rdim);color:var(--r);border-color:var(--r)}
+.badge-pill{background:var(--r);color:#fff;border-radius:10px;padding:0 5px;font-size:8px;margin-right:2px;display:none}
+.badge-pill.show{display:inline}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 7px var(--g);animation:lbl 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes lbl{0%,100%{opacity:1;box-shadow:0 0 7px var(--g)}50%{opacity:.3;box-shadow:none}}
+
+/* ══ BODY ══ */
+.body{display:grid;grid-template-columns:1fr 282px;height:calc(100vh - 48px);min-height:0;overflow:hidden}
+.left-col{display:grid;grid-template-rows:1fr 145px;height:100%;min-height:0;overflow:hidden;border-left:1px solid var(--brd2)}
+.chart-zone{position:relative;background:radial-gradient(ellipse at center,#0a0816 0%,#06060e 100%);overflow:hidden;height:100%;min-height:350px;border:1px solid rgba(200,160,40,.1)}
+/* Self-drawn chart canvas */
+#myChart{display:block;position:absolute;inset:0;width:100%;height:100%}
+/* TradingView fallback for forex */
+#tvCont{position:absolute;inset:0;display:none}
+#tvCont iframe{border:none!important}
+
+/* chart header overlay */
+.chart-hdr{position:absolute;top:8px;right:10px;z-index:10;display:flex;align-items:center;gap:8px;pointer-events:none}
+.chart-sym{font-size:13px;font-weight:800;color:var(--t1)}
+.chart-price{font-family:monospace;font-size:13px;font-weight:700;color:var(--g)}
+.chart-ohlc{font-family:monospace;font-size:9px;color:var(--t3);display:flex;gap:6px}
+.chart-src{font-size:8px;padding:2px 5px;border-radius:3px;background:var(--bdim);color:var(--b);border:1px solid rgba(61,159,255,.2)}
+
+/* bottom panels */
+.bottom-panels{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--brd2);background:var(--bg1);overflow:hidden}
+.bp{padding:7px 9px;overflow:hidden;border-left:1px solid var(--brd)}
+.bp:last-child{border-left:none}
+.bp-title{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.bp-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* POSITION TRACKER — replaces old signal watch */
+.pos-list{display:flex;flex-direction:column;gap:3px;overflow-y:auto;max-height:105px}
+.pos-list::-webkit-scrollbar{width:2px}
+.pos-row{display:flex;align-items:center;gap:4px;font-size:10px;padding:3px 5px;border-radius:4px;border:1px solid var(--brd);background:var(--bg2);transition:all .3s}
+.pos-row.alarm{background:var(--rdim);border-color:rgba(255,63,95,.4)}
+.pos-sym{font-weight:800;font-size:10px;min-width:44px}
+.pos-dir{font-size:8.5px;padding:1px 4px;border-radius:3px;font-weight:700}
+.pos-dir.buy{background:var(--gdim);color:var(--g);border:1px solid rgba(0,230,118,.3)}
+.pos-dir.sell{background:var(--rdim);color:var(--r);border:1px solid rgba(255,63,95,.3)}
+.pos-pnl{font-family:monospace;font-size:10px;flex:1;text-align:center;font-weight:700}
+.pos-pnl.profit{color:var(--g)}.pos-pnl.loss{color:var(--r)}.pos-pnl.neutral{color:var(--a)}
+.pos-st{font-size:8.5px;padding:1px 4px;border-radius:3px;font-weight:600}
+.pos-st.active{background:var(--gdim);color:var(--g)}
+.pos-st.warn{background:var(--adim);color:var(--a)}
+.pos-st.closed{background:var(--rdim);color:var(--r)}
+.pos-st.tp{background:var(--bdim);color:var(--c)}
+.pos-close-btn{font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);transition:all .15s}
+.pos-close-btn:hover{background:var(--rdim);color:var(--r);border-color:rgba(255,63,95,.4)}
+
+/* news feed */
+.news-list{display:flex;flex-direction:column;gap:2px;overflow-y:auto;max-height:105px}
+.news-list::-webkit-scrollbar{width:2px}
+.ni{display:flex;align-items:flex-start;gap:5px;font-size:10px;padding:3px 5px;border-radius:3px;border-right:2px solid var(--brd2);transition:background .1s}
+.ni.H{border-right-color:var(--r)}.ni.M{border-right-color:var(--a)}.ni.L{border-right-color:var(--t3)}
+.ni-imp{font-size:8px;padding:1px 3px;border-radius:2px;font-weight:700;flex-shrink:0;margin-top:1px}
+.ni-imp.H{background:var(--rdim);color:var(--r)}.ni-imp.M{background:var(--adim);color:var(--a)}.ni-imp.L{background:var(--bdim);color:var(--b)}
+.ni-text{color:var(--t2);line-height:1.3;flex:1}
+.ni-time{font-size:8px;color:var(--t3);white-space:nowrap;font-family:monospace}
+
+/* ══ SIDEBAR ══ */
+.sb{background:var(--bg1);overflow-y:auto;display:flex;flex-direction:column}
+.sb::-webkit-scrollbar{width:3px}
+.sb::-webkit-scrollbar-thumb{background:var(--brd2)}
+.pnl{border-bottom:1px solid var(--brd);padding:9px 11px}
+.ph{display:flex;align-items:center;gap:5px;margin-bottom:7px}
+.phb{width:2px;height:11px;border-radius:1px;flex-shrink:0}
+.pht{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.9px;text-transform:uppercase}
+.phs{font-size:8px;padding:1px 4px;border-radius:3px;margin-right:auto;font-weight:600}
+.phs.ok{background:var(--gdim);color:var(--g);border:1px solid rgba(0,230,118,.2)}
+.phs.load{background:var(--adim);color:var(--a);border:1px solid rgba(255,179,0,.2)}
+.phs.err{background:var(--rdim);color:var(--r);border:1px solid rgba(255,63,95,.2)}
+
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.tc{border-radius:5px;padding:5px 3px;text-align:center;border:1px solid var(--brd2);transition:all .4s}
+.tc .tc-tf{font-size:8px;color:var(--t3);margin-bottom:2px;font-weight:600}
+.tc .tc-v{font-size:11px;font-weight:800}
+.tc.bull{background:var(--gdim);border-color:rgba(0,230,118,.18)}.tc.bull .tc-v{color:var(--g)}
+.tc.bear{background:var(--rdim);border-color:rgba(255,63,95,.18)}.tc.bear .tc-v{color:var(--r)}
+.tc.side{background:var(--adim);border-color:rgba(255,179,0,.18)}.tc.side .tc-v{color:var(--a)}
+
+/* ENTER POSITION BUTTON */
+.enter-pos-btn{width:100%;padding:9px;border-radius:7px;font-size:12px;font-weight:900;cursor:pointer;border:1px solid var(--brd2);background:var(--bg2);color:var(--t2);font-family:var(--f);transition:all .2s;margin-bottom:7px;letter-spacing:.3px}
+.enter-pos-btn:hover{background:var(--bdim);color:var(--b);border-color:var(--b)}
+.enter-pos-btn.enter-buy{background:var(--gglow);color:var(--g);border-color:rgba(0,230,118,.4)!important}
+.enter-pos-btn.enter-sell{background:var(--rglow);color:var(--r);border-color:rgba(255,63,95,.4)!important}
+.enter-pos-btn.has-pos{background:var(--rdim);color:var(--r);border-color:rgba(255,63,95,.4)!important}
+.sig{text-align:center;font-size:12px;font-weight:900;padding:7px;border-radius:6px;margin-bottom:7px;letter-spacing:.3px}
+.sig.sell{background:var(--rdim);color:var(--r);border:1px solid rgba(255,63,95,.3)}
+.sig.buy{background:var(--gglow);color:var(--g);border:1px solid rgba(0,230,118,.3)}
+.sig.wait{background:var(--adim);color:var(--a);border:1px solid rgba(255,179,0,.25)}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-bottom:6px}
+.card{border-radius:6px;padding:7px 4px;text-align:center;background:var(--bg2);border:1px solid var(--brd2)}
+.card-l{font-size:8px;color:var(--t3);margin-bottom:2px;font-weight:500}
+.card-v{font-size:13px;font-weight:900;font-family:monospace;line-height:1.1}
+.card.en .card-v{color:var(--b)}.card.sl .card-v{color:var(--r)}.card.tp .card-v{color:var(--g)}
+
+.rrbox{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--brd2);border-radius:6px;padding:6px 9px;margin-bottom:6px}
+.rrl{font-size:10px;color:var(--t2)}.rrv{font-size:19px;font-weight:900;color:var(--a);font-family:monospace;letter-spacing:-1px}
+
+/* asset protection live */
+.prot{background:var(--bg0);border-radius:5px;border:1px solid var(--brd);padding:7px 9px;margin-bottom:5px}
+.prot-title{font-size:8.5px;color:var(--t3);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.prot-row{display:flex;justify-content:space-between;align-items:center;font-size:10px;padding:2px 0}
+.pr-l{color:var(--t3)}.pr-v{font-family:monospace;font-weight:700;font-size:10.5px}
+
+/* smc table */
+.stbl{width:100%;border-collapse:collapse;font-size:10px}
+.stbl th{font-size:8px;color:var(--t3);padding:2px;text-align:right;border-bottom:1px solid var(--brd);font-weight:600}
+.stbl td{padding:3px 2px;border-bottom:1px solid rgba(23,33,58,.7);vertical-align:middle}
+.stbl td.num{font-family:monospace;color:var(--a);font-weight:700;font-size:10.5px;text-align:center}
+.stbl tr.hi td{background:rgba(61,159,255,.05)}
+.tg{font-size:7.5px;padding:1px 3px;border-radius:2px;font-weight:700;white-space:nowrap;display:inline-block}
+.tob-d{background:var(--gdim);color:var(--g);border:1px solid rgba(0,230,118,.25)}
+.tob-s{background:var(--rdim);color:var(--r);border:1px solid rgba(255,63,95,.25)}
+.tfvg{background:var(--adim);color:var(--a);border:1px solid rgba(255,179,0,.25)}
+.tliq{background:var(--pdim);color:var(--p);border:1px solid rgba(206,147,216,.25)}
+.tbos-b{background:var(--gdim);color:var(--g);border:1px solid rgba(0,230,118,.25)}
+.tbos-r{background:var(--rdim);color:var(--r);border:1px solid rgba(255,63,95,.25)}
+.tchoch{background:var(--adim);color:var(--a);border:1px solid rgba(255,179,0,.25)}
+
+.sr{display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(23,33,58,.5)}
+.sr:last-child{border:none}
+.sr-l{font-size:10px}.sr-r{display:flex;align-items:center;gap:3px}
+.sr-p{font-family:monospace;font-size:9.5px;color:var(--t2)}
+
+/* econ */
+.econ-list{display:flex;flex-direction:column;gap:2px;max-height:110px;overflow-y:auto}
+.econ-list::-webkit-scrollbar{width:2px}
+.econ-row{display:flex;align-items:center;gap:4px;padding:3px 5px;border-radius:3px;border:1px solid var(--brd);background:var(--bg2);font-size:10px}
+.econ-row.now{border-color:rgba(255,63,95,.35);background:rgba(255,63,95,.05)}
+.econ-row.soon{border-color:rgba(255,179,0,.3);background:rgba(255,179,0,.04)}
+.econ-time{font-family:monospace;font-size:8.5px;color:var(--t3);min-width:36px}
+.econ-cur{font-size:9px;color:var(--b);font-weight:700;min-width:24px;text-align:center}
+.econ-imp{font-size:8px;padding:1px 3px;border-radius:2px;font-weight:700;flex-shrink:0}
+.econ-imp.H{background:var(--rdim);color:var(--r)}.econ-imp.M{background:var(--adim);color:var(--a)}.econ-imp.L{background:var(--bdim);color:var(--b)}
+.econ-event{color:var(--t1);flex:1;font-size:10px;line-height:1.3}
+
+.rsn{background:var(--bg0);border-radius:5px;border:1px solid var(--brd);padding:8px 9px;font-size:11px;line-height:1.95;color:var(--t1);max-height:125px;overflow-y:auto}
+.rsn::-webkit-scrollbar{width:2px}
+.hl-g{color:var(--g);font-weight:700}.hl-r{color:var(--r);font-weight:700}
+.hl-a{color:var(--a);font-weight:700}.hl-b{color:var(--b);font-weight:700}
+.hl-p{color:var(--p);font-weight:700}.hl-c{color:var(--c);font-weight:700}
+
+/* ══ ENTER POSITION MODAL ══ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg1);border:1px solid var(--brd2);border-radius:10px;width:min(96vw,400px);overflow:hidden}
+.modal-head{padding:12px 16px;border-bottom:1px solid var(--brd2);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:800}
+.modal-close{width:24px;height:24px;border-radius:4px;border:1px solid var(--brd2);background:var(--bg2);color:var(--t2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:monospace}
+.modal-close:hover{background:var(--rdim);color:var(--r)}
+.modal-body{padding:14px 16px}
+.field{margin-bottom:12px}
+.field-label{font-size:10px;color:var(--t2);margin-bottom:5px;font-weight:600}
+.field-input{width:100%;background:var(--bg2);border:1px solid var(--brd2);border-radius:5px;color:var(--t1);font-family:monospace;font-size:13px;font-weight:700;padding:8px 10px;outline:none;transition:border-color .2s}
+.field-input:focus{border-color:var(--b)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dir-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.dir-btn{padding:10px;border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid var(--brd2);background:var(--bg2);color:var(--t3);font-family:var(--f);transition:all .2s}
+.dir-btn.buy-sel{background:var(--gglow);color:var(--g);border-color:rgba(0,230,118,.4)}
+.dir-btn.sell-sel{background:var(--rglow);color:var(--r);border-color:rgba(255,63,95,.4)}
+.confirm-btn{width:100%;padding:11px;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;border:none;font-family:var(--f);transition:all .2s}
+.confirm-btn.buy{background:linear-gradient(135deg,var(--gd),var(--g));color:#000}
+.confirm-btn.sell{background:linear-gradient(135deg,#c42840,var(--r));color:#fff}
+.modal-rr{font-size:11px;color:var(--t2);text-align:center;margin-top:8px;font-family:monospace}
+
+/* ══ DASHBOARD MODAL ══ */
+.dash-modal{background:var(--bg1);border:1px solid var(--brd2);border-radius:10px;width:min(96vw,1060px);max-height:88vh;overflow:hidden;display:flex;flex-direction:column}
+.dash-head{padding:11px 15px;border-bottom:1px solid var(--brd2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.dash-title{font-size:14px;font-weight:800}
+.dash-sub{font-size:9px;color:var(--t3)}
+.dash-filters{display:flex;gap:4px;margin-bottom:11px;flex-wrap:wrap}
+.df-btn{padding:3px 9px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--brd);color:var(--t3);background:transparent;font-family:var(--f);transition:all .15s}
+.df-btn.active,.df-btn:hover{background:var(--bdim);color:var(--b);border-color:var(--b)}
+.df-btn.bf.active{background:var(--gdim);color:var(--g);border-color:rgba(0,230,118,.4)}
+.df-btn.sf.active{background:var(--rdim);color:var(--r);border-color:rgba(255,63,95,.4)}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.dc{background:var(--bg2);border:1px solid var(--brd2);border-radius:8px;padding:10px;cursor:pointer;transition:border-color .15s;border-top-width:2px}
+.dc:hover{border-color:var(--brd3)}
+.dc.has-buy{border-top-color:var(--g)}.dc.has-sell{border-top-color:var(--r)}.dc.has-wait{border-top-color:var(--a)}
+.dc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.dc-sym{font-size:13px;font-weight:800}.dc-sub{font-size:8px;color:var(--t3)}
+.dc-price{font-family:monospace;font-size:12px;font-weight:700;color:var(--a)}
+.dc-chg{font-family:monospace;font-size:9px}
+.dc-chg.up{color:var(--g)}.dc-chg.dn{color:var(--r)}
+.dc-sigs{display:flex;gap:4px;margin-bottom:5px;flex-wrap:wrap}
+.dc-sig{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700}
+.dc-sig.buy{background:var(--gdim);color:var(--g);border:1px solid rgba(0,230,118,.25)}
+.dc-sig.sell{background:var(--rdim);color:var(--r);border:1px solid rgba(255,63,95,.25)}
+.dc-sig.wait{background:var(--adim);color:var(--a);border:1px solid rgba(255,179,0,.25)}
+.dc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:5px}
+.dc-s{background:var(--bg3);border-radius:3px;padding:4px 3px;text-align:center}
+.dc-sl{font-size:8px;color:var(--t3);margin-bottom:1px}.dc-sv{font-size:10px;font-weight:700;font-family:monospace}
+.dc-wr{display:flex;align-items:center;gap:4px}
+.dc-wrl{font-size:8px;color:var(--t3);white-space:nowrap}
+.dc-wrbar{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.dc-wrfill{height:100%;border-radius:2px;transition:width .5s}
+.dc-wrp{font-size:9px;font-weight:700;font-family:monospace}
+.dash-refresh-bar{font-size:9px;color:var(--t3);text-align:center;padding:4px;border-top:1px solid var(--brd)}
+.dash-countdown{color:var(--b);font-family:monospace;font-weight:700}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:58px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:5px;pointer-events:none;min-width:300px}
+.toast{background:var(--bg1);border:1px solid var(--brd2);border-radius:8px;padding:10px 14px;min-width:300px;max-width:450px;box-shadow:0 4px 24px rgba(0,0,0,.6);pointer-events:all;display:flex;align-items:flex-start;gap:9px;animation:tIn .25s ease}
+@keyframes tIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.toast.sell{border-left:3px solid var(--r)}.toast.buy{border-left:3px solid var(--g)}.toast.warn{border-left:3px solid var(--a)}.toast.news{border-left:3px solid var(--b)}
+.t-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.t-body{flex:1;min-width:0}
+.t-title{font-size:11.5px;font-weight:800;margin-bottom:2px}
+.t-msg{font-size:10.5px;color:var(--t2);line-height:1.5}
+.t-close{width:18px;height:18px;border-radius:3px;border:none;background:transparent;color:var(--t3);font-size:14px;cursor:pointer;flex-shrink:0;line-height:1;font-family:monospace;transition:color .15s;padding:0}
+.t-close:hover{color:var(--t1)}
+
+.spin{display:inline-block;width:12px;height:12px;border:1.5px solid var(--brd2);border-top-color:var(--b);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ══ DEMO PANEL ══ */
+/* ── DEMO DRAWER ── */
+.demo-drawer{
+  position:fixed;top:50px;left:50%;transform:translateX(-50%) translateY(-110%);
+  z-index:600;width:min(96vw,720px);
+  background:var(--bg1);border:1px solid rgba(255,109,0,.4);border-top:none;
+  border-radius:0 0 12px 12px;
+  box-shadow:0 8px 32px rgba(0,0,0,.7);
+  transition:transform .28s cubic-bezier(.22,.61,.36,1);
+  overflow:hidden;
+}
+.demo-drawer.open{transform:translateX(-50%) translateY(0);}
+.demo-drawer-head{
+  background:linear-gradient(135deg,rgba(255,109,0,.15),rgba(255,179,0,.08));
+  border-bottom:1px solid rgba(255,109,0,.25);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+}
+.demo-drawer-body{padding:12px 16px 14px;}
+.demo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:7px}
+.demo-card{background:var(--bg0);border:1px solid var(--brd);border-radius:6px;padding:6px 4px;text-align:center}
+.demo-card-l{font-size:7.5px;color:var(--t3);margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.demo-card-v{font-size:12px;font-weight:900;font-family:monospace}
+.demo-btns{display:flex;gap:4px;margin-bottom:5px;flex-wrap:wrap}
+.demo-btn{padding:5px 9px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--brd2);background:var(--bg2);color:var(--t2);font-family:var(--f);transition:all .2s}
+.demo-btn:hover{background:var(--bdim);color:var(--b);border-color:var(--b)}
+.demo-btn.auto-on{background:rgba(255,109,0,.15);color:#ff6d00;border-color:rgba(255,109,0,.4)!important;animation:pulse-o 1.5s ease-in-out infinite}
+@keyframes pulse-o{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px rgba(255,109,0,.4)}}
+.demo-btn.charge{background:var(--gdim);color:var(--g);border-color:rgba(0,230,118,.35)!important}
+.demo-log{background:var(--bg0);border:1px solid var(--brd);border-radius:4px;padding:5px 8px;font-size:8.5px;font-family:monospace;color:var(--t2);max-height:65px;overflow-y:auto;line-height:1.6}
+
+/* ══ ANALYTICS MODAL ══ */
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px}
+.stat-card{background:var(--bg2);border:1px solid var(--brd2);border-radius:8px;padding:10px;text-align:center}
+.stat-card-l{font-size:9px;color:var(--t3);margin-bottom:4px;font-weight:600}
+.stat-card-v{font-size:22px;font-weight:900;font-family:monospace}
+.stat-card-s{font-size:9px;color:var(--t3);margin-top:2px}
+.trade-table{width:100%;border-collapse:collapse;font-size:9.5px}
+.trade-table th{padding:5px 6px;color:var(--t3);font-weight:600;text-align:right;border-bottom:1px solid var(--brd);position:sticky;top:0;background:var(--bg1);font-size:8.5px}
+.trade-table td{padding:4px 6px;border-bottom:1px solid rgba(23,33,58,.5);vertical-align:middle;font-family:monospace}
+.trade-table tr:hover td{background:rgba(23,33,58,.4)}
+.trade-table tr.win-row td:first-child{color:var(--g)!important;font-weight:700}
+.trade-table tr.loss-row td:first-child{color:var(--r)!important;font-weight:700}
+.period-tabs{display:flex;gap:4px;margin-bottom:10px}
+.ptab{padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--brd);color:var(--t3);background:transparent;font-family:var(--f);transition:all .15s}
+.ptab.active{background:var(--bdim);color:var(--b);border-color:var(--b)}
+.equity-#equityCanvas{width:100%;height:120px;border-radius:6px;background:var(--bg0);border:1px solid var(--brd)}
+
+
+.dtab{flex:1;padding:9px 4px;font-size:10px;font-weight:700;cursor:pointer;border:none;
+  background:transparent;color:var(--t3);border-bottom:2px solid transparent;
+  font-family:var(--f);transition:all .15s}
+.dtab:hover{color:var(--t1);background:rgba(61,159,255,.05)}
+.dtab-active{color:var(--b)!important;border-bottom-color:var(--b)!important;background:rgba(61,159,255,.07)!important}
+.dtab-panel{padding:12px 14px}
+.demo-drawer{position:fixed;bottom:0;right:0;width:min(520px,98vw);
+  background:var(--bg1);border-top:2px solid rgba(255,109,0,.5);
+  border-left:1px solid var(--brd2);border-radius:10px 0 0 0;
+  z-index:500;display:none;flex-direction:column;
+  max-height:90vh;box-shadow:-4px -4px 30px rgba(0,0,0,.7)}
+.demo-drawer.open{display:flex}
+
+
+/* ══ Demo Drawer v14.8 ══ */
+.demo-drawer{position:fixed;bottom:0;right:0;width:min(500px,98vw);
+  background:var(--bg1);border-top:2px solid var(--gold);box-shadow:-8px -4px 40px rgba(200,160,40,.15),-4px 0 30px rgba(0,0,0,.9);
+  border-left:1px solid var(--brd2);border-radius:10px 0 0 0;
+  z-index:500;display:none;flex-direction:column;
+  max-height:90vh;box-shadow:-6px -4px 40px rgba(0,0,0,.85)}
+.demo-drawer.open{display:flex}
+.dd-hdr{padding:10px 14px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--brd2)}
+.dd-tab{flex:1;padding:9px 4px;font-size:9.5px;font-weight:700;cursor:pointer;
+  border:none;background:transparent;color:var(--t3);white-space:nowrap;
+  border-bottom:2px solid transparent;font-family:var(--f);transition:all .15s;
+  -webkit-tap-highlight-color:transparent}
+.dd-tab:hover{color:var(--t1);background:rgba(255,255,255,.04)}
+.dd-tab-active{color:var(--b)!important;border-bottom-color:var(--b)!important;
+  background:rgba(61,159,255,.07)!important}
+.dd-panel{padding:12px 14px}
+.dd-stat{background:linear-gradient(135deg,rgba(20,16,8,.9),rgba(14,12,6,.95));
+  padding:8px 6px;text-align:center;border:1px solid rgba(200,160,40,.15);
+  position:relative;overflow:hidden}
+.dd-stat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,160,40,.05),transparent);pointer-events:none}
+.dd-stat-l{font-size:7.5px;color:var(--t3);margin-bottom:2px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.3px}
+.dd-stat-v{font-size:13px;font-weight:900;font-family:monospace}
+.dd-inp-l{font-size:8px;color:var(--t3);margin-bottom:3px}
+.dd-inp{width:100%;background:var(--bg3);border:1px solid var(--brd2);
+  border-radius:4px;color:var(--t1);font-family:monospace;font-size:12px;
+  font-weight:700;padding:5px 7px;outline:none;text-align:center}
+.dd-sel{width:100%;background:var(--bg3);border:1px solid var(--brd2);
+  border-radius:4px;color:var(--t1);font-family:var(--f);font-size:10px;
+  padding:5px 6px;outline:none}
+
+
+/* ══ STB v17 Dark Gold Theme ══ */
+body{background:var(--bg0)!important;color:var(--t1)!important}
+
+/* Glassmorphism cards */
+.pnl,.card,.bp{
+  background:linear-gradient(135deg,rgba(14,12,8,.95),rgba(10,8,4,.98))!important;
+  border:1px solid rgba(200,160,40,.2)!important;
+  box-shadow:0 4px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(200,160,40,.08)!important;
+}
+
+/* Signal box */
+.sig-box{
+  background:linear-gradient(135deg,rgba(20,16,8,.95),rgba(14,10,4,.98))!important;
+  border:1px solid rgba(200,160,40,.25)!important;
+  box-shadow:var(--glow)!important;
+}
+
+/* Trend boxes */
+.trend-box{
+  background:linear-gradient(135deg,rgba(14,12,8,.9),rgba(10,8,4,.95))!important;
+  border:1px solid rgba(200,160,40,.15)!important;
+}
+
+/* Top bar */
+.top{
+  background:linear-gradient(90deg,#04040a 0%,#080610 50%,#04040a 100%)!important;
+  border-bottom:1px solid rgba(200,160,40,.3)!important;
+  box-shadow:0 2px 20px rgba(0,0,0,.9)!important;
+}
+
+/* Sidebar */
+.sb{background:linear-gradient(180deg,#06060e,#08080e)!important;
+  border-right:1px solid rgba(200,160,40,.1)!important;}
+
+/* Demo drawer */
+.demo-drawer{
+  background:linear-gradient(180deg,#0a0810,#06060c)!important;
+  border-top:2px solid var(--gold)!important;
+  box-shadow:-8px 0 40px rgba(200,160,40,.2),-4px 0 60px rgba(0,0,0,.95)!important;
+}
+
+/* Chips */
+.chip{
+  background:linear-gradient(135deg,rgba(20,16,8,.9),rgba(14,10,4,.95))!important;
+  border:1px solid rgba(200,160,40,.2)!important;
+  color:var(--t2)!important;
+}
+.chip.active,.chip:hover{
+  background:linear-gradient(135deg,rgba(200,160,40,.2),rgba(180,140,20,.15))!important;
+  border-color:var(--gold)!important;
+  color:var(--gold)!important;
+  box-shadow:0 0 12px rgba(200,160,40,.3)!important;
+}
+
+/* Buttons */
+.demo-btn{
+  background:linear-gradient(135deg,rgba(20,16,8,.8),rgba(14,10,4,.9))!important;
+  border:1px solid rgba(200,160,40,.2)!important;
+  transition:all .2s!important;
+}
+.demo-btn:hover{
+  background:linear-gradient(135deg,rgba(200,160,40,.15),rgba(180,140,20,.1))!important;
+  border-color:var(--gold)!important;
+  box-shadow:0 0 10px rgba(200,160,40,.2)!important;
+}
+.demo-btn.auto-on{
+  background:linear-gradient(135deg,rgba(200,160,40,.25),rgba(255,200,0,.15))!important;
+  border-color:var(--gold)!important;
+  color:var(--gold)!important;
+  box-shadow:0 0 16px rgba(200,160,40,.4)!important;
+}
+
+/* Tab buttons */
+.dd-tab{color:rgba(200,160,40,.5)!important;border-bottom-color:transparent!important}
+.dd-tab:hover{color:rgba(200,160,40,.8)!important;background:rgba(200,160,40,.05)!important}
+.dd-tab-active{color:var(--gold)!important;border-bottom-color:var(--gold)!important;background:rgba(200,160,40,.08)!important}
+
+/* Inputs */
+.dd-inp,.dd-sel{
+  background:rgba(10,8,4,.8)!important;
+  border-color:rgba(200,160,40,.2)!important;
+  color:var(--t1)!important;
+}
+.dd-inp:focus,.dd-sel:focus{border-color:var(--gold)!important;box-shadow:0 0 8px rgba(200,160,40,.2)!important}
+
+/* Phase header */
+.ph{background:linear-gradient(90deg,rgba(200,160,40,.08),transparent)!important;
+  border-right:3px solid var(--gold)!important;}
+.phb{background:var(--gold)!important;}
+
+/* Brand */
+.brand-n{
+  background:linear-gradient(90deg,#ffd700,#c8a028,#ffd700)!important;
+  -webkit-background-clip:text!important;
+  -webkit-text-fill-color:transparent!important;
+  font-weight:900!important;
+}
+
+/* Bottom panel */
+.bp-title{border-bottom:1px solid rgba(200,160,40,.15)!important}
+.bp-dot{background:var(--gold)!important}
+
+/* Scrollbars */
+::-webkit-scrollbar-thumb{background:rgba(200,160,40,.3)!important}
+::-webkit-scrollbar-track{background:rgba(10,8,4,.5)!important}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="top">
+  <div class="logo">STB</div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v17.7</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div class="sym-bar" id="symBar"></div>
+  <div class="add-wrap" id="addWrap">
+    <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
+      oninput="showSug(this.value)" onfocus="showSug(this.value)"
+      onkeydown="if(event.key==='Enter')addSym();if(event.key==='Escape')hideSug()" autocomplete="off">
+    <button class="add-btn" onclick="addSym()">+</button>
+    <div class="sug-drop" id="sugDrop"></div>
+  </div>
+  <div class="mode-tog">
+    <button class="mode-btn active" id="mScalp" onclick="setMode('scalp')">اسکالپ</button>
+    <button class="mode-btn" id="mSwing" onclick="setMode('swing')">سویینگ</button>
+  </div>
+  <div class="tf-pills">
+    <button class="tf-p active" id="tfBtn5" onclick="setTF(this,'5')">M5</button>
+    <button class="tf-p" id="tfBtn15" onclick="setTF(this,'15')">M15</button>
+    <button class="tf-p" id="tfBtn240" onclick="setTF(this,'240')">H4</button>
+  </div>
+  <button class="top-btn" id="alarmBtn" onclick="openAlarmPanel()">🔔 الارم <span class="badge-pill" id="alarmBadge">0</span></button>
+  <button class="top-btn" onclick="openDash()">📊 داشبورد</button>
+  <button id="demoToggleBtn" class="top-btn" onclick="toggleDemoPanel()" style="color:#ff6d00;border-color:rgba(255,109,0,.3)">💰 دمو <span id="demoOpenBadge" style="display:none;background:var(--o);color:#000;border-radius:8px;padding:0 4px;font-size:8px;font-weight:900"></span></button>
+  <button class="top-btn" onclick="openAnalytics()">📈 آنالیز</button>
+  <div class="live-dot"></div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+  <div class="left-col">
+    <div class="chart-zone" style="min-height:400px">
+      <!-- Self-drawn chart for crypto -->
+      <canvas id="myChart" style="position:absolute;top:0;left:0;width:100%;height:100%;display:block"></canvas>
+      <!-- TradingView for forex/commodities -->
+      <div id="tvCont"></div>
+      <!-- Chart header -->
+      <div class="chart-hdr">
+        <div class="chart-sym" id="chartSym">—</div>
+        <div class="chart-price" id="chartPrice">—</div>
+        <div class="chart-ohlc" id="chartOHLC"></div>
+        <div class="chart-src" id="chartSrc">—</div>
+      </div>
+    </div>
+    <div class="bottom-panels">
+      <div class="bp">
+        <div class="bp-title"><div class="bp-dot" style="background:var(--g)"></div>پوزیشن‌های باز — رصد زنده</div>
+        <div class="pos-list" id="posList"><div style="color:var(--t3);font-size:10px;text-align:center;padding:8px">هنوز پوزیشنی ثبت نشده — از دکمه «ورود به پوزیشن» استفاده کنید</div></div>
+      </div>
+      <div class="bp">
+        <div class="bp-title" style="display:flex;align-items:center;gap:6px">
+          <div class="bp-dot" style="background:var(--a)"></div>
+          <button onclick="showBpTab('news',this)" id="bpTabNews" style="font-size:8.5px;padding:1px 7px;border-radius:3px;border:1px solid var(--b);background:var(--bdim);color:var(--b);cursor:pointer;font-family:var(--f);font-weight:700">📰 اخبار</button>
+          <button onclick="showBpTab('cal',this)" id="bpTabCal" style="font-size:8.5px;padding:1px 7px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);font-weight:700">📅 تقویم</button>
+          <span id="newsSpn" style="display:none"><div class="spin" style="width:10px;height:10px;border-width:1.5px"></div></span>
+        </div>
+        <div id="newsList" style="display:block"><div style="color:var(--t3);font-size:10px;text-align:center;padding:6px">در حال دریافت...</div></div>
+        <div id="econListBottom" style="display:none"><div style="text-align:center;padding:5px"><div class="spin"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sb">
+    <div class="pnl">
+      <div class="ph"><div class="phb" style="background:var(--b)"></div><div class="pht">روند</div><div class="phs load" id="stTrend">—</div></div>
+      <div class="tgrid">
+        <div class="tc side" id="tH4"><div class="tc-tf">H4</div><div class="tc-v">—</div></div>
+        <div class="tc side" id="tM15"><div class="tc-tf">M15</div><div class="tc-v">—</div></div>
+        <div class="tc side" id="tM5"><div class="tc-tf">M5</div><div class="tc-v">—</div></div>
+      </div>
+    </div>
+    <div class="pnl">
+      <div class="ph"><div class="phb" style="background:var(--r)"></div><div class="pht">سیگنال</div><div class="phs load" id="stSig">—</div></div>
+      <div class="sig wait" id="sigBar">⏸ در انتظار...</div>
+      <!-- ENTER POSITION BUTTON -->
+      <button class="enter-pos-btn" id="enterPosBtn" onclick="openPosModal()">➕ ورود به پوزیشن</button>
+      <div class="cards">
+        <div class="card en"><div class="card-l">ورود پیشنهادی</div><div class="card-v" id="entV">—</div></div>
+        <div class="card sl"><div class="card-l">حد ضرر</div><div class="card-v" id="slV">—</div></div>
+        <div class="card tp"><div class="card-l">هدف</div><div class="card-v" id="tpV">—</div></div>
+      </div>
+      <div class="rrbox"><span class="rrl">ریسک به ریوارد</span><span class="rrv" id="rrV">—</span></div>
+      <div class="prot">
+        <div class="prot-title">محافظت از دارایی — پوزیشن باز</div>
+        <div class="prot-row"><span class="pr-l">پوزیشن</span><span class="pr-v" id="pSt" style="color:var(--t3)">ثبت نشده</span></div>
+        <div class="prot-row"><span class="pr-l">P&L</span><span class="pr-v" id="pPnl">—</span></div>
+        <div class="prot-row"><span class="pr-l">فاصله تا SL</span><span class="pr-v" id="pSL" style="color:var(--r)">—</span></div>
+        <div class="prot-row"><span class="pr-l">فاصله تا TP</span><span class="pr-v" id="pTP" style="color:var(--g)">—</span></div>
+      </div>
+    </div>
+    <div class="pnl">
+      <div class="ph"><div class="phb" style="background:var(--a)"></div><div class="pht">سطوح SMC</div><div class="phs load" id="stSMC">—</div></div>
+      <table class="stbl"><thead><tr><th>نوع</th><th>قیمت</th><th>TF</th></tr></thead>
+      <tbody id="smcBody"><tr><td colspan="3" style="color:var(--t3);text-align:center;padding:8px;font-size:10px">در حال دریافت...</td></tr></tbody></table>
+    </div>
+    <div class="pnl">
+      <div class="ph"><div class="phb" style="background:var(--p)"></div><div class="pht">ساختار بازار</div><div class="phs load" id="stStr">—</div></div>
+      <div id="structBody"><div style="color:var(--t3);font-size:10px;text-align:center;padding:5px">—</div></div>
+    </div>
+    <div class="pnl">
+      <div class="ph"><div class="phb" style="background:var(--c)"></div><div class="pht">تقویم اقتصادی</div><div class="phs load" id="stEcon">—</div></div>
+      <div class="econ-list" id="econList"><div style="color:var(--t3);font-size:10px;text-align:center;padding:5px"><div class="spin"></div></div></div>
+    </div>
+    <div class="pnl" style="flex:1;padding-bottom:10px">
+      <div class="ph"><div class="phb" style="background:var(--g)"></div><div class="pht">تحلیل هوشمند</div><div class="phs load" id="stRsn">—</div></div>
+      <div class="rsn" id="rsnBox">در انتظار داده...</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- DEMO DRAWER -->
+<div class="demo-drawer" id="demoDrawer">
+
+  <!-- HEADER -->
+  <div class="dd-hdr">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.7</span>
+      <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div id="aiStatusDot" style="width:6px;height:6px;border-radius:50%;background:var(--t3)"></div>
+      <span id="aiStatusLabel" style="font-size:8px;color:var(--t3)">Internal</span>
+      <button id="ddCloseBtn" style="background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:22px;line-height:1;padding:0 4px">×</button>
+    </div>
+  </div>
+
+  <!-- HORIZONTAL TABS -->
+  <div style="display:flex;background:var(--bg2);border-bottom:2px solid var(--brd2);overflow-x:auto;flex-shrink:0">
+    <button data-tab="trade"    class="dd-tab dd-tab-active">💰 معامله</button>
+    <button data-tab="strategy" class="dd-tab">📋 استراتژی</button>
+    <button data-tab="ai"       class="dd-tab">🧠 AI</button>
+    <button data-tab="log"      class="dd-tab">📋 لاگ</button>
+    <button data-tab="report"   class="dd-tab">📊 گزارش</button>
+    <button data-tab="supervisor" class="dd-tab">🔭 Supervisor</button>
+  </div>
+
+  <!-- TAB PANELS -->
+  <div style="overflow-y:auto;flex:1">
+
+    <!-- TRADE -->
+    <div data-panel="trade" class="dd-panel">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--brd);margin-bottom:10px">
+        <div class="dd-stat"><div class="dd-stat-l">موجودی</div><div class="dd-stat-v" id="dBalance" style="color:var(--g)">$1,000</div></div>
+        <div class="dd-stat"><div class="dd-stat-l">P&L</div><div class="dd-stat-v" id="dTotalPnl">$0</div></div>
+        <div class="dd-stat">
+          <div class="dd-stat-l">مبلغ/معامله</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:1px">
+            <span style="color:var(--a);font-size:9px">$</span>
+            <input type="number" id="demoTradeAmount" value="100" min="1" step="10"
+              style="background:transparent;border:none;color:var(--a);font-family:monospace;font-size:12px;font-weight:900;width:55px;outline:none;text-align:center">
+          </div>
+        </div>
+        <div class="dd-stat"><div class="dd-stat-l">معاملات</div><div class="dd-stat-v" id="dTrades" style="color:var(--b)">0</div></div>
+        <div class="dd-stat"><div class="dd-stat-l">Win Rate</div><div class="dd-stat-v" id="dWR" style="color:var(--a)">—</div></div>
+        <div class="dd-stat"><div class="dd-stat-l">Profit Factor</div><div class="dd-stat-v" id="dPF" style="color:var(--p)">—</div></div>
+      </div>
+      <!-- Trading Mode selector -->
+      <div style="margin-bottom:8px">
+        <div style="font-size:8px;color:var(--t3);margin-bottom:4px;font-weight:600">حالت معاملاتی</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px">
+          <button id="mode-btn-PRECISION" onclick="setTradingMode('PRECISION')"
+            style="padding:6px 4px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;border:1px solid var(--brd2);background:transparent;color:var(--t3);font-family:var(--f);transition:all .2s">
+            🎯 دقیق
+          </button>
+          <button id="mode-btn-BALANCED" onclick="setTradingMode('BALANCED')"
+            style="padding:6px 4px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;border:1px solid var(--b);background:rgba(61,159,255,.15);color:var(--b);font-family:var(--f);transition:all .2s">
+            ⚖️ متوازن
+          </button>
+          <button id="mode-btn-SCALP" onclick="setTradingMode('SCALP')"
+            style="padding:6px 4px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;border:1px solid var(--brd2);background:transparent;color:var(--t3);font-family:var(--f);transition:all .2s">
+            ⚡ اسکالپ
+          </button>
+        </div>
+      </div>
+      <button id="autoTradeBtn" class="demo-btn" style="width:100%;padding:10px;font-size:12px;font-weight:900;margin-bottom:6px">🤖 Auto Trade: خاموش</button>
+      <button id="reverseModeBtn" onclick="toggleReverseMode()"
+        style="width:100%;padding:6px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--brd2);background:transparent;color:var(--t3);font-family:var(--f);margin-bottom:8px;transition:all .2s">
+        🔄 Reverse Mode: خاموش
+      </button>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px">
+        <button id="btn-charge1" class="demo-btn" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$1k</button>
+        <button id="btn-charge5" class="demo-btn" style="font-size:9px;color:var(--g);border-color:rgba(0,230,118,.4)">+$5k</button>
+        <button id="btn-analytics" class="demo-btn" style="font-size:9px;color:var(--p);border-color:rgba(206,147,216,.35)">📊 آنالیز</button>
+        <button id="btn-reset" class="demo-btn" style="font-size:9px;color:var(--r);border-color:rgba(255,63,95,.35)">↺ ریست</button>
+      </div>
+      <div style="font-size:8.5px;color:var(--a);font-weight:700;margin-bottom:6px">📂 پوزیشن‌های باز <span id="openPosCountBadge" style="color:var(--b)"></span></div>
+      <div id="demoNoPosMsg" style="font-size:9px;color:var(--t4);text-align:center;padding:8px">هیچ پوزیشن بازی ندارید</div>
+      <div id="demoOpenPosList" style="display:flex;flex-direction:column;gap:5px"></div>
+    </div>
+
+    <!-- STRATEGY -->
+    <div data-panel="strategy" class="dd-panel" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">
+        <div><div class="dd-inp-l">استراتژی</div>
+          <select id="atStrategy" class="dd-sel">
+            <option value="AUTO">🤖 هوشمند AUTO</option>
+            <option value="SMC">🧱 SMC کامل</option>
+            <option value="TREND">📈 Trend Following</option>
+            <option value="BREAKOUT">⚡ Breakout</option>
+            <option value="MEAN_REV">🔄 Mean Reversion</option>
+            <option value="GANN">⚖️ Gann + SMC</option>
+          </select></div>
+        <div><div class="dd-inp-l">روش SL</div>
+          <select id="atSLType" class="dd-sel">
+            <option value="auto">🤖 خودکار</option>
+            <option value="structural">📊 ساختاری</option>
+            <option value="sr">📐 حمایت/مقاومت</option>
+            <option value="atr">📏 ATR</option>
+            <option value="orderblock">🧱 Order Block</option>
+            <option value="candle">🕯 N کندل</option>
+            <option value="gann">⚖️ Gann</option>
+          </select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:7px">
+        <div><div class="dd-inp-l">ATR×SL</div><input type="number" id="atATRSL" value="1.5" step="0.1" min="0.5" max="5" class="dd-inp" style="color:var(--a)"></div>
+        <div><div class="dd-inp-l">ATR×TP</div><input type="number" id="atATRTP" value="3.0" step="0.1" min="1" max="10" class="dd-inp" style="color:var(--g)"></div>
+        <div><div class="dd-inp-l">Min R:R</div><input type="number" id="atMinRR" value="1.3" step="0.1" min="1" max="5" class="dd-inp" style="color:var(--a)"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px">
+        <div><div class="dd-inp-l" style="color:var(--r)">RSI BUY حداکثر</div><input type="number" id="atRSIBuy" value="65" step="1" min="40" max="80" class="dd-inp" style="color:var(--r);border-color:rgba(255,63,95,.3)"></div>
+        <div><div class="dd-inp-l" style="color:var(--g)">RSI SELL حداقل</div><input type="number" id="atRSISell" value="35" step="1" min="20" max="60" class="dd-inp" style="color:var(--g);border-color:rgba(0,230,118,.3)"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:7px;font-size:9px;color:var(--t2);cursor:pointer">
+        <input type="checkbox" id="atRequireEMA"> همسویی کامل EMA الزامی
+      </label>
+
+      <hr style="border:none;border-top:1px solid var(--brd2);margin:10px 0">
+
+      <!-- Variable settings -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+        <div>
+          <div class="dd-inp-l">اهرم (Leverage)</div>
+          <select id="leverageInput" class="dd-sel" style="color:var(--o)"
+            onchange="DEMO_CONFIG.leverage=parseInt(this.value);demoLog('⚠️ Leverage: '+this.value+'×')">
+            <option value="1">1× (بدون اهرم)</option>
+            <option value="2">2×</option>
+            <option value="3">3×</option>
+            <option value="5">5×</option>
+            <option value="10" selected>10×</option>
+            <option value="20">20×</option>
+            <option value="50">50×</option>
+            <option value="100">100×</option>
+          </select>
+        </div>
+        <div>
+          <div class="dd-inp-l">حداکثر پوزیشن همزمان</div>
+          <input type="number" id="maxPosInput" value="5" min="1" max="20" class="dd-inp" style="color:var(--b)"
+            oninput="DEMO_CONFIG.maxOpenPositions=parseInt(this.value)||5;demoLog('⚙️ حداکثر پوزیشن: '+this.value)">
+        </div>
+        <div>
+          <div class="dd-inp-l">فاصله AI (دقیقه)</div>
+          <select id="aiIntervalSel" class="dd-sel"
+            onchange="AI_CONFIG.aiIntervalMin=parseInt(this.value);demoLog('⏱ فاصله AI: '+this.value+' دقیقه')">
+            <option value="1">۱ دقیقه</option>
+            <option value="2">۲ دقیقه</option>
+            <option value="3" selected>۳ دقیقه (پیش‌فرض)</option>
+            <option value="5">۵ دقیقه</option>
+            <option value="10">۱۰ دقیقه</option>
+            <option value="15">۱۵ دقیقه</option>
+            <option value="30">۳۰ دقیقه</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Smart TP -->
+      <div style="background:var(--bg3);border:1px solid rgba(0,229,255,.2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--c)">🎯 Smart Trailing TP</div>
+          <button id="smartTPBtn" class="demo-btn" onclick="toggleSmartTP()"
+            style="font-size:8.5px;padding:2px 10px;color:var(--t3)">
+            🎯 Smart TP: خاموش
+          </button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+          <div>
+            <div class="dd-inp-l">حالت تحلیل</div>
+            <select id="smartTPMode" class="dd-sel"
+              onchange="SMART_TP.mode=this.value;demoLog('🎯 Smart TP حالت: '+this.options[this.selectedIndex].text)">
+              <option value="internal">⚙️ منطق داخلی (سریع)</option>
+              <option value="groq">⚡ Groq (دقیق‌تر)</option>
+            </select>
+          </div>
+          <div>
+            <div class="dd-inp-l">حداقل سود فعال‌سازی ($)</div>
+            <input type="number" id="smartTPMinProfit" value="1" min="0.1" max="50" step="0.5" class="dd-inp"
+              style="color:var(--g)" oninput="SMART_TP.minProfitToActivate=parseFloat(this.value)||1">
+          </div>
+        </div>
+        <div style="font-size:8px;color:var(--t3);line-height:1.8">
+          <div>🟢 <b>HOLD</b> — نگه داشتن (روند ادامه داره)</div>
+          <div>🔒 <b>LOCK</b> — TP رو نزدیک کن (سود محفوظ)</div>
+          <div>📈 <b>EXTEND</b> — TP رو ببر بالاتر (روند قوی)</div>
+          <div>❌ <b>CLOSE</b> — ببند (سیگنال برگشت قوی)</div>
+        </div>
+      </div>
+
+      <!-- Global SL + Smart SL + Full Scan -->
+      <div style="background:var(--bg3);border:1px solid rgba(200,160,40,.2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--gold);margin-bottom:6px">🔐 Smart SL + Global Controls</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+          <div>
+            <div class="dd-inp-l">Global Max Loss ($) هر معامله</div>
+            <input type="number" id="globalMaxLoss" value="10" min="1" max="1000" step="1" class="dd-inp"
+              style="color:var(--r)" oninput="DEMO_CONFIG.globalMaxLossUSD=parseFloat(this.value)||10;demoLog('🛑 Global SL: $'+this.value)">
+          </div>
+          <div>
+            <div class="dd-inp-l">Smart SL</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;cursor:pointer">
+                <input type="checkbox" id="smartSLToggle" checked onchange="SMART_SL.enabled=this.checked;demoLog('🔐 Smart SL: '+(this.checked?'ON':'OFF'))">
+                <span style="color:var(--gold)">Trailing Lock</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:8px;color:var(--t3);line-height:1.9">
+          <div>🔐 <b style="color:var(--gold)">$2 سود</b> → SL به Breakeven</div>
+          <div>🔐 <b style="color:var(--gold)">$4 سود</b> → Lock $2</div>
+          <div>🔐 <b style="color:var(--gold)">$6 سود</b> → Lock $4</div>
+          <div>🔐 <b style="color:var(--gold)">$10 سود</b> → Lock $7</div>
+        </div>
+      </div>
+
+      <!-- Full Market Scan -->
+      <div style="background:var(--bg3);border:1px solid rgba(200,160,40,.2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--gold)">🌐 Full Market Scan</div>
+          <button id="fullScanBtn" class="demo-btn" onclick="toggleFullScan()"
+            style="font-size:8.5px;padding:2px 10px;color:var(--t3)">🌐 Full Scan: خاموش</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+          <div>
+            <div class="dd-inp-l">تعداد top نمادها</div>
+            <input type="number" id="topNInput" value="20" min="5" max="60" class="dd-inp"
+              style="color:var(--gold)" oninput="FULL_SCAN.topN=parseInt(this.value)||20">
+          </div>
+          <div style="font-size:8px;color:var(--t3);padding-top:14px">
+            از ${FULL_SCAN.allSymbols?.length||60}+ نماد بهترین‌ها انتخاب می‌شن
+          </div>
+        </div>
+      </div>
+
+      <!-- Smart PM -->
+      <div style="background:var(--bg3);border:1px solid var(--brd2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--c)">🧹 Smart Position Manager</div>
+          <button id="smartPMBtn" class="demo-btn" onclick="toggleSmartPM()"
+            style="font-size:8.5px;padding:2px 10px;color:var(--t3)">
+            🧹 Smart PM: خاموش
+          </button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:8px">
+          <div>
+            <div class="dd-inp-l">چک هر (دقیقه)</div>
+            <input type="number" id="pmIntervalInput" value="5" min="1" max="60" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.intervalMin=parseInt(this.value)||5">
+          </div>
+          <div>
+            <div class="dd-inp-l">حداقل WR نگهداری (%)</div>
+            <input type="number" id="pmMinWR" value="55" min="30" max="90" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.minStratWR=parseInt(this.value)||55">
+          </div>
+          <div>
+            <div class="dd-inp-l">حداکثر سن (دقیقه)</div>
+            <input type="number" id="pmMaxAge" value="120" min="10" max="1440" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.maxAgeMin=parseInt(this.value)||120">
+          </div>
+          <div>
+            <div class="dd-inp-l">حداکثر ضرر برای بستن (%)</div>
+            <input type="number" id="pmMaxLoss" value="0.5" min="0.1" max="5" step="0.1" class="dd-inp" style="font-size:10px;padding:3px 5px"
+              oninput="SMART_PM.maxLossToKeep=-Math.abs(parseFloat(this.value)||0.5)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI -->
+    <div data-panel="ai" class="dd-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--p)">🧠 AI Engine</div>
+        <span id="aiCallCount" style="font-size:8px;color:var(--t3)">0 امروز</span>
+      </div>
+      <div style="margin-bottom:7px"><div class="dd-inp-l">منبع تحلیل</div>
+        <select id="aiProvider" class="dd-sel">
+          <option value="internal">⚙️ منطق داخلی (رایگان)</option>
+          <option value="gemini">✨ Gemini Flash (رایگان)</option>
+          <option value="groq">⚡ Groq Llama 70B (رایگان)</option>
+          <option value="openrouter">🌐 OpenRouter (رایگان)</option>
+          <option value="haiku">🤖 Claude Haiku</option>
+          <option value="sonnet">💎 Claude Sonnet</option>
+        </select></div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+        <div><div class="dd-inp-l">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
+          <input type="password" id="geminiKey" placeholder="AIza..." class="dd-inp"></div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <div class="dd-inp-l">Groq Keys — هر خط یک key (تا ۱۵ تا)</div>
+            <span id="groqKeyActive" style="color:var(--c);font-size:7.5px"></span>
+          </div>
+          <textarea id="groqKeysArea" placeholder="gsk_key1...&#10;gsk_key2...&#10;gsk_key3...&#10;(تا ۴۰ key — هر خط یک key)"
+            style="width:100%;background:rgba(10,8,4,.8);border:1px solid rgba(200,160,40,.2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:9px;padding:6px;outline:none;resize:vertical;min-height:120px;max-height:200px;direction:ltr"
+            oninput="parseGroqKeysFromTextarea()"></textarea>
+          <button onclick="parseGroqKeysFromTextarea()" style="margin-top:3px;padding:3px 10px;border-radius:3px;font-size:8.5px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">✓ اعمال</button>
+          <input type="hidden" id="groqKey"><input type="hidden" id="groqKey2">
+          <input type="hidden" id="groqKey3"><input type="hidden" id="groqKey4">
+          <input type="hidden" id="groqKey5">
+        </div>
+        <div><div class="dd-inp-l">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
+          <input type="password" id="openrouterKey" placeholder="sk-or-..." class="dd-inp"></div>
+        <div><div class="dd-inp-l">Anthropic Key</div>
+          <input type="password" id="claudeKey" placeholder="sk-ant-..." class="dd-inp"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+        <button id="btn-ai-save" class="demo-btn" style="color:var(--p);border-color:rgba(206,147,216,.4)">💾 ذخیره</button>
+        <button id="btn-ai-test" class="demo-btn" style="color:var(--b);border-color:rgba(61,159,255,.4)">🧪 تست اتصال</button>
+      </div>
+      <div style="font-size:7.5px;color:var(--t3);text-align:center">🔒 API key فقط در مرورگر ذخیره می‌شود</div>
+      <hr style="border:none;border-top:1px solid var(--brd2);margin:8px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <div style="font-size:9px;font-weight:700;color:var(--g)">🗄️ Supabase</div>
+        <div id="sbStatus" style="font-size:8px;color:var(--t3)">در حال اتصال...</div>
+      </div>
+      <div style="font-size:7.5px;color:var(--t3)">همه لاگ‌ها، معاملات و سیگنال‌ها ذخیره می‌شوند</div>
+      <hr style="border:none;border-top:1px solid var(--brd2);margin:10px 0">
+      <div style="font-size:9px;font-weight:700;color:var(--t3);margin-bottom:6px">🔗 MT4/MT5 Bridge</div>
+      <button id="bridgeBtn" class="demo-btn" style="width:100%;margin-bottom:6px;color:var(--t3)">🔗 Bridge: خاموش</button>
+      <div style="font-size:8.5px;color:var(--t2);line-height:2">
+        <div>۱. <b>python STB_Bridge.py</b> اجرا کن</div>
+        <div>۲. <b>EA_STBReceiver.mq4</b> در MT4 نصب کن</div>
+        <div>۳. دکمه Bridge → سبز = متصل</div>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div data-panel="log" class="dd-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:8.5px;color:var(--t3);font-weight:700">📋 لاگ زنده</div>
+        <button id="btn-copy-log" class="demo-btn" style="padding:2px 10px;font-size:8px">📋 کپی</button>
+      </div>
+      <div class="demo-log" id="demoLog" style="max-height:420px">— آماده —</div>
+    </div>
+
+    <!-- SUPERVISOR -->
+    <div data-panel="supervisor" class="dd-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--gold)">🔭 STB Supervisor</div>
+        <button id="supervisorBtn" onclick="toggleSupervisor()"
+          style="padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;cursor:pointer;border:1px solid var(--brd2);background:transparent;color:var(--t3);font-family:var(--f)">
+          🔭 Supervisor: خاموش
+        </button>
+      </div>
+      <div id="supervisorLog"
+        style="background:rgba(10,8,4,.8);border:1px solid rgba(200,160,40,.15);border-radius:6px;padding:8px;height:200px;overflow-y:auto;font-family:monospace">
+        <div style="color:var(--t3);font-size:9px;text-align:center;padding:20px 0">Supervisor خاموشه — روشن کن</div>
+      </div>
+      <div style="font-size:8px;color:var(--t3);margin-top:5px;text-align:center">
+        هر ۵ دقیقه با Groq وضعیت کل سیستم رو تحلیل می‌کنه
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div data-panel="report" class="dd-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--t3)">📊 گزارش مالی</div>
+        <button id="btn-export-report" class="demo-btn" style="padding:3px 10px;font-size:9px;color:var(--b);border-color:rgba(61,159,255,.4)">⬇ خروجی JSON</button>
+      </div>
+      <div id="reportContent"><div style="color:var(--t3);font-size:10px;text-align:center;padding:16px">هنوز معامله‌ای ثبت نشده</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST WRAP -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ENTER POSITION MODAL — Auto SL/TP from analysis, one-click confirm -->
+<div class="modal-bg" id="posModal" onclick="if(event.target===this)closePosModal()">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head">
+      <div class="modal-title" id="posModalTitle">تایید ورود به پوزیشن</div>
+      <button class="modal-close" onclick="closePosModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Signal preview -->
+      <div id="posSigPreview" style="border-radius:7px;padding:10px 12px;margin-bottom:12px;text-align:center;font-size:13px;font-weight:900;letter-spacing:.3px"></div>
+      <!-- Auto-filled cards from analysis -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+        <div style="background:var(--bg2);border:1px solid var(--brd2);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:8px;color:var(--t3);margin-bottom:3px">ورود</div>
+          <div style="font-size:13px;font-weight:900;font-family:monospace;color:var(--b)" id="posPreviewEntry">—</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid rgba(255,63,95,.3);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:8px;color:var(--t3);margin-bottom:3px">حد ضرر</div>
+          <div style="font-size:13px;font-weight:900;font-family:monospace;color:var(--r)" id="posPreviewSL">—</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid rgba(0,230,118,.3);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:8px;color:var(--t3);margin-bottom:3px">هدف سود</div>
+          <div style="font-size:13px;font-weight:900;font-family:monospace;color:var(--g)" id="posPreviewTP">—</div>
+        </div>
+      </div>
+      <!-- R:R and stats -->
+      <div style="background:var(--bg2);border:1px solid var(--brd2);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:10.5px">
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t3)">ریسک به ریوارد</span><span style="font-family:monospace;font-weight:700;color:var(--a)" id="posPreviewRR">—</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t3)">فاصله SL</span><span style="font-family:monospace;font-weight:700;color:var(--r)" id="posPreviewRisk">—</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t3)">فاصله TP</span><span style="font-family:monospace;font-weight:700;color:var(--g)" id="posPreviewReward">—</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t3)">وین‌ریت تخمینی</span><span style="font-family:monospace;font-weight:700;color:var(--a)" id="posPreviewWR">—</span></div>
+      </div>
+      <!-- Optional: adjust SL/TP -->
+            <div style="margin-bottom:10px">
+        <div style="font-size:9px;color:var(--t3);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">تنظیم دستی</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div>
+            <div style="font-size:8px;color:var(--t3);margin-bottom:3px">حجم (لات)</div>
+            <input class="field-inp" id="posSize" type="number" step="any" value="1" oninput="recalcPosPreview()" style="width:100%;background:var(--bg2);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:12px;font-weight:700;padding:6px 8px;outline:none">
+            <div style="font-size:8px;color:var(--a);margin-top:2px;font-family:monospace;text-align:center" id="posSizeDollar">—</div>
+          </div>
+          <div>
+            <div style="font-size:8px;color:var(--r);margin-bottom:3px">حد ضرر (SL)</div>
+            <input class="field-inp" id="posSLOverride" type="number" step="any" placeholder="پیش‌فرض" oninput="recalcPosPreview()" style="width:100%;background:var(--bg2);border:1px solid rgba(255,63,95,.3);border-radius:4px;color:var(--r);font-family:monospace;font-size:12px;font-weight:700;padding:6px 8px;outline:none">
+            <div style="font-size:8px;color:var(--t3);margin-top:2px;text-align:center">قابل تغییر</div>
+          </div>
+          <div>
+            <div style="font-size:8px;color:var(--g);margin-bottom:3px">هدف سود (TP)</div>
+            <input class="field-inp" id="posTPOverride" type="number" step="any" placeholder="پیش‌فرض" oninput="recalcPosPreview()" style="width:100%;background:var(--bg2);border:1px solid rgba(0,230,118,.3);border-radius:4px;color:var(--g);font-family:monospace;font-size:12px;font-weight:700;padding:6px 8px;outline:none">
+            <div style="font-size:8px;color:var(--t3);margin-top:2px;text-align:center">قابل تغییر</div>
+          </div>
+        </div>
+      </div>
+      <button class="confirm-btn buy" id="confirmBtn" onclick="confirmPos()" style="font-size:13px;padding:11px">✅ تایید و ورود به پوزیشن</button>
+      <div style="font-size:9px;color:var(--t3);text-align:center;margin-top:7px">الارم هوشمند فعال می‌شود · SL/TP روی چارت نمایش داده می‌شود</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ALARM PANEL MODAL -->
+<div class="modal-bg" id="alarmPanelModal" onclick="if(event.target===this)closeAlarmPanel()">
+  <div class="modal" style="width:min(96vw,560px);max-height:82vh;display:flex;flex-direction:column">
+    <div class="modal-head">
+      <div><div class="modal-title">🔔 اعلانات و لاگ معاملات</div><div style="font-size:9px;color:var(--t3)" id="alarmPanelSub">—</div></div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <button id="alarmTabBtn" onclick="switchAlarmTab('alarms')" style="font-size:9px;padding:3px 9px;border-radius:3px;border:1px solid var(--b);background:var(--bdim);color:var(--b);cursor:pointer;font-family:var(--f);font-weight:700">🔔 اعلانات</button>
+        <button id="logTabBtn" onclick="switchAlarmTab('log')" style="font-size:9px;padding:3px 9px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);font-weight:700">📋 لاگ</button>
+        <button onclick="copyAlarmData()" style="font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)" title="کپی به کلیپ‌بورد">📋 کپی</button>
+        <button onclick="clearAlarmLogs()" style="font-size:9px;padding:3px 8px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">پاک</button>
+        <button class="modal-close" onclick="closeAlarmPanel()">×</button>
+      </div>
+    </div>
+    <div id="alarmTab" style="overflow-y:auto;flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:5px">
+      <div style="color:var(--t3);font-size:11px;text-align:center;padding:20px;width:100%">هنوز الارمی ثبت نشده</div>
+    </div>
+    <div id="logTab" style="display:none;overflow-y:auto;flex:1;padding:10px 14px">
+      <div style="margin-bottom:8px;display:flex;gap:10px;font-size:10px;color:var(--t2);flex-wrap:wrap">
+        <span>معاملات: <b id="lt-total" style="color:var(--b)">0</b></span>
+        <span>برد: <b id="lt-wins" style="color:var(--g)">0</b></span>
+        <span>باخت: <b id="lt-losses" style="color:var(--r)">0</b></span>
+        <span>وین‌ریت: <b id="lt-wr" style="color:var(--a)">—</b></span>
+        <span>P&L: <b id="lt-pnl" style="color:var(--g)">$0</b></span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:9.5px">
+        <thead><tr style="border-bottom:1px solid var(--brd)">
+          <th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">نتیجه</th><th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">نماد</th><th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">جهت</th><th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">ورود</th><th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">خروج</th><th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">P&L</th><th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">R:R</th><th style="padding:3px;color:var(--t3);font-weight:600;text-align:right">زمان</th>
+        </tr></thead>
+        <tbody id="logTabBody"><tr><td colspan="8" style="text-align:center;padding:16px;color:var(--t3)">هنوز معامله‌ای بسته نشده</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD MODAL -->
+<div class="modal-bg" id="dashModal" onclick="if(event.target===this)closeDash()">
+  <div class="dash-modal">
+    <div class="dash-head">
+      <div><div class="dash-title">📊 داشبورد کامل</div><div class="dash-sub" id="dashSub">—</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:10px;color:var(--t3)">بروزرسانی بعدی: <span class="dash-countdown" id="dashCountdown">15</span>s</div>
+        <button class="modal-close" onclick="closeDash()">×</button>
+      </div>
+    </div>
+    <div style="overflow-y:auto;padding:11px 15px;flex:1">
+      <div class="dash-filters">
+        <button class="df-btn active" onclick="filterDash('all',this)">همه</button>
+        <button class="df-btn bf" onclick="filterDash('buy',this)">خرید</button>
+        <button class="df-btn sf" onclick="filterDash('sell',this)">فروش</button>
+        <button class="df-btn" onclick="filterDash('scalp',this)">اسکالپ</button>
+        <button class="df-btn" onclick="filterDash('swing',this)">سویینگ</button>
+        <button class="df-btn" onclick="filterDash('highwr',this)">وین‌ریت بالا</button>
+        <button class="df-btn" onclick="filterDash('haspos',this)">پوزیشن باز</button>
+        <button class="df-btn" onclick="refreshDash()" style="margin-right:auto">🔄</button>
+      </div>
+      <div class="dash-grid" id="dashGrid"></div>
+    </div>
+    <div class="dash-refresh-bar">آخرین بروزرسانی: <span id="dashLastUpdate">—</span> · خودکار هر ۱۵ ثانیه</div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- STB Modules — ترتیب مهمه -->
+<script src="config.js"></script>
+<script src="db.js"></script>
+<script src="signal.js"></script>
+<script src="ai.js"></script>
+<script src="trade.js"></script>
+<script src="data.js"></script>
+<script src="chart.js"></script>
+<script src="ui.js"></script>
+<script src="extra.js"></script>
+
+<!-- Init -->
+<script>
+'use strict';
+window.addEventListener('load',async()=>{
+  S.symbols=loadSyms();
+  S.active=S.symbols.find(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]))||S.symbols[0]||'BTCUSDT';
+
+  // Request notifications
+  if(Notification.permission==='default')Notification.requestPermission();
+  // Load AI config
+  loadAIConfig();
+  updateAIStatusUI();
+  initDemoDrawer();
+  initSupabase(); // Setup demo drawer events
+
+  renderChips();
+  switchChart(S.active);
+  setupChartInteraction();
+
+  // Symbar mousewheel
+  const sb=document.getElementById('symBar');
+  if(sb)sb.addEventListener('wheel',e=>{e.preventDefault();sb.scrollLeft+=e.deltaY*2;},{passive:false});
+
+  // Close dropdown on outside click
+  document.addEventListener('click',e=>{
+    const wrap=document.getElementById('addWrap');
+    if(wrap&&!wrap.contains(e.target))hideSug();
+  });
+
+  // Canvas resize observer — redraws when container size changes
+  const cv=document.getElementById('myChart');
+  if(cv&&window.ResizeObserver){
+    new ResizeObserver(()=>{
+      if(isCanvas(S.active)&&S.candles[S.active]?.length)drawChart(S.active);
+    }).observe(cv.parentElement);
+  }
+  window.addEventListener('resize',()=>{if(isCanvas(S.active))drawChart(S.active);});
+
+  connectWS();
+  for(const s of S.symbols)if(DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]))fetch24h(s);
+  await pollAV();
+  fetchCalendar();
+  fetchRSS();
+  await runAnalysis(S.active,S.mode);
+  // تحلیل نمادها با فاصله ۸ ثانیه (Groq rate limit safe)
+  setTimeout(async()=>{
+    const others=S.symbols.filter(s=>s!==S.active&&(DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s])));
+    for(let i=0;i<others.length;i++){
+      await new Promise(r=>setTimeout(r,i*8000)); // هر ۸ ثانیه یکی
+      runAnalysis(others[i],S.mode);
+    }
+  },3000);
+  setInterval(pollAV, 30000); // 30s interval
+  setInterval(()=>runAnalysis(S.active,S.mode),3*60*1000);
+  // تحلیل مجدد هر ۳ دقیقه — موازی
+  setInterval(async()=>{
+    const syms=S.symbols.filter(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')));
+    const BATCH=4;
+    for(let i=0;i<syms.length;i+=BATCH){
+      const batch=syms.slice(i,i+BATCH);
+      await Promise.all(batch.map(s=>runAnalysis(s,S.mode).catch(()=>{})));
+      if(i+BATCH<syms.length) await new Promise(r=>setTimeout(r,800));
+    }
+  },3*60*1000);
+  setInterval(fetchCalendar,10*60*1000);
+  setInterval(renderPosList,5000);
+  setInterval(()=>{if(isCanvas(S.active)&&S.candles[S.active]?.length)drawChart(S.active);},3000);
+  // Self-chart refresh every 3s for active crypto
+  setInterval(()=>{if((DB[S.active]?.src==='binance'||DB[S.active]?.src==='av')&&S.candles[S.active]?.length)drawChart(S.active);},3000);
+  // Resize handler
+  window.addEventListener('resize',()=>{if(DB[S.active]?.src==='binance'||DB[S.active]?.src==='av')drawChart(S.active);});
+  document.addEventListener('click',e=>{if(!document.getElementById('addWrap').contains(e.target))hideSug();});
+  // Sym-bar mousewheel horizontal scroll
+  document.getElementById('symBar').addEventListener('wheel',e=>{
+    e.preventDefault();
+    document.getElementById('symBar').scrollLeft += e.deltaY * 2;
+  },{passive:false});
+});
+</script>
+</script>
+
+<!-- ANALYTICS MODAL -->
+<div class="modal-bg" id="analyticsModal" onclick="if(event.target===this)closeAnalytics()">
+  <div class="modal" style="width:min(96vw,900px);max-height:90vh;display:flex;flex-direction:column">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">📊 آنالیتیکس پیشرفته</div>
+        <div style="font-size:9px;color:var(--t3)" id="analyticsSubtitle">—</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button onclick="exportJSON()" style="font-size:9px;padding:3px 9px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);font-weight:600">⬇ JSON</button>
+        <button onclick="exportCSV()" style="font-size:9px;padding:3px 9px;border-radius:3px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f);font-weight:600">⬇ CSV</button>
+        <button class="modal-close" onclick="closeAnalytics()">×</button>
+      </div>
+    </div>
+    <div class="mbody">
+      <!-- Period filter -->
+      <div class="period-tabs">
+        <button class="ptab active" onclick="setPeriod('all',this)">همه</button>
+        <button class="ptab" onclick="setPeriod('today',this)">امروز</button>
+        <button class="ptab" onclick="setPeriod('week',this)">هفته</button>
+        <button class="ptab" onclick="setPeriod('month',this)">ماه</button>
+        <button class="ptab" onclick="setPeriod('buy',this)">خرید</button>
+        <button class="ptab" onclick="setPeriod('sell',this)">فروش</button>
+        <button class="ptab" onclick="setPeriod('strong',this)">سیگنال قوی</button>
+      </div>
+      <!-- Key stats -->
+      <div class="analytics-grid" id="analyticsStats"></div>
+      <!-- Equity curve -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:9px;color:var(--t3);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">منحنی سرمایه (Equity Curve)</div>
+        <canvas class="equity-canvas" id="equityCanvas"></canvas>
+      </div>
+      <!-- Trade table -->
+      <div style="font-size:9px;color:var(--t3);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">تاریخچه معاملات</div>
+      <div style="overflow-y:auto;max-height:260px;border:1px solid var(--brd);border-radius:6px">
+        <table class="trade-table">
+          <thead><tr>
+            <th>نتیجه</th><th>نماد</th><th>جهت</th><th>سیگنال</th><th>ورود</th><th>خروج</th><th>R:R</th>
+            <th>P&L $</th><th>P&L %</th><th>کارمزد</th><th>مدت</th><th>زمان</th>
+          </tr></thead>
+          <tbody id="analyticsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
