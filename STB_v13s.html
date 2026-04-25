@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v16.6 · داده واقعی Twelve Data</title>
+<title>STB v16.7 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v16.6</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v16.7</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.6</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.7</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -726,12 +726,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
         <div><div class="dd-inp-l">Google AI Key <span style="color:var(--g)">(aistudio.google.com)</span></div>
           <input type="password" id="geminiKey" placeholder="AIza..." class="dd-inp"></div>
         <div>
-          <div class="dd-inp-l">Groq Keys <span style="color:var(--g)">(۵ تا — Round-Robin)</span> <span id="groqKeyActive" style="color:var(--c);font-size:7.5px"></span></div>
-          <input type="password" id="groqKey"  placeholder="gsk_... (key 1)" class="dd-inp" style="margin-bottom:4px">
-          <input type="password" id="groqKey2" placeholder="gsk_... (key 2)" class="dd-inp" style="margin-bottom:4px;margin-top:3px">
-          <input type="password" id="groqKey3" placeholder="gsk_... (key 3)" class="dd-inp" style="margin-bottom:4px;margin-top:3px">
-          <input type="password" id="groqKey4" placeholder="gsk_... (key 4)" class="dd-inp" style="margin-bottom:4px;margin-top:3px">
-          <input type="password" id="groqKey5" placeholder="gsk_... (key 5)" class="dd-inp" style="margin-top:3px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+            <div class="dd-inp-l">Groq Keys — هر خط یک key (تا ۱۵ تا)</div>
+            <span id="groqKeyActive" style="color:var(--c);font-size:7.5px"></span>
+          </div>
+          <textarea id="groqKeysArea" placeholder="gsk_key1...&#10;gsk_key2...&#10;gsk_key3..."
+            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:9px;padding:6px;outline:none;resize:vertical;min-height:90px;direction:ltr"
+            oninput="parseGroqKeysFromTextarea()"></textarea>
+          <button onclick="parseGroqKeysFromTextarea()" style="margin-top:3px;padding:3px 10px;border-radius:3px;font-size:8.5px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">✓ اعمال</button>
+          <input type="hidden" id="groqKey"><input type="hidden" id="groqKey2">
+          <input type="hidden" id="groqKey3"><input type="hidden" id="groqKey4">
+          <input type="hidden" id="groqKey5">
         </div>
         <div><div class="dd-inp-l">OpenRouter Key <span style="color:var(--g)">(openrouter.ai)</span></div>
           <input type="password" id="openrouterKey" placeholder="sk-or-..." class="dd-inp"></div>
@@ -1048,7 +1053,13 @@ const S = {
 // ═══════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════
-const dp = s => DB[s]?.dp||2;
+const dp = s => {
+  const p = S.prices?.[s]?.price || DB[s]?.price || 0;
+  if(p < 0.0001) return 8;
+  if(p < 0.01)   return 6;
+  if(p < 1)      return 4;
+  return DB[s]?.dp || 2;
+};
 function fmt(p,sym){if(p==null||isNaN(p))return'—';const n=+p,d=dp(sym);if(d<=1)return n.toLocaleString('en-US',{maximumFractionDigits:1});return n.toFixed(d);}
 const fmtPct = v => v==null?'—':(+v>=0?'+':'')+Number(v).toFixed(2)+'%';
 const fmtVol = v => {if(!v)return'—';const n=+v;if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return n.toFixed(0);};
@@ -2927,7 +2938,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.6';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.7';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3044,7 +3055,7 @@ function closeDemoPos(pos, exitPrice, reason) {
   if (trade.win) DEMO.strategyStats[sk].wins++;
   else DEMO.strategyStats[sk].losses++;
   DEMO.strategyStats[sk].pnl += netPnl;
-  DEMO.strategyStats[sk].totalR += (trade.rr||0);
+  DEMO.strategyStats[sk].totalR = (DEMO.strategyStats[sk].totalR||0) + (+trade.rr||0);
 
   updateDemoUI();
 
@@ -3350,9 +3361,11 @@ function renderDemoOpenPos(){
             <span style="font-size:9px;color:var(--t3);margin-right:2px">${progress.toFixed(0)}%</span>
           </div>
           <div style="display:flex;gap:4px;flex-wrap:wrap">
-            <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${hasSmartTP?'var(--g)':'var(--brd2)'};color:${hasSmartTP?'var(--g)':'var(--t4)'};cursor:pointer" onclick="SMART_TP.enabled=!SMART_TP.enabled;renderDemoOpenPos()">Smart TP</span>
-            <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${hasSmartPM?'var(--b)':'var(--brd2)'};color:${hasSmartPM?'var(--b)':'var(--t4)'};cursor:pointer" onclick="SMART_PM.enabled=!SMART_PM.enabled;renderDemoOpenPos()">Smart PM</span>
-            ${newsSignal?`<span style="font-size:8px;padding:1px 6px;border-radius:3px;background:rgba(255,179,0,.15);border:1px solid var(--a);color:var(--a)">📰 ${newsSignal}</span>`:''}
+            <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${pos.smartTP!==false&&(SMART_TP.enabled||pos.smartTP===true)?'var(--g)':'var(--brd2)'};color:${pos.smartTP!==false&&(SMART_TP.enabled||pos.smartTP===true)?'var(--g)':'var(--t4)'};cursor:pointer" 
+              onclick="togglePosSmartTP('${pos.signalId}')">Smart TP</span>
+            <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${pos.smartPM!==false&&(SMART_PM.enabled||pos.smartPM===true)?'var(--b)':'var(--brd2)'};color:${pos.smartPM!==false&&(SMART_PM.enabled||pos.smartPM===true)?'var(--b)':'var(--t4)'};cursor:pointer"
+              onclick="togglePosSmartPM('${pos.signalId}')">Smart PM</span>
+            ${newsSignal?'<span style="font-size:8px;padding:1px 6px;border-radius:3px;background:rgba(255,179,0,.15);border:1px solid var(--a);color:var(--a)">📰 '+newsSignal+'</span>':''}
           </div>
         </div>
         <div style="text-align:left">
@@ -3993,6 +4006,16 @@ async function callGemini(prompt){
 
 // ── GROQ API (رایگان — llama 70b) ──
 function getNextGroqKey(){
+  // Use all keys from textarea if available
+  const allKeys = (AI_CONFIG._allGroqKeys?.length>0)
+    ? AI_CONFIG._allGroqKeys
+    : ['groqKey','groqKey2','groqKey3','groqKey4','groqKey5'].map(k=>AI_CONFIG[k]).filter(k=>k&&k.length>10);
+  if(!allKeys.length) return null;
+  const idx = (AI_CONFIG._groqKeyIndex||0) % allKeys.length;
+  AI_CONFIG._groqKeyIndex = idx+1;
+  return allKeys[idx];
+}
+function getNextGroqKey_ORIG(){
   // Round-robin روی ۵ key
   const keys = [
     AI_CONFIG.groqKey, AI_CONFIG.groqKey2, AI_CONFIG.groqKey3,
@@ -4320,11 +4343,13 @@ function toggleSmartPM(){
 }
 
 function runSmartPM(){
-  if(!SMART_PM.enabled || !DEMO.openPositions.length) return;
+  if(!DEMO.openPositions.length) return;
   const now = Date.now();
   const toClose = [];
 
   for(const pos of DEMO.openPositions){
+    if(pos.smartPM===false) continue;
+    if(!SMART_PM.enabled && pos.smartPM!==true) continue;
     const pd = S.prices[pos.sym];
     const price = pd?.price || pos.entry;
     const pnl = pos.dir==='buy'
@@ -4715,8 +4740,10 @@ async function runSmartTPForPos(pos){
 
 // ── چرخه Smart TP ──
 function runSmartTP(){
-  if(!SMART_TP.enabled || !DEMO.openPositions.length) return;
+  if(!DEMO.openPositions.length) return;
   for(const pos of [...DEMO.openPositions]){
+    if(pos.smartTP===false) continue;
+    if(!SMART_TP.enabled && pos.smartTP!==true) continue;
     runSmartTPForPos(pos).catch(e=>console.warn('SmartTP error:', e));
   }
 }
@@ -4739,6 +4766,34 @@ function toggleSmartTP(){
     clearInterval(SMART_TP._timer);
     demoLog('⏹ Smart TP متوقف شد');
   }
+}
+
+function parseGroqKeysFromTextarea(){
+  const ta=document.getElementById('groqKeysArea');
+  if(!ta)return;
+  const lines=ta.value.split('\n').map(l=>l.trim()).filter(l=>l.length>15);
+  AI_CONFIG._allGroqKeys=lines;
+  ['groqKey','groqKey2','groqKey3','groqKey4','groqKey5'].forEach((k,i)=>{
+    AI_CONFIG[k]=lines[i]||'';
+  });
+  const el=document.getElementById('groqKeyActive');
+  if(el)el.textContent=`(${lines.length} key)`;
+  if(lines.length)demoLog(`⚡ ${lines.length} Groq key لود شد`);
+}
+
+function togglePosSmartTP(sigId){
+  const pos = DEMO.openPositions.find(p=>p.signalId===sigId);
+  if(!pos) return;
+  pos.smartTP = pos.smartTP===false ? true : false;
+  demoLog(`🎯 Smart TP [${sigId}]: ${pos.smartTP===false?'OFF':'ON'}`);
+  renderDemoOpenPos();
+}
+function togglePosSmartPM(sigId){
+  const pos = DEMO.openPositions.find(p=>p.signalId===sigId);
+  if(!pos) return;
+  pos.smartPM = pos.smartPM===false ? true : false;
+  demoLog(`🧹 Smart PM [${sigId}]: ${pos.smartPM===false?'OFF':'ON'}`);
+  renderDemoOpenPos();
 }
 
 function initDemoDrawer(){
@@ -4895,7 +4950,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v16.6',
+    version:'STB v16.7',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
