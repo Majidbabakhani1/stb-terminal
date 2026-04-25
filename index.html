@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v17.5 · داده واقعی Twelve Data</title>
+<title>STB v17.6 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -491,7 +491,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v17.5</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v17.6</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -608,7 +608,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.5</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.6</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -1250,7 +1250,17 @@ const setSt = (id,type,txt) => {const el=document.getElementById(id);if(el){el.c
 function isCanvas(sym){return DB[sym]?.src==='binance'||DB[sym]?.src==='av'||(sym.endsWith('USDT')&&!DB[sym]);}
 
 const saveSyms = () => {try{localStorage.setItem(STORAGE_KEY,JSON.stringify(S.symbols));}catch(e){}};
-const loadSyms = () => {try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(Array.isArray(s)&&s.length)return s;}catch(e){}return DEFAULT_SYMS;};
+const loadSyms = () => {
+  try{
+    const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if(Array.isArray(s)&&s.length){
+      // حذف فارکس از لیست قدیمی
+      const clean = s.filter(sym=>sym.endsWith('USDT')||sym.endsWith('BTC'));
+      if(clean.length) return clean;
+    }
+  }catch(e){}
+  return DEFAULT_SYMS;
+};
 
 // ═══════════════════════════════════════════
 // ALARM
@@ -1884,7 +1894,7 @@ async function runAnalysis(sym,mode){
     };
     S.analysis[sym]=analysisObj;
     // Auto-trade hook
-    if(DEMO._lastScanUpdate) DEMO._lastScanUpdate();
+    if(DEMO._lastScanUpdate) DEMO._lastScanUpdate(sym);
     if(sig!=='wait'&&price>0)checkAutoTrade(sym,analysisObj,price);
     if(isMine){
       renderSB(sym);
@@ -3121,7 +3131,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.5';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.6';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -5537,7 +5547,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v17.5',
+    version:'STB v17.6',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
