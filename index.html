@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v17.3 · داده واقعی Twelve Data</title>
+<title>STB v17.5 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -491,7 +491,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v17.3</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v17.5</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -608,7 +608,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.3</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.5</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -910,7 +910,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
         <div style="font-size:9px;font-weight:700;color:var(--g)">🗄️ Supabase</div>
         <div id="sbStatus" style="font-size:8px;color:var(--t3)">در حال اتصال...</div>
       </div>
-      <div style="font-size:7.5px;color:var(--t3)">معاملات و سیگنال‌های رد شده ذخیره می‌شوند</div>
+      <div style="font-size:7.5px;color:var(--t3)">همه لاگ‌ها، معاملات و سیگنال‌ها ذخیره می‌شوند</div>
       <hr style="border:none;border-top:1px solid var(--brd2);margin:10px 0">
       <div style="font-size:9px;font-weight:700;color:var(--t3);margin-bottom:6px">🔗 MT4/MT5 Bridge</div>
       <button id="bridgeBtn" class="demo-btn" style="width:100%;margin-bottom:6px;color:var(--t3)">🔗 Bridge: خاموش</button>
@@ -1206,7 +1206,14 @@ const SUGGESTIONS = [
   {sym:'ADAUSDT',label:'ADA · Cardano',cat:'Crypto'},
   {sym:'XRPUSDT',label:'XRP · Ripple',cat:'Crypto'},
 ];
-const DEFAULT_SYMS = ['EURUSD','XAUUSD','XAGUSD','BRNUSD','BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','ADAUSDT'];
+const DEFAULT_SYMS = [
+  // Major Crypto
+  'BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','ADAUSDT','DOGEUSDT',
+  // Alt Crypto
+  'LINKUSDT','AVAXUSDT','ARBUSDT','DOTUSDT','NEARUSDT','INJUSDT','SUIUSDT',
+  // Meme & Hot
+  'PEPEUSDT','BONKUSDT','WIFUSDT',
+];
 const STORAGE_KEY = 'stb_v8_syms';
 
 // ═══════════════════════════════════════════
@@ -3114,7 +3121,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.3';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.5';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3853,8 +3860,9 @@ function showSug(val){
     'GameFi':  ['AXSUSDT','SANDUSDT','MANAUSDT','GALAUSDT','APEUSDT','IMXUSDT'],
     'Meme':    ['SHIBUSDT','FLOKIUSDT','PEPEUSDT','BONKUSDT','WIFUSDT','MEMEUSDT','DOGSUSDT'],
     'Hot':     ['JUPUSDT','NOTUSDT','MOVEUSDT','VIRTUALUSDT','PYTHUSDT','ONDOUSDT','EIGENUSDT'],
-    'Forex':   ['EURUSD','GBPUSD','USDJPY','USDCHF','AUDUSD','USDCAD'],
-    'Metals':  ['XAUUSD','XAGUSD','BRNUSD'],
+    // Forex & Metals غیرفعال — در دست بررسی
+    // 'Forex': ['EURUSD',...],
+    // 'Metals': ['XAUUSD',...],
   };
 
   const LABELS = {
@@ -5529,7 +5537,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v17.3',
+    version:'STB v17.5',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
