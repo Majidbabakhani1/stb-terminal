@@ -5,6 +5,13 @@
 // نیاز دارد: config.js, signal.js, ui.js
 // ═══════════════════════════════════════════
 
+// ─── CHART STATE HELPERS ────────────────────────────────
+function getCS(sym){ return CHART_STATE[sym]||(CHART_STATE[sym]={zoom:1,offset:0}); }
+function gcs(sym)  { return getCS(sym); }
+function chartZoomIn() { const c=getCS(S.active);c.zoom=Math.min(10,c.zoom*1.3);if(isCanvas(S.active))drawChart(S.active); }
+function chartZoomOut(){ const c=getCS(S.active);c.zoom=Math.max(.15,c.zoom*.77);if(isCanvas(S.active))drawChart(S.active); }
+function chartReset()  { const c=getCS(S.active);c.zoom=1;c.offset=0;if(isCanvas(S.active))drawChart(S.active); }
+
 function drawChart(sym){
   const cv=document.getElementById('myChart');
   if(!cv)return;

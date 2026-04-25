@@ -901,13 +901,7 @@ function setTF(btn,tf){
   runAnalysis(S.active,S.mode);
 }
 
-// ═══════════════════════════════════════════════════════
-// CHART CONTROLS
-// ═══════════════════════════════════════════════════════
-function gcs(sym){return _cs[sym]||(_cs[sym]={zoom:1,offset:0});}
-function chartZoomIn(){const c=gcs(S.active);c.zoom=Math.min(10,c.zoom*1.3);if(isCanvas(S.active))drawChart(S.active);}
-function chartZoomOut(){const c=gcs(S.active);c.zoom=Math.max(.15,c.zoom*.77);if(isCanvas(S.active))drawChart(S.active);}
-function chartReset(){const c=gcs(S.active);c.zoom=1;c.offset=0;if(isCanvas(S.active))drawChart(S.active);}
+// chart controls (getCS/gcs/chartZoom* defined in chart.js)
 
 // ═══════════════════════════════════════════════════════
 // SOUND
