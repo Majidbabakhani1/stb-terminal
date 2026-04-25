@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v16.4 · داده واقعی Twelve Data</title>
+<title>STB v16.5 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -50,7 +50,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 .add-inp::placeholder{color:var(--t3);text-transform:none;font-weight:400}
 .add-btn{padding:4px 8px;border-radius:4px;background:var(--bdim);border:1px solid var(--b);color:var(--b);font-family:var(--f);font-size:10px;font-weight:700;cursor:pointer;transition:all .2s}
 .add-btn:hover{background:var(--b);color:#fff}
-.sug-drop{position:absolute;bottom:100%;right:0;margin-bottom:4px;background:var(--bg2);border:1px solid var(--brd2);border-radius:5px;z-index:200;min-width:170px;display:none;max-height:180px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.sug-drop{position:fixed;background:var(--bg2);border:1px solid var(--brd2);border-radius:5px;z-index:99999;min-width:220px;display:none;max-height:300px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.8)}
 .sug-drop.open{display:block}
 .sug-item{padding:6px 10px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s}
 .sug-item:hover{background:var(--brd2)}
@@ -381,7 +381,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v16.4</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v16.5</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -498,7 +498,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.4</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v16.5</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -2927,7 +2927,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.4';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v16.5';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3539,6 +3539,14 @@ function selSym(sym){
 
 function showSug(val){
   const box=document.getElementById('sugDrop');if(!box)return;
+  // Position dropdown below input
+  const inp=document.getElementById('addInp');
+  if(inp){
+    const rect=inp.getBoundingClientRect();
+    box.style.top=(rect.bottom+4)+'px';
+    box.style.right=(window.innerWidth-rect.right)+'px';
+    box.style.left='auto';
+  }
   const q=(val||'').trim().toUpperCase();
   const SUGS=[
     {sym:'EURUSD',lbl:'EUR/USD · یورو/دلار',cat:'Forex'},
@@ -4813,7 +4821,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v16.4',
+    version:'STB v16.5',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
@@ -5034,14 +5042,16 @@ window.addEventListener('load',async()=>{
   },3000);
   setInterval(pollAV, 30000); // 30s interval
   setInterval(()=>runAnalysis(S.active,S.mode),3*60*1000);
-  // تحلیل مجدد هر ۵ دقیقه با فاصله ۸ ثانیه بین نمادها
+  // تحلیل مجدد هر ۳ دقیقه — موازی
   setInterval(async()=>{
-    const syms=S.symbols.filter(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')&&!DB[s]));
-    for(let i=0;i<syms.length;i++){
-      await new Promise(r=>setTimeout(r,i*8000));
-      runAnalysis(syms[i],S.mode);
+    const syms=S.symbols.filter(s=>DB[s]?.src==='binance'||(s.endsWith('USDT')));
+    const BATCH=4;
+    for(let i=0;i<syms.length;i+=BATCH){
+      const batch=syms.slice(i,i+BATCH);
+      await Promise.all(batch.map(s=>runAnalysis(s,S.mode).catch(()=>{})));
+      if(i+BATCH<syms.length) await new Promise(r=>setTimeout(r,800));
     }
-  },5*60*1000);
+  },3*60*1000);
   setInterval(fetchCalendar,10*60*1000);
   setInterval(renderPosList,5000);
   setInterval(()=>{if(isCanvas(S.active)&&S.candles[S.active]?.length)drawChart(S.active);},3000);
