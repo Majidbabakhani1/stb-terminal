@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v17.1 · داده واقعی Twelve Data</title>
+<title>STB v17.2 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -491,7 +491,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v17.1</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v17.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -608,7 +608,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.1</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.2</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -3067,7 +3067,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.1';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.2';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3765,44 +3765,112 @@ function addSymDirect(sym){
 }
 
 function showSug(val){
-  const box=document.getElementById('sugDrop');if(!box)return;
-  // Position dropdown below input
+  const box=document.getElementById('sugDrop');
+  if(!box) return;
   const inp=document.getElementById('addInp');
   if(inp){
     const rect=inp.getBoundingClientRect();
     box.style.top=(rect.bottom+4)+'px';
     box.style.right=(window.innerWidth-rect.right)+'px';
     box.style.left='auto';
+    box.style.width='300px';
   }
   const q=(val||'').trim().toUpperCase();
-  const SUGS=[
-    {sym:'EURUSD',lbl:'EUR/USD · یورو/دلار',cat:'Forex'},
-    {sym:'GBPUSD',lbl:'GBP/USD · پوند',cat:'Forex'},
-    {sym:'USDJPY',lbl:'USD/JPY · ین',cat:'Forex'},
-    {sym:'XAUUSD',lbl:'XAU/USD · طلا',cat:'Commodities'},
-    {sym:'XAGUSD',lbl:'XAG/USD · نقره',cat:'Commodities'},
-    {sym:'BRNUSD',lbl:'BRN/USD · نفت',cat:'Commodities'},
-    {sym:'BTCUSDT',lbl:'BTC · Bitcoin',cat:'Crypto'},
-    {sym:'ETHUSDT',lbl:'ETH · Ethereum',cat:'Crypto'},
-    {sym:'BNBUSDT',lbl:'BNB',cat:'Crypto'},
-    {sym:'SOLUSDT',lbl:'SOL · Solana',cat:'Crypto'},
-    {sym:'ADAUSDT',lbl:'ADA · Cardano',cat:'Crypto'},
-    {sym:'XRPUSDT',lbl:'XRP · Ripple',cat:'Crypto'},
-    {sym:'DOGEUSDT',lbl:'DOGE',cat:'Crypto'},
-    {sym:'LINKUSDT',lbl:'LINK · Chainlink',cat:'Crypto'},
-    {sym:'AVAXUSDT',lbl:'AVAX',cat:'Crypto'},
-    {sym:'ARBUSDT',lbl:'ARB · Arbitrum',cat:'Crypto'},
-  ];
-  const catC={Crypto:'var(--b)',Forex:'var(--g)',Commodities:'var(--a)'};
-  const items=q?SUGS.filter(s=>s.sym.includes(q)||s.lbl.toUpperCase().includes(q)).slice(0,10):SUGS.slice(0,12);
-  if(!items.length){box.classList.remove('open');return;}
-  box.innerHTML=items.map(s=>{
-    const added=S.symbols.includes(s.sym);
-    return`<div class="sug-item" onclick="pickSug('${s.sym}')">
-      <div><span style="font-weight:700;color:var(--t1)">${s.lbl}</span>${added?' <span style="font-size:8px;color:var(--g)">✓</span>':''}</div>
-      <span style="font-size:7.5px;padding:1px 5px;border-radius:2px;background:rgba(0,0,0,.3);color:${catC[s.cat]||'var(--t3)'}">${s.cat}</span>
-    </div>`;
-  }).join('');
+
+  const CATS = {
+    'Major':   ['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','ADAUSDT','DOGEUSDT','TRXUSDT'],
+    'Layer 1': ['AVAXUSDT','DOTUSDT','ATOMUSDT','NEARUSDT','APTUSDT','SUIUSDT','TONUSDT','KASUSDT','ALGOUSDT','ICPUSDT'],
+    'Layer 2': ['MATICUSDT','ARBUSDT','OPUSDT','IMXUSDT','STRKUSDT','ZKUSDT'],
+    'DeFi':    ['UNIUSDT','AAVEUSDT','CRVUSDT','MKRUSDT','LDOUSDT','INJUSDT','RUNEUSDT','PENDLEUSDT','1INCHUSDT'],
+    'AI/Data': ['FETUSDT','AGIXUSDT','WLDUSDT','RNDRUSDT','GRTUSDT','TAOUSDT','OCEANUSDT'],
+    'GameFi':  ['AXSUSDT','SANDUSDT','MANAUSDT','GALAUSDT','APEUSDT','IMXUSDT'],
+    'Meme':    ['SHIBUSDT','FLOKIUSDT','PEPEUSDT','BONKUSDT','WIFUSDT','MEMEUSDT','DOGSUSDT'],
+    'Hot':     ['JUPUSDT','NOTUSDT','MOVEUSDT','VIRTUALUSDT','PYTHUSDT','ONDOUSDT','EIGENUSDT'],
+    'Forex':   ['EURUSD','GBPUSD','USDJPY','USDCHF','AUDUSD','USDCAD'],
+    'Metals':  ['XAUUSD','XAGUSD','BRNUSD'],
+  };
+
+  const LABELS = {
+    'BTCUSDT':'BTC · Bitcoin','ETHUSDT':'ETH · Ethereum','BNBUSDT':'BNB','SOLUSDT':'SOL · Solana',
+    'XRPUSDT':'XRP · Ripple','ADAUSDT':'ADA · Cardano','DOGEUSDT':'DOGE','TRXUSDT':'TRX · Tron',
+    'AVAXUSDT':'AVAX · Avalanche','DOTUSDT':'DOT · Polkadot','ATOMUSDT':'ATOM · Cosmos',
+    'NEARUSDT':'NEAR','APTUSDT':'APT · Aptos','SUIUSDT':'SUI','TONUSDT':'TON','KASUSDT':'KAS',
+    'MATICUSDT':'MATIC · Polygon','ARBUSDT':'ARB · Arbitrum','OPUSDT':'OP · Optimism',
+    'UNIUSDT':'UNI · Uniswap','AAVEUSDT':'AAVE','CRVUSDT':'CRV · Curve','LDOUSDT':'LDO · Lido',
+    'INJUSDT':'INJ · Injective','RUNEUSDT':'RUNE · THORChain',
+    'FETUSDT':'FET · Fetch.ai','AGIXUSDT':'AGIX · SingularityNET','WLDUSDT':'WLD · Worldcoin',
+    'RNDRUSDT':'RNDR · Render','GRTUSDT':'GRT · The Graph','TAOUSDT':'TAO · Bittensor',
+    'AXSUSDT':'AXS · Axie','SANDUSDT':'SAND · Sandbox','MANAUSDT':'MANA · Decentraland',
+    'SHIBUSDT':'SHIB · Shiba','FLOKIUSDT':'FLOKI','PEPEUSDT':'PEPE','BONKUSDT':'BONK',
+    'WIFUSDT':'WIF · dogwifhat','JUPUSDT':'JUP · Jupiter','NOTUSDT':'NOT','MOVEUSDT':'MOVE',
+    'EURUSD':'EUR/USD · یورو/دلار','GBPUSD':'GBP/USD · پوند','USDJPY':'USD/JPY · ین',
+    'XAUUSD':'XAU/USD · طلا','XAGUSD':'XAG/USD · نقره','BRNUSD':'BRN/USD · نفت',
+  };
+
+  const catColors = {
+    'Major':'#ffd700','Layer 1':'#c8a028','Layer 2':'#a07820',
+    'DeFi':'#00e676','AI/Data':'#00e5ff','GameFi':'#ce93d8',
+    'Meme':'#ff6d00','Hot':'#ff3f5f','Forex':'#4caf50','Metals':'#ffa726',
+  };
+
+  let html = '';
+
+  if(q){
+    // Search mode
+    const all = Object.values(CATS).flat();
+    const results = all.filter(s=>s.includes(q)||(LABELS[s]||'').toUpperCase().includes(q)).slice(0,15);
+    if(!results.length){
+      html = '<div style="padding:12px;text-align:center;color:var(--t3);font-size:10px">یافت نشد</div>';
+    } else {
+      html = results.map(s=>{
+        const added = S.symbols.includes(s);
+        const cat = Object.entries(CATS).find(([k,v])=>v.includes(s))?.[0]||'';
+        return `<div class="sug-item" data-sym="${s}">
+          <div>
+            <span style="font-weight:700;color:${added?'var(--g)':'var(--t1)'}">${LABELS[s]||s}</span>
+            ${added?'<span style="font-size:8px;color:var(--g);margin-right:3px">✓</span>':''}
+          </div>
+          <span style="font-size:7px;padding:1px 5px;border-radius:3px;border:1px solid ${catColors[cat]||'var(--brd2)'}33;color:${catColors[cat]||'var(--t3)'}">${cat}</span>
+        </div>`;
+      }).join('');
+    }
+  } else {
+    // Browse mode — grouped by category
+    for(const [cat, syms] of Object.entries(CATS)){
+      const available = syms.filter(s=>!S.symbols.includes(s));
+      const added = syms.filter(s=>S.symbols.includes(s));
+      if(available.length===0 && added.length===0) continue;
+      
+      html += `<div style="padding:5px 12px 3px;font-size:8px;font-weight:700;color:${catColors[cat]};
+        letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid ${catColors[cat]}22;
+        background:${catColors[cat]}08">${cat}</div>`;
+      
+      [...added, ...available].forEach(s=>{
+        const isAdded = S.symbols.includes(s);
+        html += `<div class="sug-item" data-sym="${s}" style="opacity:${isAdded?'0.5':'1'}">
+          <span style="font-weight:700;color:${isAdded?'var(--g)':'var(--t1)'}">${LABELS[s]||s.replace('USDT','')}</span>
+          ${isAdded?'<span style="font-size:9px;color:var(--g)">✓ added</span>':'<span style="font-size:9px;color:var(--t4)">+</span>'}
+        </div>`;
+      });
+    }
+  }
+
+  box.innerHTML = html;
+  
+  // Click handlers
+  box.querySelectorAll('.sug-item').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ if(!el.style.opacity||el.style.opacity!=='0.5') el.style.background='rgba(200,160,40,.1)'; });
+    el.addEventListener('mouseleave',()=>el.style.background='');
+    el.addEventListener('click',()=>{
+      const sym=el.getAttribute('data-sym');
+      if(!sym) return;
+      const inp=document.getElementById('addInp');
+      if(inp) inp.value=sym;
+      hideSug();
+      addSym();
+    });
+  });
+
   box.classList.add('open');
 }
 function hideSug(){setTimeout(()=>{const b=document.getElementById('sugDrop');if(b)b.classList.remove('open');},200);}
@@ -5207,7 +5275,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v17.1',
+    version:'STB v17.2',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
