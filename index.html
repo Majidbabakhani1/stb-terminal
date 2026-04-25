@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STB v17.2 · داده واقعی Twelve Data</title>
+<title>STB v17.3 · داده واقعی Twelve Data</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -491,7 +491,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
 <!-- TOPBAR -->
 <div class="top">
   <div class="logo">STB</div>
-  <div style="flex-shrink:0"><div class="brand-n">STB v17.2</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
+  <div style="flex-shrink:0"><div class="brand-n">STB v17.3</div><div class="brand-s">Alpha Vantage · Binance · AI</div></div>
   <div class="sym-bar" id="symBar"></div>
   <div class="add-wrap" id="addWrap">
     <input class="add-inp" id="addInp" placeholder="نماد..." maxlength="14"
@@ -608,7 +608,7 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
   <div class="dd-hdr">
     <div style="display:flex;align-items:center;gap:8px">
       <div id="demoAutoIndicator" style="width:8px;height:8px;border-radius:50%;background:var(--t3)"></div>
-      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.2</span>
+      <span style="font-size:11px;font-weight:900;color:#ff6d00">STB v17.3</span>
       <span id="demoStatus" style="font-size:8px;color:var(--t3)">آماده</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -784,6 +784,52 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
         </div>
       </div>
 
+      <!-- Global SL + Smart SL + Full Scan -->
+      <div style="background:var(--bg3);border:1px solid rgba(200,160,40,.2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--gold);margin-bottom:6px">🔐 Smart SL + Global Controls</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+          <div>
+            <div class="dd-inp-l">Global Max Loss ($) هر معامله</div>
+            <input type="number" id="globalMaxLoss" value="10" min="1" max="1000" step="1" class="dd-inp"
+              style="color:var(--r)" oninput="DEMO_CONFIG.globalMaxLossUSD=parseFloat(this.value)||10;demoLog('🛑 Global SL: $'+this.value)">
+          </div>
+          <div>
+            <div class="dd-inp-l">Smart SL</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:4px;font-size:9px;cursor:pointer">
+                <input type="checkbox" id="smartSLToggle" checked onchange="SMART_SL.enabled=this.checked;demoLog('🔐 Smart SL: '+(this.checked?'ON':'OFF'))">
+                <span style="color:var(--gold)">Trailing Lock</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:8px;color:var(--t3);line-height:1.9">
+          <div>🔐 <b style="color:var(--gold)">$2 سود</b> → SL به Breakeven</div>
+          <div>🔐 <b style="color:var(--gold)">$4 سود</b> → Lock $2</div>
+          <div>🔐 <b style="color:var(--gold)">$6 سود</b> → Lock $4</div>
+          <div>🔐 <b style="color:var(--gold)">$10 سود</b> → Lock $7</div>
+        </div>
+      </div>
+
+      <!-- Full Market Scan -->
+      <div style="background:var(--bg3);border:1px solid rgba(200,160,40,.2);border-radius:6px;padding:8px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--gold)">🌐 Full Market Scan</div>
+          <button id="fullScanBtn" class="demo-btn" onclick="toggleFullScan()"
+            style="font-size:8.5px;padding:2px 10px;color:var(--t3)">🌐 Full Scan: خاموش</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+          <div>
+            <div class="dd-inp-l">تعداد top نمادها</div>
+            <input type="number" id="topNInput" value="20" min="5" max="60" class="dd-inp"
+              style="color:var(--gold)" oninput="FULL_SCAN.topN=parseInt(this.value)||20">
+          </div>
+          <div style="font-size:8px;color:var(--t3);padding-top:14px">
+            از ${FULL_SCAN.allSymbols?.length||60}+ نماد بهترین‌ها انتخاب می‌شن
+          </div>
+        </div>
+      </div>
+
       <!-- Smart PM -->
       <div style="background:var(--bg3);border:1px solid var(--brd2);border-radius:6px;padding:8px;margin-bottom:8px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -841,8 +887,8 @@ body{background:var(--bg0)!important;color:var(--t1)!important}
             <div class="dd-inp-l">Groq Keys — هر خط یک key (تا ۱۵ تا)</div>
             <span id="groqKeyActive" style="color:var(--c);font-size:7.5px"></span>
           </div>
-          <textarea id="groqKeysArea" placeholder="gsk_key1...&#10;gsk_key2...&#10;gsk_key3..."
-            style="width:100%;background:var(--bg3);border:1px solid var(--brd2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:9px;padding:6px;outline:none;resize:vertical;min-height:90px;direction:ltr"
+          <textarea id="groqKeysArea" placeholder="gsk_key1...&#10;gsk_key2...&#10;gsk_key3...&#10;(تا ۴۰ key — هر خط یک key)"
+            style="width:100%;background:rgba(10,8,4,.8);border:1px solid rgba(200,160,40,.2);border-radius:4px;color:var(--t1);font-family:monospace;font-size:9px;padding:6px;outline:none;resize:vertical;min-height:120px;max-height:200px;direction:ltr"
             oninput="parseGroqKeysFromTextarea()"></textarea>
           <button onclick="parseGroqKeysFromTextarea()" style="margin-top:3px;padding:3px 10px;border-radius:3px;font-size:8.5px;border:1px solid var(--brd2);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--f)">✓ اعمال</button>
           <input type="hidden" id="groqKey"><input type="hidden" id="groqKey2">
@@ -2686,8 +2732,9 @@ const DEMO_CONFIG = {
   initialBalance: 1000,   // Start with $1,000 as requested
   tradeAmount: 100,       // Default $100 per trade (configurable)
   trailActivePct: 0.5,    // Activate trailing at 50% of TP
-  trailDistance: 0.5,     // Trail distance = 50% of initial SL
-  leverage: 10,             // اهرم معاملاتی
+  trailDistance: 0.5,
+  leverage: 10,
+  globalMaxLossUSD: 10,    // حداکثر ضرر هر معامله به دلار             // اهرم معاملاتی
   maxOpenPositions: 5,    // Max simultaneous (قابل تغییر در UI)
   cooldownMs: 60000,      // 1 min cooldown per symbol after trade
 };
@@ -3067,7 +3114,7 @@ function openDemoPos(sym, sigResult, price) {
 
   // Strategy name
   // Update version in panel
-  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.2';
+  const _pt=document.getElementById('demoPanelTitle');if(_pt)_pt.textContent='STB v17.3';
   // اسم استراتژی واقعی
   const _stratKey = sigResult.strategy || AT_SETTINGS?.strategy || 'AUTO';
   const _modeIcon = ACTIVE_MODE==='PRECISION'?'🎯':ACTIVE_MODE==='SCALP'?'⚡':'⚖️';
@@ -3216,6 +3263,8 @@ function monitorDemoPos(sym, price) {
   for (const pos of positions) {
     const { dir, sl, tp } = pos;
 
+    // Smart SL update
+    updateSmartSL(pos, price);
     // Update max advance (pip tracking)
     const adv = dir === 'buy' ? price - pos.entry : pos.entry - price;
     const adverse = dir === 'buy' ? pos.entry - price : price - pos.entry;
@@ -3244,6 +3293,17 @@ function monitorDemoPos(sym, price) {
 
     const effectiveSL = pos.trailingActive ? pos.trailingSL : pos.sl;
 
+    // ── GLOBAL SL CHECK (dollar-based) ──
+    if(DEMO_CONFIG.globalMaxLossUSD > 0){
+      const lossUSD = (dir==='buy'
+        ? (pos.entry-price)/pos.entry
+        : (price-pos.entry)/pos.entry) * pos.tradeAmount * (pos.leverage||1);
+      if(lossUSD >= DEMO_CONFIG.globalMaxLossUSD){
+        demoLog(`🛑 Global SL [${pos.signalId}] ضرر $${lossUSD.toFixed(2)} ≥ $${DEMO_CONFIG.globalMaxLossUSD}`);
+        closeDemoPos(pos, price, 'GlobalSL');
+        continue;
+      }
+    }
     // ── LIQUIDATION CHECK (اول از همه) ──
     if(pos.liqPrice && pos.leverage > 1){
       if((dir==='buy' && price <= pos.liqPrice) || (dir==='sell' && price >= pos.liqPrice)){
@@ -3274,9 +3334,14 @@ function checkAutoTrade(sym, sigResult, price) {
   if (!DEMO.autoOn) return;
   if (!sigResult || sigResult.sig==='wait') return;
 
-  // فقط Binance کریپتو
+  // فقط کریپتو Binance — فارکس فقط تحلیل
   const src = DB[sym]?.src||'';
-  if(src!=='binance' && !(sym.endsWith('USDT'))) return;
+  if(src==='av' || src==='tv') return;
+  if(src!=='binance' && !sym.endsWith('USDT')) return;
+  // Full scan filter — اگه فعاله فقط top N نماد
+  if(FULL_SCAN.enabled && FULL_SCAN._activeSyms?.length){
+    if(!FULL_SCAN._activeSyms.includes(sym)) return;
+  }
 
   // Strength check
   if(sigResult.strength !== 'strong') return;
@@ -3490,6 +3555,8 @@ function renderDemoOpenPos(){
             <span style="font-size:9px;color:var(--t3);margin-right:2px">${progress.toFixed(0)}%</span>
           </div>
           <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <span style="font-size:8px;padding:1px 5px;border-radius:3px;border:1px solid ${SMART_SL.enabled&&pos.smartSL!==false?'var(--gold)':'var(--brd2)'};color:${SMART_SL.enabled&&pos.smartSL!==false?'var(--gold)':'var(--t4)'};cursor:pointer"
+              onclick="(()=>{const p=DEMO.openPositions.find(x=>x.signalId==='${pos.signalId}');if(p){p.smartSL=p.smartSL===false?true:false;}renderDemoOpenPos();})()">Smart SL</span>
             <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${pos.smartTP!==false&&(SMART_TP.enabled||pos.smartTP===true)?'var(--g)':'var(--brd2)'};color:${pos.smartTP!==false&&(SMART_TP.enabled||pos.smartTP===true)?'var(--g)':'var(--t4)'};cursor:pointer" 
               onclick="togglePosSmartTP('${pos.signalId}')">Smart TP</span>
             <span style="font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid ${pos.smartPM!==false&&(SMART_PM.enabled||pos.smartPM===true)?'var(--b)':'var(--brd2)'};color:${pos.smartPM!==false&&(SMART_PM.enabled||pos.smartPM===true)?'var(--b)':'var(--t4)'};cursor:pointer"
@@ -5011,7 +5078,7 @@ function togglePosSmartPM(sigId){
 // ══════════════════════════════════════════════════════════
 const SUPERVISOR = {
   enabled: false,
-  intervalMs: 5 * 60000,  // هر ۵ دقیقه
+  intervalMs: 1 * 60000,  // هر ۱ دقیقه
   _timer: null,
   _log: [],
   maxLog: 50,
@@ -5078,7 +5145,8 @@ Analyze the situation and provide:
 Respond in Persian, maximum 4 short sentences total. Be direct and actionable.`;
 
   try{
-    const key = allKeys[Math.floor(Math.random()*allKeys.length)];
+    // Use a dedicated key for supervisor (last key in list)
+  const key = allKeys[allKeys.length-1] || allKeys[0];
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
@@ -5119,6 +5187,192 @@ function toggleSupervisor(){
     clearInterval(SUPERVISOR._timer);
     supervisorLog('⏹ Supervisor متوقف شد');
   }
+}
+
+// ── SMART SL — Trailing Stop Dynamic ──
+const SMART_SL = {
+  enabled: true,
+  steps: [
+    {profitUSD: 2,  lockUSD: 0},   // $2 سود → SL به entry (breakeven)
+    {profitUSD: 4,  lockUSD: 2},   // $4 سود → lock $2
+    {profitUSD: 6,  lockUSD: 4},   // $6 سود → lock $4
+    {profitUSD: 10, lockUSD: 7},   // $10 سود → lock $7
+    {profitUSD: 15, lockUSD: 11},  // $15 سود → lock $11
+    {profitUSD: 20, lockUSD: 15},  // $20 سود → lock $15
+  ],
+};
+
+function updateSmartSL(pos, price){
+  if(!SMART_SL.enabled) return;
+  if(pos.smartSL === false) return;
+
+  const dir = pos.dir;
+  const pnlPct = dir==='buy'
+    ? (price-pos.entry)/pos.entry*100
+    : (pos.entry-price)/pos.entry*100;
+  const profitUSD = pnlPct/100 * pos.tradeAmount * (pos.leverage||1);
+
+  // پیدا کن بالاترین step که رسیدیم
+  let bestStep = null;
+  for(const step of SMART_SL.steps){
+    if(profitUSD >= step.profitUSD) bestStep = step;
+  }
+  if(!bestStep) return;
+
+  // محاسبه SL جدید بر اساس lock amount
+  const lockPct = bestStep.lockUSD / (pos.tradeAmount * (pos.leverage||1));
+  const newSL = dir==='buy'
+    ? pos.entry * (1 + lockPct)
+    : pos.entry * (1 - lockPct);
+
+  // فقط اگه SL جدید بهتر از SL فعلیه (در جهت سود)
+  const currentSL = pos.trailingSL || pos.sl;
+  const shouldUpdate = dir==='buy'
+    ? newSL > currentSL
+    : newSL < currentSL;
+
+  if(shouldUpdate){
+    const oldSL = pos.trailingSL || pos.sl;
+    pos.trailingSL = newSL;
+    pos.trailingActive = true;
+    if(bestStep.lockUSD === 0){
+      demoLog(`🛡 SmartSL [${pos.signalId}] Breakeven @ ${fmt(newSL,pos.sym)} | سود $${profitUSD.toFixed(2)} محفوظ`);
+    } else {
+      demoLog(`🔐 SmartSL [${pos.signalId}] Lock $${bestStep.lockUSD} | SL: ${fmt(oldSL,pos.sym)}→${fmt(newSL,pos.sym)}`);
+    }
+    renderDemoOpenPos();
+  }
+}
+
+// ── FULL MARKET SCAN ──
+const FULL_SCAN = {
+  enabled: false,
+  topN: 20,           // تعداد بهترین نمادها برای ترید
+  scanInterval: 180000, // هر ۳ دقیقه اسکن کامل
+  _scores: {},        // score هر نماد
+  _timer: null,
+  // لیست کامل Binance
+  allSymbols: [
+    'BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','ADAUSDT','DOGEUSDT','TRXUSDT',
+    'AVAXUSDT','DOTUSDT','ATOMUSDT','NEARUSDT','APTUSDT','SUIUSDT','TONUSDT','KASUSDT',
+    'MATICUSDT','ARBUSDT','OPUSDT','IMXUSDT','STRKUSDT','INJUSDT','RUNEUSDT',
+    'UNIUSDT','AAVEUSDT','CRVUSDT','MKRUSDT','LDOUSDT','PENDLEUSDT',
+    'FETUSDT','AGIXUSDT','WLDUSDT','RNDRUSDT','GRTUSDT','TAOUSDT',
+    'LINKUSDT','FILUSDT','LTCUSDT','ETCUSDT','XLMUSDT',
+    'AXSUSDT','SANDUSDT','MANAUSDT','GALAUSDT','APEUSDT',
+    'SHIBUSDT','FLOKIUSDT','PEPEUSDT','BONKUSDT','WIFUSDT',
+    'JUPUSDT','NOTUSDT','MOVEUSDT','VIRTUALUSDT','EIGENUSDT',
+    'ALGOUSDT','ICPUSDT','VETUSDT','EGLDUSDT','STXUSDT',
+    'BNXUSDT','ARKMUSDT','TIAUSDT','SEIUSDT','WUSDT',
+  ],
+};
+
+async function runFullMarketScan(){
+  if(!FULL_SCAN.enabled) return;
+  supervisorLog('🔭 اسکن کامل ' + FULL_SCAN.allSymbols.length + ' نماد...');
+  
+  const allKeys = AI_CONFIG._allGroqKeys?.length>0
+    ? AI_CONFIG._allGroqKeys
+    : [AI_CONFIG.groqKey].filter(k=>k&&k.length>10);
+  
+  const scores = {};
+  
+  // اسکن موازی — هر نماد با key جداگانه
+  const BATCH = Math.min(allKeys.length, 10);
+  for(let i=0; i<FULL_SCAN.allSymbols.length; i+=BATCH){
+    const batch = FULL_SCAN.allSymbols.slice(i, i+BATCH);
+    await Promise.all(batch.map(async(sym, j)=>{
+      try{
+        // فقط کندل‌های M5 رو بگیر برای سرعت
+        const candles = await getBinanceCandles(sym,'5m',30).catch(()=>[]);
+        if(!candles.length) return;
+        
+        // محاسبه سریع score
+        const price = candles[candles.length-1]?.c||0;
+        if(!price) return;
+        
+        // RSI سریع
+        const closes = candles.map(c=>c.c);
+        const rsi = +calcRSI(closes)||50;
+        
+        // Momentum: آخرین ۵ کندل
+        const last5 = candles.slice(-5);
+        const bullCount = last5.filter(c=>c.c>c.o).length;
+        const momentum = (bullCount - (5-bullCount)) * 10; // -50 to +50
+        
+        // Volume surge
+        const vols = candles.slice(-20).map(c=>c.v);
+        const avgVol = vols.slice(0,-1).reduce((a,b)=>a+b,0)/vols.length;
+        const volSurge = vols[vols.length-1] > avgVol * 1.5;
+        
+        // Range position
+        const highs = candles.map(c=>c.h);
+        const lows = candles.map(c=>c.l);
+        const rHigh = Math.max(...highs);
+        const rLow = Math.min(...lows);
+        const rangePct = rHigh>rLow ? (price-rLow)/(rHigh-rLow) : 0.5;
+        
+        // Score: RSI extremes + momentum + volume
+        let score = 0;
+        if(rsi < 30) score += 3; // oversold → buy opportunity
+        else if(rsi > 70) score += 3; // overbought → sell opportunity
+        if(Math.abs(momentum) > 20) score += 2;
+        if(volSurge) score += 2;
+        if(rangePct < 0.2 || rangePct > 0.8) score += 1; // near extremes
+        
+        scores[sym] = {score, price, rsi, momentum, volSurge, rangePct};
+        
+        // Store price
+        if(!S.prices[sym]) S.prices[sym] = {price, src:'binance'};
+        if(!S.candles[sym]) S.candles[sym] = candles;
+        
+      }catch(e){}
+    }));
+    if(i+BATCH < FULL_SCAN.allSymbols.length)
+      await new Promise(r=>setTimeout(r,300));
+  }
+  
+  FULL_SCAN._scores = scores;
+  
+  // پیدا کن top N نماد
+  const sorted = Object.entries(scores)
+    .sort((a,b)=>b[1].score-a[1].score)
+    .slice(0, FULL_SCAN.topN);
+  
+  supervisorLog(`📊 Top ${FULL_SCAN.topN}: ${sorted.map(([s,v])=>s.replace('USDT','')+'('+v.score+')').slice(0,5).join(', ')}...`);
+  
+  // فقط این نمادها رو برای auto trade فعال کن
+  FULL_SCAN._activeSyms = sorted.map(([s])=>s);
+}
+
+function toggleFullScan(){
+  FULL_SCAN.enabled = !FULL_SCAN.enabled;
+  const btn = document.getElementById('fullScanBtn');
+  if(btn){
+    btn.style.background = FULL_SCAN.enabled?'rgba(200,160,40,.15)':'transparent';
+    btn.style.color = FULL_SCAN.enabled?'var(--gold)':'var(--t3)';
+    btn.style.borderColor = FULL_SCAN.enabled?'var(--gold)':'var(--brd2)';
+    btn.textContent = '🌐 Full Scan: ' + (FULL_SCAN.enabled?'روشن':'خاموش');
+  }
+  if(FULL_SCAN.enabled){
+    clearInterval(FULL_SCAN._timer);
+    FULL_SCAN._timer = setInterval(runFullMarketScan, FULL_SCAN.scanInterval);
+    runFullMarketScan();
+    demoLog('🌐 Full Market Scan فعال — اسکن ' + FULL_SCAN.allSymbols.length + ' نماد');
+  } else {
+    clearInterval(FULL_SCAN._timer);
+    FULL_SCAN._activeSyms = null;
+    demoLog('⏹ Full Scan متوقف شد');
+  }
+}
+
+// Helper: get Binance candles
+async function getBinanceCandles(sym, interval, limit){
+  const url = `https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${interval}&limit=${limit}`;
+  const r = await fetch(url, {signal: AbortSignal.timeout(5000)});
+  if(!r.ok) throw new Error('Binance '+r.status);
+  const data = await r.json();
+  return data.map(k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]}));
 }
 
 function initDemoDrawer(){
@@ -5275,7 +5529,7 @@ function exportReport(){
   const trades=DEMO.trades||[];
   const report={
     generated:new Date().toISOString(),
-    version:'STB v17.2',
+    version:'STB v17.3',
     summary:{
       initialBalance: DEMO.initialBalance,
       finalBalance: +DEMO.balance.toFixed(4),
@@ -5439,8 +5693,15 @@ async function sbInit(){
   if(test !== null){
     demoLog('✅ Supabase متصل شد | جلسه: ' + SB.sessionId);
     await sbLoadTrades();
+    // Check if logs table exists
+    const testLog = await sbReq('GET','logs',null,'?limit=1');
+    if(testLog !== null){
+      await sbLoadLogs();
+    } else {
+      demoLog('⚠️ جدول logs در Supabase نیست — بساز: CREATE TABLE logs (id bigserial PRIMARY KEY, session_id text, message text, created_at timestamptz DEFAULT now()); ALTER TABLE logs ENABLE ROW LEVEL SECURITY; CREATE POLICY "allow all" ON logs FOR ALL USING (true) WITH CHECK (true);');
+    }
   } else {
-    demoLog('⚠️ Supabase: جدول trades وجود ندارد — باید در Supabase بسازی');
+    demoLog('⚠️ Supabase: جدول trades وجود ندارد');
     SB.enabled = false;
   }
 }
