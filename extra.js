@@ -1076,3 +1076,4 @@ function exportReport(){
   a.download='STB_Report_'+new Date().toISOString().slice(0,10)+'.json';a.click();
   demoLog('📤 گزارش export شد');
 }
+
