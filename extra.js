@@ -337,15 +337,17 @@ let _calTimer = null;
 async function fetchCalendar(){
   document.getElementById('newsSpn').style.display='inline-block';
   setSt('stEcon','load','دریافت...');
+  const CAL_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
   const proxies=[
-    'https://api.allorigins.win/get?url='+encodeURIComponent('https://nfs.faireconomy.media/ff_calendar_thisweek.json'),
-    'https://corsproxy.io/?'+encodeURIComponent('https://nfs.faireconomy.media/ff_calendar_thisweek.json'),
-    'https://thingproxy.freeboard.io/fetch/https://nfs.faireconomy.media/ff_calendar_thisweek.json',
-  ];
+    (typeof CORS_PROXY!=='undefined' ? CORS_PROXY+'?url='+encodeURIComponent(CAL_URL) : null),
+    'https://api.allorigins.win/get?url='+encodeURIComponent(CAL_URL),
+    'https://corsproxy.io/?'+encodeURIComponent(CAL_URL),
+  ].filter(Boolean);
   let evts=null;
   for(const url of proxies){
     try{
-      const r=await fetch(url,{signal:AbortSignal.timeout(7000)});
+      const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
+      if(!r.ok) continue;
       const j=await r.json();
       const raw=j.contents?JSON.parse(j.contents):j;
       if(Array.isArray(raw)&&raw.length>0){evts=raw;break;}
@@ -1074,4 +1076,3 @@ function exportReport(){
   a.download='STB_Report_'+new Date().toISOString().slice(0,10)+'.json';a.click();
   demoLog('📤 گزارش export شد');
 }
-
