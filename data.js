@@ -8,7 +8,7 @@
 // ─── CORS PROXY CONFIG ───────────────────────────────
 // آدرس Cloudflare Worker خودت رو اینجا بذار بعد از deploy
 // مثال: 'https://stb-proxy.YOUR-NAME.workers.dev'
-const CORS_PROXY = 'https://stb-proxy.majidbabakhani1.workers.dev';
+const CORS_PROXY = 'https://stb-cors.majid-babakhani.workers.dev';
 
 // تابع کمکی برای fetch از طریق proxy
 async function proxyFetch(url, timeout = 8000) {
